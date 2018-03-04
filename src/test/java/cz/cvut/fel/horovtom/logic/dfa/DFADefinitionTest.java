@@ -5,12 +5,16 @@ import cz.cvut.fel.horovtom.logic.abstracts.Automaton;
 import cz.cvut.fel.horovtom.tools.Utilities;
 import org.junit.Test;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
+import java.io.*;
+import java.net.URL;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Scanner;
 import java.util.logging.Logger;
+import java.util.stream.Stream;
 
 import static org.junit.Assert.*;
 
@@ -116,11 +120,6 @@ public class DFADefinitionTest {
     }
 
     @Test
-    public void testTest() {
-        assertEquals("Tak to by neslo", 2, 3);
-    }
-
-    @Test
     public void testDefinitionExplicit() {
         //      a   b
         // <S   A   A
@@ -156,12 +155,27 @@ public class DFADefinitionTest {
 
     @Test
     public void testDefinitionInteractive() {
-        try {
-            FileInputStream fis = new FileInputStream(new File("testDFA1.txt"));
-        } catch (FileNotFoundException e) {
+        try (InputStream in = this.getClass().getClassLoader().getResource("testDFA1.txt").openStream()) {
+            DFAAutomaton dfa = new DFAAutomaton(in);
+
+            assertFalse(dfa.acceptsWord(new String[]{
+                    "ambiente", "ambiente", "ambiente", "ambiente", "ambiente", "ambiente", "ambiente"
+            }));
+            assertTrue(dfa.acceptsWord(new String[]{
+                    "bellethorne"
+            }));
+            assertFalse(dfa.acceptsWord(new String[]{
+                    "bellethorne", "bellethorne", "bellethorne", "bellethorne", "bellethorne", "ambiente", "ambiente", "ambiente", "ambiente"
+            }));
+            assertTrue(dfa.acceptsWord(new String[]{
+                    "callea", "callea", "ambiente", "bellethorne"
+            }));
+            assertTrue(dfa.acceptsWord(new String[]{
+                    "bellethorne", "callea", "callea", "callea", "callea", "callea"
+            }));
+        } catch (IOException e) {
             e.printStackTrace();
         }
-        DFAAutomaton dfa = new DFAAutomaton();
     }
 
 }

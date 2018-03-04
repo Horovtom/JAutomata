@@ -15,7 +15,11 @@ public class Main {
 
     public static void main(String[] args) throws IOException {
         Handler fh = new FileHandler("LOG.log");
-        Logger.getLogger("").addHandler(fh);
+        Logger logger = Logger.getLogger("");
+        for (Handler handler : logger.getHandlers()) {
+            logger.removeHandler(handler);
+        }
+        logger.addHandler(fh);
         displayMenu();
     }
 

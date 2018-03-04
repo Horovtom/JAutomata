@@ -1,7 +1,6 @@
 package cz.cvut.fel.horovtom.logic.abstracts;
 
 import cz.cvut.fel.horovtom.logic.DFAAutomaton;
-import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
 import java.util.*;
 import java.util.logging.Logger;
@@ -112,8 +111,53 @@ public abstract class Automaton {
      * @return String containing formatted table as plain text
      */
     public String getAutomatonTablePlainText() {
-        //TODO: IMPLEMENT
-        throw new NotImplementedException();
+        //TODO: ADD SUPPORT FOR CACHING OF THE RESULT
+        StringBuilder result = new StringBuilder();
+        int[] columnLengths = this.getColumnLengths();
+
+        //HEADER
+        result.append(String.format("%1$-" + (columnLengths[0] + 1) + "s", ""));
+        for (int i = 0; i < this.sigma.length; i++) {
+            result.append(String.format("%1$-" + (columnLengths[i + 1] + 1) + "s", this.sigma[i]));
+        }
+        result.append("\n");
+
+        //BODY
+        for (int state = 0; state < this.Q.length; state++) {
+            //States column
+            result.append(String.format("%1$-" + (columnLengths[0] + 1) + "s",
+                    (this.isAcceptingState(state) ? "<" : " ") +
+                            (this.isInitialState(state) ? ">" : " ") +
+                            this.Q[state]));
+            //Transitions
+            for (int letter = 0; letter < this.sigma.length; letter++) {
+                StringBuilder cell = new StringBuilder();
+                int[] transitions = this.transitions.get(state).get(letter);
+                if (transitions.length == 0) {
+                    LOGGER.fine("There is an empty cell in the table");
+                    result.append(String.format("%1$-" + (columnLengths[letter + 1] + 1) + "s", ""));
+                    continue;
+                }
+                cell.append(this.Q[transitions[0]]);
+                for (int i = 1; i < transitions.length; i++) {
+                    cell.append(",").append(this.Q[transitions[i]]);
+                }
+                result.append(String.format("%1$-" + (columnLengths[letter + 1] + 1) + "s", cell.toString()));
+            }
+            result.append("\n");
+        }
+
+        return result.toString();
+    }
+
+    /**
+     * @return true if the specified state belongs to initial states
+     */
+    private boolean isInitialState(int state) {
+        for (int initialState : initialStates) {
+            if (initialState == state) return true;
+        }
+        return false;
     }
 
     /**
@@ -121,7 +165,7 @@ public abstract class Automaton {
      */
     public String getAutomatonTableHTML() {
         //TODO: IMPLEMENT
-        throw new NotImplementedException();
+        throw new UnsupportedOperationException();
     }
 
     /**
@@ -129,7 +173,7 @@ public abstract class Automaton {
      */
     public String getAutomatonTableTEX() {
         //TODO: IMPLEMENT
-        throw new NotImplementedException();
+        throw new UnsupportedOperationException();
     }
 
     /**
@@ -137,7 +181,7 @@ public abstract class Automaton {
      */
     public String getAutomatonTIKZ() {
         //TODO: IMPLEMENT
-        throw new NotImplementedException();
+        throw new UnsupportedOperationException();
     }
 
     public abstract DFAAutomaton reduce();
@@ -160,6 +204,11 @@ public abstract class Automaton {
             c = (c + 1) % 2;
             n = (c + 1) % 2;
             int letterIndex = getLetterIndex(letter);
+            if (letterIndex == -1) {
+                LOGGER.warning("Unknown letter passed: " + letter);
+                System.err.println("Unknown letter: " + letter);
+                return false;
+            }
             current = possibilities.get(c);
             next = possibilities.get(n);
             for (Integer currentState : current) {
@@ -197,4 +246,34 @@ public abstract class Automaton {
      * For DFA this will be array of only one element, for NFA it might be multiple elements
      */
     protected abstract int[] getPossibleTransitions(int state, int letter);
+
+    /**
+     * This will work out the maximum string length of cell columns and return them in array
+     *
+     * @return Array in which 0: column of states, 1: column of first letter and so on...
+     */
+    private int[] getColumnLengths() {
+        //TODO: ADD SUPPORT FOR CACHING OF THE RESULT
+        int[] ret = new int[this.sigma.length + 1];
+        for (String s : this.Q) {
+            ret[0] = Math.max(ret[0], s.length() + 2);
+        }
+
+        for (int letter = 0; letter < this.sigma.length; letter++) {
+            int where = letter + 1;
+            ret[where] = this.sigma[letter].length();
+            for (int state = 0; state < this.Q.length; state++) {
+                int curr = -1;
+                for (int i : this.transitions.get(state).get(letter)) {
+                    curr += this.Q[i].length() + 1;
+                }
+                if (curr < 0) {
+                    LOGGER.warning("Somehow a maxSize of column " + (letter + 1) + "was < 0!");
+                    curr = 0;
+                }
+                ret[where] = Math.max(ret[where], curr);
+            }
+        }
+        return ret;
+    }
 }

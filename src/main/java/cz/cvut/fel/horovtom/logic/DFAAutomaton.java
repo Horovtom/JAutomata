@@ -1,11 +1,12 @@
 package cz.cvut.fel.horovtom.logic;
 
 import cz.cvut.fel.horovtom.logic.abstracts.Automaton;
-import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
 import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.StringTokenizer;
 import java.util.logging.Logger;
@@ -17,8 +18,16 @@ public class DFAAutomaton extends Automaton {
      * Interactive constructor used for console initialization by user
      */
     public DFAAutomaton() {
+        this(System.in);
+    }
+
+    /**
+     * This constructor loads the interactive definition of an automaton from specified input stream
+     */
+    public DFAAutomaton(InputStream in) {
+
         try {
-            BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+            BufferedReader br = new BufferedReader(new InputStreamReader(in));
             System.out.println("Interactive mode\n" +
                     "Now you will be asked to enter specifics for this DFA automaton.");
             LOGGER.info("Asking user to enter state names...");
@@ -53,8 +62,11 @@ public class DFAAutomaton extends Automaton {
             }
             System.out.print("\n");
             int i = 0;
-            while(i < this.Q.length) {
-                HashMap<Integer, int[]> curr = this.transitions.get(i);
+            this.transitions = new HashMap<>();
+            while (i < this.Q.length) {
+                HashMap<Integer, int[]> curr = new HashMap<>();
+                this.transitions.put(i, curr);
+
                 System.out.print(this.Q[i] + " \t");
                 line = br.readLine();
                 st = new StringTokenizer(line);
@@ -68,8 +80,28 @@ public class DFAAutomaton extends Automaton {
                 }
                 i++;
             }
-            //TODO: IMPLEMENT
-
+            System.out.println("Specify initial state: ");
+            line = br.readLine();
+            st = new StringTokenizer(line);
+            if (st.countTokens() != 1) {
+                LOGGER.warning("More than 1 initial state specified. Getting first one, ignoring rest");
+            }
+            this.initialStates = new int[]{this.getStateIndex(st.nextToken())};
+            System.out.println("Specify accepting states on one line separated by spaces: ");
+            line = br.readLine();
+            st = new StringTokenizer(line);
+            int ind;
+            boolean[] used = new boolean[this.Q.length];
+            ArrayList<Integer> accept = new ArrayList<>();
+            int count = st.countTokens();
+            for (int i1 = 0; i1 < count; i1++) {
+                ind = this.getStateIndex(st.nextToken());
+                if (!used[ind]) {
+                    accept.add(ind);
+                    used[ind] = true;
+                }
+            }
+            this.acceptingStates = accept.stream().mapToInt(val -> val).toArray();
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -92,7 +124,7 @@ public class DFAAutomaton extends Automaton {
     @Override
     public DFAAutomaton reduce() {
         //TODO: IMPLEMENT
-        throw new NotImplementedException();
+        throw new UnsupportedOperationException();
     }
 
     @Override
@@ -105,6 +137,11 @@ public class DFAAutomaton extends Automaton {
         int currentState = this.initialStates[0];
         for (String s : word) {
             int index = this.getLetterIndex(s);
+            if (index == -1) {
+                LOGGER.warning("Unknown letter passed: " + s);
+                System.err.println("Unknown letter: " + s);
+                return false;
+            }
             currentState = transitions.get(currentState).get(index)[0];
         }
         for (int acceptingState : this.acceptingStates) {
