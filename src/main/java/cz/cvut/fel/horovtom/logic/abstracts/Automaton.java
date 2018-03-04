@@ -124,6 +124,8 @@ public abstract class Automaton {
 
         //BODY
         for (int state = 0; state < this.Q.length; state++) {
+            if (state != 0)
+                result.append("\n");
             //States column
             result.append(String.format("%1$-" + (columnLengths[0] + 1) + "s",
                     (this.isAcceptingState(state) ? "<" : " ") +
@@ -144,7 +146,6 @@ public abstract class Automaton {
                 }
                 result.append(String.format("%1$-" + (columnLengths[letter + 1] + 1) + "s", cell.toString()));
             }
-            result.append("\n");
         }
 
         return result.toString();
@@ -164,8 +165,40 @@ public abstract class Automaton {
      * @return String containing formatted table as html
      */
     public String getAutomatonTableHTML() {
-        //TODO: IMPLEMENT
-        throw new UnsupportedOperationException();
+        StringBuilder res = new StringBuilder("<table>\n\t<tr><td></td><td></td>");
+        for (String s : this.sigma) {
+            res.append("<td>").append(s).append("</td>");
+        }
+        res.append("</tr>\n");
+        for (int i = 0; i < this.Q.length; i++) {
+            res.append("\t<tr><td>");
+            if (this.isInitialState(i)) {
+                if (this.isAcceptingState(i)) {
+                    res.append("&harr;");
+                } else {
+                    res.append("&rarr;");
+                }
+            } else if (this.isAcceptingState(i)) {
+                res.append("&larr;");
+            }
+            res.append("</td><td>").append(this.Q[i]).append("</td>");
+            for (int letter = 0; letter < this.sigma.length; letter++) {
+                res.append("<td>");
+                int[] cell = this.transitions.get(i).get(letter);
+                StringBuilder cellString = new StringBuilder();
+                if (cell.length != 0)
+                    cellString.append(this.Q[cell[0]]);
+
+                for (int item = 1; item < cell.length; item++) {
+                    cellString.append(",").append(this.Q[cell[item]]);
+                }
+                res.append(cellString.toString()).append("</td>");
+            }
+            res.append("</tr>\n");
+        }
+        res.append("</table>");
+
+        return res.toString();
     }
 
     /**
