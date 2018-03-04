@@ -1,20 +1,23 @@
 package cz.cvut.fel.horovtom.logic.dfa;
 
 import cz.cvut.fel.horovtom.logic.DFAAutomaton;
+import cz.cvut.fel.horovtom.logic.abstracts.Automaton;
 import cz.cvut.fel.horovtom.tools.Utilities;
 import org.junit.Test;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.logging.Logger;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 public class DFADefinitionTest {
     private static final Logger LOGGER = Logger.getLogger(DFADefinitionTest.class.getName());
 
-    void testWords(DFAAutomaton automaton) {
+    void testWords(Automaton automaton) {
         LOGGER.fine("Testing word: a*bab* should be in L\nActual word generated: \n");
 
         ArrayList<String> word = new ArrayList<>();
@@ -115,6 +118,50 @@ public class DFADefinitionTest {
     @Test
     public void testTest() {
         assertEquals("Tak to by neslo", 2, 3);
+    }
+
+    @Test
+    public void testDefinitionExplicit() {
+        //      a   b
+        // <S   A   A
+        // >A   A   B
+        //  B   C   S
+        // <C   A   C
+
+        String[] states = new String[]{"S", "A", "B", "C"};
+        String[] letters = new String[]{"a", "b"};
+
+        HashMap<String, HashMap<String, String>> transitions = new HashMap<>();
+        HashMap<String, String> a = new HashMap<>();
+        a.put("a", "A");
+        a.put("b", "A");
+        transitions.put("S", a);
+        a = new HashMap<>();
+        a.put("a", "A");
+        a.put("b", "B");
+        transitions.put("A", a);
+        a = new HashMap<>();
+        a.put("a", "C");
+        a.put("b", "S");
+        transitions.put("B", a);
+        a = new HashMap<>();
+        a.put("a", "A");
+        a.put("b", "C");
+        transitions.put("C", a);
+        String initial = "A";
+        String[] accepting = new String[]{"S", "C"};
+        Automaton dfa = new DFAAutomaton(states, letters, transitions, initial, accepting);
+        testWords(dfa);
+    }
+
+    @Test
+    public void testDefinitionInteractive() {
+        try {
+            FileInputStream fis = new FileInputStream(new File("testDFA1.txt"));
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        }
+        DFAAutomaton dfa = new DFAAutomaton();
     }
 
 }

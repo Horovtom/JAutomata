@@ -47,12 +47,28 @@ public class DFAAutomaton extends Automaton {
             }
             System.out.println("Loaded " + this.sigma.length + " letters.\n");
             System.out.println("Enter transitions for this automaton. Separate state names by spaces: ");
-            System.out.print("state ");
+            System.out.print("state \t");
             for (String s : this.sigma) {
                 System.out.print(s + " ");
             }
             System.out.print("\n");
-
+            int i = 0;
+            while(i < this.Q.length) {
+                HashMap<Integer, int[]> curr = this.transitions.get(i);
+                System.out.print(this.Q[i] + " \t");
+                line = br.readLine();
+                st = new StringTokenizer(line);
+                if (st.countTokens() != this.sigma.length) {
+                    System.err.println("Invalid number of tokens on this line! Try again!");
+                    i--;
+                } else {
+                    for (int i1 = 0; i1 < this.sigma.length; i1++) {
+                        curr.put(i1, new int[]{getStateIndex(st.nextToken())});
+                    }
+                }
+                i++;
+            }
+            //TODO: IMPLEMENT
 
         } catch (IOException e) {
             e.printStackTrace();
