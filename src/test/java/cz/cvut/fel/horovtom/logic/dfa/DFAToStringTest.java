@@ -3,9 +3,10 @@ package cz.cvut.fel.horovtom.logic.dfa;
 import cz.cvut.fel.horovtom.logic.DFAAutomaton;
 import org.junit.Test;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
 
 public class DFAToStringTest {
+
     @Test
     public void testPlainText1() {
         DFAAutomaton dfa = DFASamples.getDFA1();
@@ -93,5 +94,51 @@ public class DFAToStringTest {
                         "\t<tr><td></td><td>1</td><td>1</td><td>1</td></tr>\n" +
                         "</table>",
                 dfa.getAutomatonTableHTML());
+    }
+
+    @Test
+    public void testTEX1() {
+        DFAAutomaton dfa = DFASamples.getDFA1();
+        assertEquals("DFA1 did not output TEX code properly!",
+                "\\begin{tabular}{cc|c|c}\n" +
+                        "\t & & $a$ & $b$ \\\\\\hline\n" +
+                        "\t & $1$ & $2$ & $1$ \\\\\n" +
+                        "\t$\\leftarrow$ & $2$ & $2$ & $1$ \\\\\n" +
+                        "\t & $3$ & $7$ & $5$ \\\\\n" +
+                        "\t$\\leftarrow$ & $4$ & $7$ & $4$ \\\\\n" +
+                        "\t$\\rightarrow$ & $5$ & $2$ & $4$ \\\\\n" +
+                        "\t$\\leftarrow$ & $6$ & $6$ & $3$ \\\\\n" +
+                        "\t & $7$ & $7$ & $4$ \n" +
+                        "\\end{tabular}",
+                dfa.getAutomatonTableTEX());
+    }
+
+    @Test
+    public void testTEX2() {
+        DFAAutomaton dfa = DFASamples.getDFA2();
+        assertEquals("DFA2 did not output TEX code properly!",
+                "\\begin{tabular}{cc|c|c|c|c}\n" +
+                        "\t & & $0.12$ & $-6.38$ & $0$ & $213.002$ \\\\\\hline\n" +
+                        "\t$\\rightarrow$ & $0$ & $1$ & $0$ & $0$ & $0$ \\\\\n" +
+                        "\t & $1$ & $0$ & $2$ & $0$ & $0$ \\\\\n" +
+                        "\t & $2$ & $3$ & $0$ & $0$ & $0$ \\\\\n" +
+                        "\t & $3$ & $0$ & $0$ & $4$ & $0$ \\\\\n" +
+                        "\t & $4$ & $0$ & $0$ & $0$ & $5$ \\\\\n" +
+                        "\t & $5$ & $0$ & $6$ & $0$ & $0$ \\\\\n" +
+                        "\t & $6$ & $0$ & $0$ & $0$ & $7$ \\\\\n" +
+                        "\t$\\leftarrow$ & $7$ & $7$ & $7$ & $7$ & $7$ \n" +
+                        "\\end{tabular}",
+                dfa.getAutomatonTableTEX());
+    }
+
+    @Test
+    public void testTEX3() {
+        assertEquals("DFA3 did not output TEX code properly!",
+                "\\begin{tabular}{cc|c|c}\n" +
+                        "\t & & $\\alpha$ & $\\beta$ \\\\\\hline\n" +
+                        "\t$\\leftrightarrow$ & $0$ & $0$ & $1$ \\\\\n" +
+                        "\t & $1$ & $1$ & $1$ \n" +
+                        "\\end{tabular}",
+                DFASamples.getDFA3().getAutomatonTableTEX());
     }
 }

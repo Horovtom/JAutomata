@@ -165,6 +165,7 @@ public abstract class Automaton {
      * @return String containing formatted table as html
      */
     public String getAutomatonTableHTML() {
+        //TODO: ADD SUPPORT FOR CACHING RESULT
         StringBuilder res = new StringBuilder("<table>\n\t<tr><td></td><td></td>");
         for (String s : this.sigma) {
             res.append("<td>").append(s).append("</td>");
@@ -205,8 +206,52 @@ public abstract class Automaton {
      * @return String containing formatted table as tex code
      */
     public String getAutomatonTableTEX() {
-        //TODO: IMPLEMENT
-        throw new UnsupportedOperationException();
+        //TODO: ADD SUPPORT FOR CACHING RESULT
+        StringBuilder res = new StringBuilder("\\begin{tabular}{cc");
+        String[] sigma1 = this.sigma;
+        for (int i = 0; i < sigma1.length; i++) {
+            res.append("|c");
+        }
+        res.append("}\n\t & ");
+        for (String s : this.sigma) {
+            res.append("& $").append(s).append("$ ");
+        }
+        res.append("\\\\\\hline\n");
+
+        for (int state = 0; state < this.Q.length; state++) {
+            res.append("\t");
+            if (this.isInitialState(state)) {
+                if (this.isAcceptingState(state)) {
+                    res.append("$\\leftrightarrow$");
+                } else {
+                    res.append("$\\rightarrow$");
+                }
+            } else if (this.isAcceptingState(state)) {
+                res.append("$\\leftarrow$");
+            }
+
+            //StateName
+            res.append(" & $").append(this.Q[state]).append("$ ");
+            //Transitions
+            for (int letter = 0; letter < this.sigma.length; letter++) {
+                res.append("& ");
+                int[] current = this.transitions.get(state).get(letter);
+                if (current.length != 0)
+                    res.append("$").append(this.Q[current[0]]);
+                for (int i = 1; i < current.length; i++) {
+                    res.append(",").append(this.Q[current[i]]);
+                }
+                res.append("$ ");
+            }
+            if (state != this.Q.length - 1)
+                res.append("\\\\\n");
+            else
+                res.append("\n");
+        }
+
+        res.append("\\end{tabular}");
+
+        return res.toString();
     }
 
     /**
