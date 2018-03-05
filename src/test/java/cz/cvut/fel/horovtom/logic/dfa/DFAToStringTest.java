@@ -141,4 +141,97 @@ public class DFAToStringTest {
                         "\\end{tabular}",
                 DFASamples.getDFA3().getAutomatonTableTEX());
     }
+
+    @Test
+    public void testTIKZ1() {
+        assertEquals("DFA1 did not output TIKZ code properly!",
+                "\\begin{tikzpicture}[->,>=stealth',shorten >=1pt,auto,node distance=2.8cm,semithick]\n" +
+                        "\t\\node[state] (0) {$1$};\n" +
+                        "\t\\node[state,accepting] (1) [right of=0] {$2$};\n" +
+                        "\t\\node[state] (2) [right of=1] {$3$};\n" +
+                        "\t\\node[state,accepting] (3) [right of=2] {$4$};\n" +
+                        "\t\\node[initial,state] (4) [right of=3] {$5$};\n" +
+                        "\t\\node[state,accepting] (5) [right of=4] {$6$};\n" +
+                        "\t\\node[state] (6) [right of=5] {$7$};\n" +
+                        "\t\\path\n" +
+                        "\t\t(0)\n" +
+                        "\t\t\tedge [loop above] node {$b$} (0)\n" +
+                        "\t\t\tedge [bend left] node {$a$} (1)\n" +
+                        "\t\t(1)\n" +
+                        "\t\t\tedge [bend left] node {$b$} (0)\n" +
+                        "\t\t\tedge [loop above] node {$a$} (1)\n" +
+                        "\t\t(2)\n" +
+                        "\t\t\tedge node {$b$} (4)\n" +
+                        "\t\t\tedge node {$a$} (6)\n" +
+                        "\t\t(3)\n" +
+                        "\t\t\tedge [loop above] node {$b$} (3)\n" +
+                        "\t\t\tedge [bend left] node {$a$} (6)\n" +
+                        "\t\t(4)\n" +
+                        "\t\t\tedge node {$a$} (1)\n" +
+                        "\t\t\tedge node {$b$} (3)\n" +
+                        "\t\t(5)\n" +
+                        "\t\t\tedge node {$b$} (2)\n" +
+                        "\t\t\tedge [loop above] node {$a$} (5)\n" +
+                        "\t\t(6)\n" +
+                        "\t\t\tedge [bend left] node {$b$} (3)\n" +
+                        "\t\t\tedge [loop above] node {$a$} (6);\n" +
+                        "\\end{tikzpicture}",
+                DFASamples.getDFA1().getAutomatonTIKZ());
+    }
+
+    @Test
+    public void testTIKZ2() {
+        assertEquals("DFA2 did not output TIKZ code properly!",
+                "\\begin{tikzpicture}[->,>=stealth',shorten >=1pt,auto,node distance=2.8cm,semithick]\n" +
+                        "\t\\node[initial,state] (0) {$0$};\n" +
+                        "\t\\node[state] (1) [right of=0] {$1$};\n" +
+                        "\t\\node[state] (2) [right of=1] {$2$};\n" +
+                        "\t\\node[state] (3) [right of=2] {$3$};\n" +
+                        "\t\\node[state] (4) [right of=3] {$4$};\n" +
+                        "\t\\node[state] (5) [right of=4] {$5$};\n" +
+                        "\t\\node[state] (6) [right of=5] {$6$};\n" +
+                        "\t\\node[state,accepting] (7) [right of=6] {$7$};\n" +
+                        "\t\\path\n" +
+                        "\t\t(0)\n" +
+                        "\t\t\tedge [loop above] node {$-6.38,0,213.002$} (0)\n" +
+                        "\t\t\tedge [bend left] node {$0.12$} (1)\n" +
+                        "\t\t(1)\n" +
+                        "\t\t\tedge [bend left] node {$0.12,0,213.002$} (0)\n" +
+                        "\t\t\tedge node {$-6.38$} (2)\n" +
+                        "\t\t(2)\n" +
+                        "\t\t\tedge node {$-6.38,0,213.002$} (0)\n" +
+                        "\t\t\tedge node {$0.12$} (3)\n" +
+                        "\t\t(3)\n" +
+                        "\t\t\tedge node {$0.12,-6.38,213.002$} (0)\n" +
+                        "\t\t\tedge node {$0$} (4)\n" +
+                        "\t\t(4)\n" +
+                        "\t\t\tedge node {$0.12,-6.38,0$} (0)\n" +
+                        "\t\t\tedge node {$213.002$} (5)\n" +
+                        "\t\t(5)\n" +
+                        "\t\t\tedge node {$0.12,0,213.002$} (0)\n" +
+                        "\t\t\tedge node {$-6.38$} (6)\n" +
+                        "\t\t(6)\n" +
+                        "\t\t\tedge node {$0.12,-6.38,0$} (0)\n" +
+                        "\t\t\tedge node {$213.002$} (7)\n" +
+                        "\t\t(7)\n" +
+                        "\t\t\tedge [loop above] node {$0.12,-6.38,0,213.002$} (7);\n" +
+                        "\\end{tikzpicture}",
+                DFASamples.getDFA2().getAutomatonTIKZ());
+    }
+
+    @Test
+    public void testTIKZ3() {
+        assertEquals("DFA3 did not ouput TIKZ code properly!",
+                "\\begin{tikzpicture}[->,>=stealth',shorten >=1pt,auto,node distance=2.8cm,semithick]\n" +
+                        "\t\\node[initial,state,accepting] (0) {$0$};\n" +
+                        "\t\\node[state] (1) [right of=0] {$1$};\n" +
+                        "\t\\path\n" +
+                        "\t\t(0)\n" +
+                        "\t\t\tedge [loop above] node {$\\alpha$} (0)\n" +
+                        "\t\t\tedge node {$\\beta$} (1)\n" +
+                        "\t\t(1)\n" +
+                        "\t\t\tedge [loop above] node {$\\alpha,\\beta$} (1);\n" +
+                        "\\end{tikzpicture}",
+                DFASamples.getDFA3().getAutomatonTIKZ());
+    }
 }

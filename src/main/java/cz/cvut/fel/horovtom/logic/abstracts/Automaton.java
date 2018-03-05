@@ -258,8 +258,97 @@ public abstract class Automaton {
      * @return String containing code for TEX package TIKZ. This code draws a diagram of this automaton
      */
     public String getAutomatonTIKZ() {
-        //TODO: IMPLEMENT
-        throw new UnsupportedOperationException();
+        //TODO: ADD SUPPORT FOR CACHING OF THE RESULT
+        StringBuilder res = new StringBuilder("\\begin{tikzpicture}[->,>=stealth',shorten >=1pt,auto,node distance=2.8cm,semithick]\n");
+        for (int state = 0; state < this.Q.length; state++) {
+            res.append("\t\\node[");
+            //I/A
+            if (this.isInitialState(state)) {
+                res.append("initial,");
+            }
+            res.append("state");
+            if (this.isAcceptingState(state)) {
+                res.append(",accepting");
+            }
+            res.append("] (").append(state).append(") ");
+            //Adjacency
+            if (state != 0) {
+                res.append("[right of=").append(state - 1).append("] ");
+            }
+            //Name
+            res.append("{$").append(this.Q[state]).append("$};\n");
+        }
+        res.append("\t\\path");
+
+        for (int state = 0; state < this.Q.length; state++) {
+            HashMap<Integer, int[]> stateTransitions = this.transitions.get(state);
+            res.append("\n\t\t(").append(state).append(")");
+
+            // key: target, value: letters
+            HashMap<Integer, ArrayList<Integer>> edgesFromState = this.getEdgesFromState(state);
+
+
+            for (int target = 0; target < this.Q.length; target++) {
+                if (!edgesFromState.containsKey(target)) continue;
+
+                res.append("\n\t\t\tedge ");
+                //Edge properties
+                if (state == target) {
+                    //It is a loop
+                    res.append("[loop above] ");
+                } else if (this.hasEdgeFromTo(target, state)) {
+                    //It is a bend
+                    res.append("[bend left] ");
+                }
+
+                res.append("node {$");
+                ArrayList<Integer> current = edgesFromState.get(target);
+                if (current.size() != 0)
+                    res.append(this.sigma[current.get(0)]);
+                for (int letter = 1; letter < current.size(); letter++) {
+                    res.append(",").append(this.sigma[current.get(letter)]);
+                }
+                res.append("$} ");
+                //Target
+                res.append("(").append(target).append(")");
+            }
+        }
+        res.append(";\n\\end{tikzpicture}");
+
+        return res.toString();
+    }
+
+    /**
+     * @return true if there is an edge from state to target
+     */
+    private boolean hasEdgeFromTo(int state, int target) {
+        HashMap<Integer, int[]> states = this.transitions.get(state);
+        for (int letter = 0; letter < this.sigma.length; letter++) {
+            for (int i : states.get(letter)) {
+                if (i == target) return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * @return HashMap that has target state as key and all letters as values
+     */
+    private HashMap<Integer, ArrayList<Integer>> getEdgesFromState(int state) {
+        // key: target, value: letters
+        HashMap<Integer, ArrayList<Integer>> res = new HashMap<>();
+        // key: letter, value: targets
+        HashMap<Integer, int[]> stateTransitions = this.transitions.get(state);
+        for (int letter = 0; letter < this.sigma.length; letter++) {
+            int[] targs = stateTransitions.get(letter);
+            for (int targ : targs) {
+                if (!res.containsKey(targ)) {
+                    res.put(targ, new ArrayList<>());
+                }
+                res.get(targ).add(letter);
+            }
+        }
+        return res;
     }
 
     public abstract DFAAutomaton reduce();
