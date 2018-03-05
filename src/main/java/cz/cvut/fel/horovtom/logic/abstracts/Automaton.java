@@ -2,22 +2,21 @@ package cz.cvut.fel.horovtom.logic.abstracts;
 
 import cz.cvut.fel.horovtom.logic.DFAAutomaton;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.logging.Logger;
 
 public abstract class Automaton {
     private final static Logger LOGGER = Logger.getLogger(Automaton.class.getName());
+    protected String[] Q, sigma;
+    protected int[] initialStates;
+    protected int[] acceptingStates;
+    protected HashMap<Integer, HashMap<Integer, int[]>> transitions;
 
     protected Automaton() {
     }
-
-    protected String[] Q, sigma;
-
-    protected int[] initialStates;
-
-    protected int[] acceptingStates;
-
-    protected HashMap<Integer, HashMap<Integer, int[]>> transitions;
 
     public Automaton(String[] Q, String[] sigma, HashMap<String, HashMap<String, String>> transitions, String[] initials, String[] accepting) {
         HashMap<String, Integer> stringIntStates = new HashMap<>();
@@ -67,7 +66,6 @@ public abstract class Automaton {
     }
 
     /**
-     * @param letterName
      * @return -1 if the letter is not in sigma
      */
     protected int getLetterIndex(String letterName) {
@@ -78,7 +76,6 @@ public abstract class Automaton {
     }
 
     /**
-     * @param stateName
      * @return -1 if stateName is not in Q
      */
     protected int getStateIndex(String stateName) {
@@ -281,12 +278,10 @@ public abstract class Automaton {
         res.append("\t\\path");
 
         for (int state = 0; state < this.Q.length; state++) {
-            HashMap<Integer, int[]> stateTransitions = this.transitions.get(state);
             res.append("\n\t\t(").append(state).append(")");
 
             // key: target, value: letters
             HashMap<Integer, ArrayList<Integer>> edgesFromState = this.getEdgesFromState(state);
-
 
             for (int target = 0; target < this.Q.length; target++) {
                 if (!edgesFromState.containsKey(target)) continue;

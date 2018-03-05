@@ -5,18 +5,14 @@ import cz.cvut.fel.horovtom.logic.abstracts.Automaton;
 import cz.cvut.fel.horovtom.tools.Utilities;
 import org.junit.Test;
 
-import java.io.*;
-import java.net.URL;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.Paths;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Scanner;
 import java.util.logging.Logger;
-import java.util.stream.Stream;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 public class DFADefinitionTest {
     private static final Logger LOGGER = Logger.getLogger(DFADefinitionTest.class.getName());
@@ -45,7 +41,7 @@ public class DFADefinitionTest {
 
         s = new StringBuilder();
         s.append("Testing word: bbba* should not be in L\nActual word generated: \n");
-        ArrayList<String> word2 = new ArrayList<String>();
+        ArrayList<String> word2 = new ArrayList<>();
         word2.add("b");
         word2.add("b");
         word2.add("b");
