@@ -1,12 +1,14 @@
 package cz.cvut.fel.horovtom.logic;
 
 import cz.cvut.fel.horovtom.logic.abstracts.Automaton;
+import cz.cvut.fel.horovtom.logic.reductors.DFAReductor;
 
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.StringTokenizer;
 import java.util.logging.Logger;
@@ -121,10 +123,51 @@ public class DFAAutomaton extends Automaton {
         super(Q, sigma, transitions, new String[]{initial}, accepting);
     }
 
+    /**
+     * Constructor used for initialization of reduced automaton
+     */
+    public DFAAutomaton(String[] q, String[] sigma, HashMap<Integer, HashMap<Integer, Integer>> reducedTransitions, int reducedInitial, int[] reducedAccepting) {
+        this.Q = q;
+        this.sigma = sigma;
+        this.transitions = new HashMap<>();
+        for (int state = 0; state < q.length; state++) {
+            HashMap<Integer, int[]> current = new HashMap<>();
+            this.transitions.put(state, current);
+            HashMap<Integer, Integer> currentRow = reducedTransitions.get(state);
+            for (int letter = 0; letter < sigma.length; letter++) {
+                current.put(letter, new int[]{currentRow.get(letter)});
+            }
+        }
+        this.initialStates = new int[]{reducedInitial};
+        this.acceptingStates = reducedAccepting;
+    }
+
     @Override
     public DFAAutomaton reduce() {
-        //TODO: IMPLEMENT
-        throw new UnsupportedOperationException();
+        //Transfer transitions to DFAReductor format:
+        HashMap<Integer, HashMap<Integer, Integer>> formattedTransitions = new HashMap<>();
+        for (int s = 0; s < this.Q.length; s++) {
+            HashMap<Integer, Integer> row = new HashMap<>();
+            formattedTransitions.put(s, row);
+            HashMap<Integer, int[]> rowOriginal = this.transitions.get(s);
+            for (int letter = 0; letter < this.sigma.length; letter++) {
+                row.put(letter, rowOriginal.get(letter)[0]);
+            }
+        }
+        DFAReductor reductor = new DFAReductor(formattedTransitions, this.initialStates[0], this.acceptingStates);
+        HashMap<Integer, HashMap<Integer, Integer>> reducedTransitions = reductor.getReducedTransitions();
+        int[] reducedAccepting = reductor.getReducedAccepting();
+        int reducedInitial = reductor.getReducedInitial();
+
+        String[] q = new String[reducedTransitions.size()];
+        for (int i = 0; i < reducedTransitions.size(); i++) {
+            q[i] = String.valueOf(i);
+        }
+        String[] sigma = Arrays.copyOf(this.sigma, this.sigma.length);
+
+        DFAAutomaton dfa = new DFAAutomaton(q, sigma,
+                reducedTransitions, reducedInitial, reducedAccepting);
+        return dfa;
     }
 
     @Override

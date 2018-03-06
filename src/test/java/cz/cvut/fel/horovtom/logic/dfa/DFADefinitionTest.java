@@ -17,7 +17,7 @@ import static org.junit.Assert.assertTrue;
 public class DFADefinitionTest {
     private static final Logger LOGGER = Logger.getLogger(DFADefinitionTest.class.getName());
 
-    void testWords(Automaton automaton) {
+    public static void testWords(Automaton automaton) {
         LOGGER.fine("Testing word: a*bab* should be in L\nActual word generated: \n");
 
         ArrayList<String> word = new ArrayList<>();
