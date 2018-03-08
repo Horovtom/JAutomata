@@ -152,8 +152,7 @@ public class Main {
     }
 
     static void reduceIt() {
-        //TODO: IMPLEMENT
-        System.err.println("Not implemented yet!");
+        current = current.reduce();
         displayMenu();
     }
 
