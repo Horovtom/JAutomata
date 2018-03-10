@@ -1,12 +1,12 @@
-package cz.cvut.fel.horovtom.logic.reductors;
+package cz.cvut.fel.horovtom.logic.reducers;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.logging.Logger;
 
-public class DFAReductor {
-    private static Logger LOGGER = Logger.getLogger(DFAReductor.class.getName());
+public class DFAReducer {
+    private static Logger LOGGER = Logger.getLogger(DFAReducer.class.getName());
 
     private final HashMap<Integer, HashMap<Integer, Integer>> originalTransitions;
     private final int originalInitial;
@@ -19,57 +19,58 @@ public class DFAReductor {
     private int reductionTableInitial;
     private ArrayList<Integer> reductionTableAccepting;
     private String reductionTableInString;
+    private String[] reducedQ;
 
-    public DFAReductor(HashMap<Integer, HashMap<Integer, Integer>> originalTransitions, int initial, int[] accepting) {
+    public DFAReducer(HashMap<Integer, HashMap<Integer, Integer>> originalTransitions, int initial, int[] accepting) {
         this.originalTransitions = originalTransitions;
         this.originalInitial = initial;
         this.originalAccepting = accepting;
         this.QSize = this.originalTransitions.keySet().size();
         this.sigmaSize = this.originalTransitions.get(initial).keySet().size();
+        reduce();
     }
 
     public HashMap<Integer, HashMap<Integer, Integer>> getReducedTransitions() {
-        if (reducedTransitions == null) {
-            reduce();
-        }
         return reducedTransitions;
     }
 
     public int[] getReducedAccepting() {
-        if (reducedTransitions == null) reduce();
         return Arrays.copyOf(this.reducedAccepting, this.reducedAccepting.length);
     }
 
     public int getReducedInitial() {
-        if (reducedTransitions == null) reduce();
         return this.reducedInitial;
     }
 
     private void reduce() {
         if (this.reducedTransitions != null) {
-            LOGGER.finer("Trying to further reduce already reduced automaton");
+            LOGGER.finer("Trying to further reduce already reduced reducer");
             return;
         }
         //TODO: IMPLEMENT SAVING PROCESS
 
-
         initializeReductionTable();
-        while (!nextColumn()) {
+        while (true) {
+            if (nextColumn()) break;
         }
 
         int namesCol = this.reductionTable.get(0).size() - 2 - this.sigmaSize;
         this.reducedTransitions = new HashMap<>();
 
         ArrayList<Integer> newAccepting = new ArrayList<>();
+        ArrayList<String> reducedStates = new ArrayList<>();
+
+
         for (int state = 0; state < this.reductionTable.size(); state++) {
-            HashMap<Integer, Integer> curr = new HashMap<>();
             if (this.reducedTransitions.containsKey(this.reductionTable.get(state).get(namesCol))) continue;
+            HashMap<Integer, Integer> curr = new HashMap<>();
             for (int letter = 0; letter < this.sigmaSize; letter++) {
                 curr.put(letter, this.reductionTable.get(state).get(namesCol + letter + 1));
             }
 
             int currentStateKey = this.reductionTable.get(state).get(namesCol);
             this.reducedTransitions.put(currentStateKey, curr);
+            reducedStates.add(String.valueOf(currentStateKey));
             if (this.reductionTableInitial == state) {
                 reducedInitial = currentStateKey;
             }
@@ -77,6 +78,8 @@ public class DFAReductor {
                 newAccepting.add(currentStateKey);
             }
         }
+
+        this.reducedQ = reducedStates.toArray(new String[0]);
 
         this.reducedAccepting = newAccepting.stream().mapToInt(a -> a).toArray();
 
@@ -192,5 +195,13 @@ public class DFAReductor {
             res.append("\n");
         }
         return res.toString();
+    }
+
+    public boolean wasReduced() {
+        return this.reducedQ.length == this.QSize;
+    }
+
+    public String[] getReducedQ() {
+        return Arrays.copyOf(reducedQ, reducedQ.length);
     }
 }

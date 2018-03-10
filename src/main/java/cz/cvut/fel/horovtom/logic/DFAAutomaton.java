@@ -1,7 +1,7 @@
 package cz.cvut.fel.horovtom.logic;
 
 import cz.cvut.fel.horovtom.logic.abstracts.Automaton;
-import cz.cvut.fel.horovtom.logic.reductors.DFAReductor;
+import cz.cvut.fel.horovtom.logic.reducers.DFAReducer;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -144,7 +144,9 @@ public class DFAAutomaton extends Automaton {
 
     @Override
     public DFAAutomaton reduce() {
-        //Transfer transitions to DFAReductor format:
+        if (this.reduced != null) return this.reduced;
+
+        //Transfer transitions to DFAReducer format:
         HashMap<Integer, HashMap<Integer, Integer>> formattedTransitions = new HashMap<>();
         for (int s = 0; s < this.Q.length; s++) {
             HashMap<Integer, Integer> row = new HashMap<>();
@@ -154,19 +156,21 @@ public class DFAAutomaton extends Automaton {
                 row.put(letter, rowOriginal.get(letter)[0]);
             }
         }
-        DFAReductor reductor = new DFAReductor(formattedTransitions, this.initialStates[0], this.acceptingStates);
+        DFAReducer reductor = new DFAReducer(formattedTransitions, this.initialStates[0], this.acceptingStates);
+        if (reductor.wasReduced()) {
+            this.reduced = this;
+            return this;
+        }
         HashMap<Integer, HashMap<Integer, Integer>> reducedTransitions = reductor.getReducedTransitions();
         int[] reducedAccepting = reductor.getReducedAccepting();
         int reducedInitial = reductor.getReducedInitial();
 
-        String[] q = new String[reducedTransitions.size()];
-        for (int i = 0; i < reducedTransitions.size(); i++) {
-            q[i] = String.valueOf(i);
-        }
+        String[] q = reductor.getReducedQ();
         String[] sigma = Arrays.copyOf(this.sigma, this.sigma.length);
 
         DFAAutomaton dfa = new DFAAutomaton(q, sigma,
                 reducedTransitions, reducedInitial, reducedAccepting);
+        this.reduced = dfa;
         return dfa;
     }
 
@@ -177,19 +181,27 @@ public class DFAAutomaton extends Automaton {
 
     @Override
     public boolean acceptsWord(String[] word) {
-        int currentState = this.initialStates[0];
-        for (String s : word) {
-            int index = this.getLetterIndex(s);
-            if (index == -1) {
-                LOGGER.warning("Unknown letter passed: " + s);
-                System.err.println("Unknown letter: " + s);
-                return false;
+        if (this.reduced == null) {
+            reduce();
+        }
+
+        if (this.reduced == this) {
+            int currentState = this.initialStates[0];
+            for (String s : word) {
+                int index = this.getLetterIndex(s);
+                if (index == -1) {
+                    LOGGER.warning("Unknown letter passed: " + s);
+                    System.err.println("Unknown letter: " + s);
+                    return false;
+                }
+                currentState = transitions.get(currentState).get(index)[0];
             }
-            currentState = transitions.get(currentState).get(index)[0];
+            for (int acceptingState : this.acceptingStates) {
+                if (acceptingState == currentState) return true;
+            }
+            return false;
+        } else {
+            return this.reduced.acceptsWord(word);
         }
-        for (int acceptingState : this.acceptingStates) {
-            if (acceptingState == currentState) return true;
-        }
-        return false;
     }
 }

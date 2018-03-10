@@ -1,4 +1,4 @@
-package cz.cvut.fel.horovtom.logic.reductors;
+package cz.cvut.fel.horovtom.logic.reducers;
 
 import org.junit.Test;
 
@@ -7,7 +7,7 @@ import java.util.HashMap;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
-public class DFAReductorTest {
+public class DFAReducerTest {
 
     private static void putIn(HashMap<Integer, Integer> current, int[] toPutIn) {
         for (int i = 0; i < toPutIn.length; i++) {
@@ -43,25 +43,25 @@ public class DFAReductorTest {
         transitions.put(3, current);
 
         int[] accepting = new int[]{2, 3};
-        DFAReductor dfaReductor = new DFAReductor(transitions, 1, accepting);
-        HashMap<Integer, HashMap<Integer, Integer>> newTransitions = dfaReductor.getReducedTransitions();
+        DFAReducer dfaReducer = new DFAReducer(transitions, 1, accepting);
+        HashMap<Integer, HashMap<Integer, Integer>> newTransitions = dfaReducer.getReducedTransitions();
         /*
             >0	1	1
             <1	1	1
          */
-        assertEquals("Invalid initial state output from DFAReductor basic testcase",
+        assertEquals("Invalid initial state output from DFAReducer basic testcase",
                 0,
-                dfaReductor.getReducedInitial());
-        assertEquals("Invalid accepting state output size from DFAReductor basic testcase",
+                dfaReducer.getReducedInitial());
+        assertEquals("Invalid accepting state output size from DFAReducer basic testcase",
                 1,
-                dfaReductor.getReducedAccepting().length);
-        assertEquals("Invalid accepting state output form DFAReductor basic testcase",
+                dfaReducer.getReducedAccepting().length);
+        assertEquals("Invalid accepting state output form DFAReducer basic testcase",
                 1,
-                dfaReductor.getReducedAccepting()[0]);
-        assertEquals("Invalid state count output from DFAReductor basic testcase",
+                dfaReducer.getReducedAccepting()[0]);
+        assertEquals("Invalid state count output from DFAReducer basic testcase",
                 2,
                 newTransitions.keySet().size());
-        assertEquals("Invalid letter count output from DFAReductor basic testcase",
+        assertEquals("Invalid letter count output from DFAReducer basic testcase",
                 2,
                 newTransitions.get(0).keySet().size());
         //TransitionsCheck
@@ -123,27 +123,27 @@ public class DFAReductorTest {
         current = new HashMap<>();
         putIn(current, new int[]{2, 4, 6});
         transitions.put(curr, current);
-        DFAReductor dfaReductor = new DFAReductor(transitions, initial, accepting);
-        HashMap<Integer, HashMap<Integer, Integer>> newTransitions = dfaReductor.getReducedTransitions();
-        assertEquals("Invalid initial state output from DFAReductor advanced testcase",
+        DFAReducer dfaReducer = new DFAReducer(transitions, initial, accepting);
+        HashMap<Integer, HashMap<Integer, Integer>> newTransitions = dfaReducer.getReducedTransitions();
+        assertEquals("Invalid initial state output from DFAReducer advanced testcase",
                 0,
-                dfaReductor.getReducedInitial());
-        assertEquals("Invalid accepting state output size from DFAReductor advanced testcase",
+                dfaReducer.getReducedInitial());
+        assertEquals("Invalid accepting state output size from DFAReducer advanced testcase",
                 3,
-                dfaReductor.getReducedAccepting().length);
-        assertEquals("Invalid accepting state output form DFAReductor advanced testcase",
+                dfaReducer.getReducedAccepting().length);
+        assertEquals("Invalid accepting state output form DFAReducer advanced testcase",
                 2,
-                dfaReductor.getReducedAccepting()[0]);
-        assertEquals("Invalid accepting state output form DFAReductor advanced testcase",
+                dfaReducer.getReducedAccepting()[0]);
+        assertEquals("Invalid accepting state output form DFAReducer advanced testcase",
                 7,
-                dfaReductor.getReducedAccepting()[1]);
-        assertEquals("Invalid accepting state output form DFAReductor advanced testcase",
+                dfaReducer.getReducedAccepting()[1]);
+        assertEquals("Invalid accepting state output form DFAReducer advanced testcase",
                 8,
-                dfaReductor.getReducedAccepting()[2]);
-        assertEquals("Invalid state count output from DFAReductor advanced testcase",
+                dfaReducer.getReducedAccepting()[2]);
+        assertEquals("Invalid state count output from DFAReducer advanced testcase",
                 9,
                 newTransitions.keySet().size());
-        assertEquals("Invalid letter count output from DFAReductor advanced testcase",
+        assertEquals("Invalid letter count output from DFAReducer advanced testcase",
                 3,
                 newTransitions.get(0).keySet().size());
         //TransitionsCheck
