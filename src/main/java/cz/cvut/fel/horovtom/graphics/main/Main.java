@@ -147,8 +147,6 @@ public class Main {
                 displayMenuLoaded();
                 return;
         }
-
-
     }
 
     static void reduceIt() {
