@@ -110,14 +110,14 @@ public class NFAReducer {
         int current = reduced.getState(original.getAppendedStateNames(original.initial), original.initial);
         reduced.initial.add(current);
 
+        ArrayList<ArrayList<Integer>> pq = new ArrayList<>(reduced.sigma.size());
+
+        for (int i = 0; i < reduced.sigma.size(); i++) {
+            pq.add(new ArrayList<>());
+        }
 
         while (current != -1) {
             ArrayList<Integer> origInd = reduced.getOriginalIndices(current);
-            ArrayList<ArrayList<Integer>> pq = new ArrayList<>(reduced.sigma.size());
-
-            for (int i = 0; i < reduced.sigma.size(); i++) {
-                pq.add(new ArrayList<>());
-            }
 
             for (Integer state : origInd) {
                 for (int letter = 0; letter < reduced.sigma.size(); letter++) {
@@ -126,13 +126,14 @@ public class NFAReducer {
                     for (int ind : inds) {
                         if (!row.contains(ind)) row.add(ind);
                     }
+                    row.sort(Comparator.comparingInt(a -> a));
                 }
             }
 
             HashMap<Integer, int[]> currentRow = new HashMap<>();
             for (int i = 0; i < reduced.sigma.size(); i++) {
-
                 int ind = reduced.getState(original.getAppendedStateNames(pq.get(i)), new ArrayList<>(pq.get(i)));
+                pq.set(i, new ArrayList<>());
                 currentRow.put(i, new int[]{ind});
             }
             reduced.transitions.put(current, currentRow);

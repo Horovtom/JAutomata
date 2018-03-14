@@ -217,11 +217,120 @@ public class NFAReducerTest {
     }
 
     /**
-     * This function tests NFAReducer on hard input:
+     * This function tests NFAReducer on hard input
      */
     @Test
     public void testHard() {
-        //TODO: IMPL
+        String[] Q = new String[]{"A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N"};
+        String[] sigma = new String[]{"a", "b", "c"};
+        int[] initial = new int[]{0, 5, 7, 10};
+        int[] accepting = new int[]{2, 3, 7, 11, 12, 13};
+        HashMap<Integer, HashMap<Integer, int[]>> transitions = new HashMap<>();
+        HashMap<Integer, int[]> current = new HashMap<>();
+        //A
+        current.put(0, new int[]{2, 3});
+        current.put(1, new int[]{0, 6, 7, 8});
+        current.put(2, new int[]{9, 0});
+        transitions.put(0, current);
+        //B
+        current = new HashMap<>();
+        current.put(0, new int[0]);
+        current.put(1, new int[0]);
+        current.put(2, new int[0]);
+        transitions.put(1, current);
+        //C
+        current = new HashMap<>();
+        current.put(0, new int[]{1});
+        current.put(1, new int[0]);
+        current.put(2, new int[0]);
+        transitions.put(2, current);
+        //D
+        current = new HashMap<>();
+        current.put(0, new int[0]);
+        current.put(1, new int[]{4});
+        current.put(2, new int[0]);
+        transitions.put(3, current);
+        //E
+        current = new HashMap<>();
+        current.put(0, new int[]{5, 6});
+        current.put(1, new int[0]);
+        current.put(2, new int[0]);
+        transitions.put(4, current);
+        //F
+        current = new HashMap<>();
+        current.put(0, new int[]{7, 13});
+        current.put(1, new int[]{0, 2});
+        current.put(2, new int[]{7, 9});
+        transitions.put(5, current);
+        //G
+        current = new HashMap<>();
+        current.put(0, new int[]{10, 13});
+        current.put(1, new int[]{0, 1, 2, 3});
+        current.put(2, new int[0]);
+        transitions.put(6, current);
+        //H
+        current = new HashMap<>();
+        current.put(0, new int[0]);
+        current.put(1, new int[0]);
+        current.put(2, new int[0]);
+        transitions.put(7, current);
+        //I
+        current = new HashMap<>();
+        current.put(0, new int[0]);
+        current.put(1, new int[]{8});
+        current.put(2, new int[]{9, 12});
+        transitions.put(8, current);
+        //J
+        current = new HashMap<>();
+        current.put(0, new int[]{12});
+        current.put(1, new int[]{12});
+        current.put(2, new int[]{12});
+        transitions.put(9, current);
+        //K
+        current = new HashMap<>();
+        current.put(0, new int[]{0});
+        current.put(1, new int[]{0});
+        current.put(2, new int[]{1});
+        transitions.put(10, current);
+        //L
+        current = new HashMap<>();
+        current.put(0, new int[]{0});
+        current.put(1, new int[]{2});
+        current.put(2, new int[]{0});
+        transitions.put(11, current);
+        //M
+        current = new HashMap<>();
+        current.put(0, new int[]{2});
+        current.put(1, new int[]{3});
+        current.put(2, new int[]{7});
+        transitions.put(12, current);
+        //N
+        current = new HashMap<>();
+        current.put(0, new int[0]);
+        current.put(1, new int[]{0});
+        current.put(2, new int[0]);
+        transitions.put(13, current);
+
+
+        NFAReducer reducer = new NFAReducer(Q, sigma, transitions, initial, accepting);
+
+        int[] reducedAccepting = reducer.getReducedAccepting();
+        assertEquals("Invalid number of output accepting states!", 35, reducedAccepting.length);
+        int[] reducedInitial = reducer.getReducedInitial();
+        assertEquals("Invalid number of output initial states!", 1, reducedInitial.length);
+        String[] reducedQ = reducer.getReducedQ();
+        assertEquals("Invalid number of output states!", 44, reducedQ.length);
+        String[] reducedSigma = reducer.getReducedSigma();
+        assertEquals("Invalid number of output letters!", 3, reducedSigma.length);
+        assertEquals("Invalid letter name!", "a", reducedSigma[0]);
+        assertEquals("Invalid letter name!", "b", reducedSigma[1]);
+        assertEquals("Invalid letter name!", "c", reducedSigma[2]);
+        HashMap<Integer, HashMap<Integer, int[]>> reducedTransitions = reducer.getReducedTransitions();
+        for (int i = 0; i < 4; i++) {
+            for (int i1 = 0; i1 < 2; i1++) {
+                assertEquals("Invalid output transitions size!", 1, reducedTransitions.get(i).get(i1).length);
+            }
+        }
     }
 
 
