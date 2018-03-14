@@ -55,7 +55,7 @@ public class NFAReducer {
                 sb.replace(sb.length() - 1, sb.length(), "");
                 return sb.toString();
             } else
-                return "";
+                return "ERROR";
         }
 
         /**

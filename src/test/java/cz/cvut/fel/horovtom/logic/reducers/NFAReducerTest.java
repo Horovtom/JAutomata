@@ -11,19 +11,108 @@ public class NFAReducerTest {
     /**
      * This function tests the NFAReducer on simple input:
      * <hr>
-     * //TODO: IMPLE
-     * <p>
+     * <table><tr><th></th><th></th><th>a<br></th><th>b</th></tr><tr><td>↔</td><td>pear</td><td>pear,beer<br></td><td>apple</td></tr><tr><td>→</td><td>apple</td><td>∅</td><td>beer</td></tr><tr><td>←</td><td>beer</td><td>∅</td><td>∅</td></tr></table>
      * <hr>
      * <pre>
-     *
-     *
-     *
+     * +---+-------+-----------+-------+
+     * |   |       | a         | b     |
+     * +---+-------+-----------+-------+
+     * | ↔ | pear  | pear,beer | apple |
+     * +---+-------+-----------+-------+
+     * | → | apple | ∅         | beer  |
+     * +---+-------+-----------+-------+
+     * | ← | beer  | ∅         | ∅     |
+     * +---+-------+-----------+-------+
+     * </pre>
+     * After conversion to DFA it is:
+     * <hr>
+     * <table><tr><th></th><th></th><th>a<br></th><th>b</th></tr><tr><td>↔</td><td>pear,apple<br></td><td>pear,beer<br></td><td>apple,beer</td></tr><tr><td>←</td><td>pear,beer</td><td>pear,beer</td><td>apple</td></tr><tr><td>←</td><td>apple,beer</td><td>∅</td><td>beer</td></tr><tr><td></td><td>apple</td><td>∅</td><td>beer</td></tr><tr><td></td><td>∅</td><td>∅</td><td>∅</td></tr><tr><td>←</td><td>beer</td><td>∅</td><td>∅</td></tr></table>
+     * <hr>
+     * <pre>
+     * +---+------------+-----------+------------+
+     * |   |            | a         | b          |
+     * +---+------------+-----------+------------+
+     * | ↔ | pear,apple | pear,beer | apple,beer |
+     * +---+------------+-----------+------------+
+     * | ← | pear,beer  | pear,beer | apple      |
+     * +---+------------+-----------+------------+
+     * | ← | apple,beer | ∅         | beer       |
+     * +---+------------+-----------+------------+
+     * |   | apple      | ∅         | beer       |
+     * +---+------------+-----------+------------+
+     * |   | ∅          | ∅         | ∅          |
+     * +---+------------+-----------+------------+
+     * | ← | beer       | ∅         | ∅          |
+     * +---+------------+-----------+------------+
      * </pre>
      */
     @Test
     public void testSimple() {
-        //TODO: IMPL
+        String[] Q = new String[]{"pear", "apple", "beer"};
+        String[] sigma = new String[]{"a", "b"};
+        int[] initial = new int[]{0, 1};
+        int[] accepting = new int[]{0, 2};
+        HashMap<Integer, HashMap<Integer, int[]>> transitions = new HashMap<>();
+        HashMap<Integer, int[]> current = new HashMap<>();
+        current.put(0, new int[]{0, 2});
+        current.put(1, new int[]{1});
+        transitions.put(0, current);
+        current = new HashMap<>();
+        current.put(0, new int[0]);
+        current.put(1, new int[]{2});
+        transitions.put(1, current);
+        current = new HashMap<>();
+        current.put(0, new int[0]);
+        current.put(1, new int[0]);
+        transitions.put(2, current);
 
+        NFAReducer reducer = new NFAReducer(Q, sigma, transitions, initial, accepting);
+        int[] reducedAccepting = reducer.getReducedAccepting();
+        assertEquals("Invalid number of output accepting states!", 4, reducedAccepting.length);
+        assertEquals("Invalid accepting state index!", 0, reducedAccepting[0]);
+        assertEquals("Invalid accepting state index!", 1, reducedAccepting[1]);
+        assertEquals("Invalid accepting state index!", 2, reducedAccepting[2]);
+        assertEquals("Invalid accepting state index!", 5, reducedAccepting[3]);
+        int[] reducedInitial = reducer.getReducedInitial();
+        assertEquals("Invalid number of output initial states!", 1, reducedInitial.length);
+        assertEquals("Invalid initial state index!", 0, reducedInitial[0]);
+        String[] reducedQ = reducer.getReducedQ();
+        assertEquals("Invalid number of output states!", 6, reducedQ.length);
+        assertEquals("Invalid state name!", "pear,apple", reducedQ[0]);
+        assertEquals("Invalid state name!", "pear,beer", reducedQ[1]);
+        assertEquals("Invalid state name!", "apple,beer", reducedQ[2]);
+        assertEquals("Invalid state name!", "apple", reducedQ[3]);
+        assertEquals("Invalid state name!", "ERROR", reducedQ[4]);
+        assertEquals("Invalid state name!", "beer", reducedQ[5]);
+        String[] reducedSigma = reducer.getReducedSigma();
+        assertEquals("Invalid number of output letters!", 2, reducedSigma.length);
+        assertEquals("Invalid letter name!", "a", reducedSigma[0]);
+        assertEquals("Invalid letter name!", "b", reducedSigma[1]);
+        HashMap<Integer, HashMap<Integer, int[]>> reducedTransitions = reducer.getReducedTransitions();
+        for (int i = 0; i < 4; i++) {
+            for (int i1 = 0; i1 < 2; i1++) {
+                assertEquals("Invalid output transitions size!", 1, reducedTransitions.get(i).get(i1).length);
+            }
+        }
+
+        HashMap<Integer, int[]> reducedRow = reducedTransitions.get(0);
+        assertEquals("Invalid transition index!", 1, reducedRow.get(0)[0]);
+        assertEquals("Invalid transition index!", 2, reducedRow.get(1)[0]);
+        reducedRow = reducedTransitions.get(1);
+        assertEquals("Invalid transition index!", 1, reducedRow.get(0)[0]);
+        assertEquals("Invalid transition index!", 3, reducedRow.get(1)[0]);
+        reducedRow = reducedTransitions.get(2);
+        assertEquals("Invalid transition index!", 4, reducedRow.get(0)[0]);
+        assertEquals("Invalid transition index!", 5, reducedRow.get(1)[0]);
+        reducedRow = reducedTransitions.get(3);
+        assertEquals("Invalid transition index!", 4, reducedRow.get(0)[0]);
+        assertEquals("Invalid transition index!", 5, reducedRow.get(1)[0]);
+        reducedRow = reducedTransitions.get(4);
+        assertEquals("Invalid transition index!", 4, reducedRow.get(0)[0]);
+        assertEquals("Invalid transition index!", 4, reducedRow.get(1)[0]);
+        reducedRow = reducedTransitions.get(5);
+        assertEquals("Invalid transition index!", 4, reducedRow.get(0)[0]);
+        assertEquals("Invalid transition index!", 4, reducedRow.get(1)[0]);
     }
 
 
@@ -127,6 +216,9 @@ public class NFAReducerTest {
         assertEquals("Invalid transition index!", 2, reducedRow.get(1)[0]);
     }
 
+    /**
+     * This function tests NFAReducer on hard input:
+     */
     @Test
     public void testHard() {
         //TODO: IMPL
