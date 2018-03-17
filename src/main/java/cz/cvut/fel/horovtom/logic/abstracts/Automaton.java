@@ -22,6 +22,7 @@ public abstract class Automaton {
      */
     protected final int PLAIN_TEXT = 0, HTML = 1, TEX = 2, TIKZ = 3;
     protected final String[] savedToString = new String[4];
+    protected int[] savedColumnLengths;
 
     protected Automaton() {
     }
@@ -453,28 +454,32 @@ public abstract class Automaton {
      * @return Array in which 0: column of states, 1: column of first letter and so on...
      */
     private int[] getColumnLengths() {
-        //TODO: ADD SUPPORT FOR CACHING OF THE RESULT
-        int[] ret = new int[this.sigma.length + 1];
-        for (String s : this.Q) {
-            ret[0] = Math.max(ret[0], s.length() + 2);
-        }
-
-        for (int letter = 0; letter < this.sigma.length; letter++) {
-            int where = letter + 1;
-            ret[where] = this.sigma[letter].length();
-            for (int state = 0; state < this.Q.length; state++) {
-                int curr = -1;
-                for (int i : this.transitions.get(state).get(letter)) {
-                    curr += this.Q[i].length() + 1;
-                }
-                if (curr < 0) {
-                    LOGGER.warning("Somehow a maxSize of column " + (letter + 1) + "was < 0!");
-                    curr = 0;
-                }
-                ret[where] = Math.max(ret[where], curr);
+        if (this.savedColumnLengths != null) {
+            return this.savedColumnLengths;
+        } else {
+            int[] ret = new int[this.sigma.length + 1];
+            for (String s : this.Q) {
+                ret[0] = Math.max(ret[0], s.length() + 2);
             }
+
+            for (int letter = 0; letter < this.sigma.length; letter++) {
+                int where = letter + 1;
+                ret[where] = this.sigma[letter].length();
+                for (int state = 0; state < this.Q.length; state++) {
+                    int curr = -1;
+                    for (int i : this.transitions.get(state).get(letter)) {
+                        curr += this.Q[i].length() + 1;
+                    }
+                    if (curr < 0) {
+                        LOGGER.warning("Somehow a maxSize of column " + (letter + 1) + "was < 0!");
+                        curr = 0;
+                    }
+                    ret[where] = Math.max(ret[where], curr);
+                }
+            }
+            this.savedColumnLengths = ret;
+            return ret;
         }
-        return ret;
     }
 
     //region renaming
@@ -483,27 +488,16 @@ public abstract class Automaton {
      * Renames originalName state to newName state. It does not rename if newName is already a state
      */
     public void renameState(String originalName, String newName) {
-        renameState(originalName, newName, false);
-    }
-
-    /**
-     * Renames originalName state to newName state.
-     *
-     * @param force If true, forces renaming even if there is a state with such name
-     */
-    public void renameState(String originalName, String newName, boolean force) {
         LOGGER.fine("Trying to rename state " + originalName + " to " + newName);
         int test = getStateIndex(newName);
         if (test != -1) {
-            if (force) {
-                LOGGER.info("State with name " + newName + " already exists, renaming by force");
-            } else {
+
                 LOGGER.warning("Cannot rename state " + originalName + " to " + newName + " because state with that name already exists");
                 return;
             }
-        }
-        savedToString[0] = savedToString[1] = savedToString[2] = savedToString[3] = null;
-        LOGGER.fine("Saved toString caches invalidated");
+
+        //Invalidating caches
+        invalidateCaches();
         int index = this.getStateIndex(originalName);
         if (index == -1) {
             LOGGER.info("Renaming failed, because state " + originalName + " does not exist");
@@ -516,26 +510,15 @@ public abstract class Automaton {
      * Renames originalName letter to newName letter. It does not rename if newName is already a letter
      */
     public void renameLetter(String originalName, String newName) {
-        renameLetter(originalName, newName, false);
-    }
-
-    /**
-     * Renames originalName letter to newName letter.
-     *
-     * @param force If true, forces renaming even if there is a letter with such name
-     */
-    public void renameLetter(String originalName, String newName, boolean force) {
         LOGGER.fine("Trying to rename letter " + originalName + " to " + newName);
         int test = getLetterIndex(newName);
         if (test != -1) {
-            if (force) {
-                LOGGER.info("Letter with name " + newName + " already exists, renaming by force");
-            } else {
-                LOGGER.warning("Cannot rename letter " + originalName + " to " + newName + " because letter with that name already exists");
-                return;
-            }
+
+            LOGGER.warning("Cannot rename letter " + originalName + " to " + newName + " because letter with that name already exists");
+            return;
+
         }
-        savedToString[0] = savedToString[1] = savedToString[2] = savedToString[3] = null;
+        invalidateCaches();
         LOGGER.fine("Saved toString caches invalidated");
         int index = this.getLetterIndex(originalName);
         if (index == -1) {
@@ -546,4 +529,11 @@ public abstract class Automaton {
     }
 
     //endregion
+
+    public void invalidateCaches() {
+        savedToString[0] = savedToString[1] = savedToString[2] = savedToString[3] = null;
+        savedColumnLengths = null;
+        stateMapping = sigmaMapping = null;
+        LOGGER.fine("Caches invalidated");
+    }
 }
