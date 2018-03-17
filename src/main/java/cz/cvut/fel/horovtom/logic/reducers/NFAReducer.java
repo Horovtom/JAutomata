@@ -156,8 +156,8 @@ public class NFAReducer {
         return reduced.sigma.toArray(new String[0]);
     }
 
-    public int[] getReducedInitial() {
-        return reduced.initial.stream().mapToInt(a -> a).toArray();
+    public int getReducedInitial() {
+        return reduced.initial.get(0);
     }
 
     public int[] getReducedAccepting() {

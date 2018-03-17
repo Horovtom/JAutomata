@@ -73,9 +73,8 @@ public class NFAReducerTest {
         assertEquals("Invalid accepting state index!", 1, reducedAccepting[1]);
         assertEquals("Invalid accepting state index!", 2, reducedAccepting[2]);
         assertEquals("Invalid accepting state index!", 5, reducedAccepting[3]);
-        int[] reducedInitial = reducer.getReducedInitial();
-        assertEquals("Invalid number of output initial states!", 1, reducedInitial.length);
-        assertEquals("Invalid initial state index!", 0, reducedInitial[0]);
+        int reducedInitial = reducer.getReducedInitial();
+        assertEquals("Invalid initial state index!", 0, reducedInitial);
         String[] reducedQ = reducer.getReducedQ();
         assertEquals("Invalid number of output states!", 6, reducedQ.length);
         assertEquals("Invalid state name!", "pear,apple", reducedQ[0]);
@@ -182,9 +181,8 @@ public class NFAReducerTest {
         int[] reducedAccepting = reducer.getReducedAccepting();
         assertEquals("Invalid number of output accepting states!", 1, reducedAccepting.length);
         assertEquals("Invalid accepting state index!", 3, reducedAccepting[0]);
-        int[] reducedInitial = reducer.getReducedInitial();
-        assertEquals("Invalid number of output initial states!", 1, reducedInitial.length);
-        assertEquals("Invalid initial state index!", 0, reducedInitial[0]);
+        int reducedInitial = reducer.getReducedInitial();
+        assertEquals("Invalid initial state index!", 0, reducedInitial);
         String[] reducedQ = reducer.getReducedQ();
         assertEquals("Invalid number of output states!", 4, reducedQ.length);
         assertEquals("Invalid state name!", "0,1", reducedQ[0]);
@@ -316,8 +314,7 @@ public class NFAReducerTest {
 
         int[] reducedAccepting = reducer.getReducedAccepting();
         assertEquals("Invalid number of output accepting states!", 35, reducedAccepting.length);
-        int[] reducedInitial = reducer.getReducedInitial();
-        assertEquals("Invalid number of output initial states!", 1, reducedInitial.length);
+        int reducedInitial = reducer.getReducedInitial();
         String[] reducedQ = reducer.getReducedQ();
         assertEquals("Invalid number of output states!", 44, reducedQ.length);
         String[] reducedSigma = reducer.getReducedSigma();

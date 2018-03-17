@@ -15,6 +15,8 @@ public abstract class Automaton {
     protected int[] acceptingStates;
     protected HashMap<Integer, HashMap<Integer, int[]>> transitions;
     protected DFAAutomaton reduced = null;
+    private HashMap<String, Integer> sigmaMapping, stateMapping;
+
     /**
      * Constants to be used as indices for {@link #savedToString}
      */
@@ -75,20 +77,27 @@ public abstract class Automaton {
      * @return -1 if the letter is not in sigma
      */
     protected int getLetterIndex(String letterName) {
-        for (int i = 0; i < sigma.length; i++) {
-            if (sigma[i].equals(letterName)) return i;
+        if (sigmaMapping == null) {
+            sigmaMapping = new HashMap<>(sigma.length);
+            for (int i = 0; i < sigma.length; i++) {
+                sigmaMapping.put(sigma[i], i);
+            }
         }
-        return -1;
+
+        return sigmaMapping.getOrDefault(letterName, -1);
     }
 
     /**
      * @return -1 if stateName is not in Q
      */
     protected int getStateIndex(String stateName) {
-        for (int i = 0; i < Q.length; i++) {
-            if (Q[i].equals(stateName)) return i;
+        if (stateMapping == null) {
+            stateMapping = new HashMap<>(Q.length);
+            for (int i = 0; i < Q.length; i++) {
+                stateMapping.put(Q[i], i);
+            }
         }
-        return -1;
+        return stateMapping.getOrDefault(stateName, -1);
     }
 
     /**
@@ -467,4 +476,74 @@ public abstract class Automaton {
         }
         return ret;
     }
+
+    //region renaming
+
+    /**
+     * Renames originalName state to newName state. It does not rename if newName is already a state
+     */
+    public void renameState(String originalName, String newName) {
+        renameState(originalName, newName, false);
+    }
+
+    /**
+     * Renames originalName state to newName state.
+     *
+     * @param force If true, forces renaming even if there is a state with such name
+     */
+    public void renameState(String originalName, String newName, boolean force) {
+        LOGGER.fine("Trying to rename state " + originalName + " to " + newName);
+        int test = getStateIndex(newName);
+        if (test != -1) {
+            if (force) {
+                LOGGER.info("State with name " + newName + " already exists, renaming by force");
+            } else {
+                LOGGER.warning("Cannot rename state " + originalName + " to " + newName + " because state with that name already exists");
+                return;
+            }
+        }
+        savedToString[0] = savedToString[1] = savedToString[2] = savedToString[3] = null;
+        LOGGER.fine("Saved toString caches invalidated");
+        int index = this.getStateIndex(originalName);
+        if (index == -1) {
+            LOGGER.info("Renaming failed, because state " + originalName + " does not exist");
+            return;
+        }
+        Q[index] = newName;
+    }
+
+    /**
+     * Renames originalName letter to newName letter. It does not rename if newName is already a letter
+     */
+    public void renameLetter(String originalName, String newName) {
+        renameLetter(originalName, newName, false);
+    }
+
+    /**
+     * Renames originalName letter to newName letter.
+     *
+     * @param force If true, forces renaming even if there is a letter with such name
+     */
+    public void renameLetter(String originalName, String newName, boolean force) {
+        LOGGER.fine("Trying to rename letter " + originalName + " to " + newName);
+        int test = getLetterIndex(newName);
+        if (test != -1) {
+            if (force) {
+                LOGGER.info("Letter with name " + newName + " already exists, renaming by force");
+            } else {
+                LOGGER.warning("Cannot rename letter " + originalName + " to " + newName + " because letter with that name already exists");
+                return;
+            }
+        }
+        savedToString[0] = savedToString[1] = savedToString[2] = savedToString[3] = null;
+        LOGGER.fine("Saved toString caches invalidated");
+        int index = this.getLetterIndex(originalName);
+        if (index == -1) {
+            LOGGER.info("Renaming failed, because letter " + originalName + " does not exist");
+            return;
+        }
+        sigma[index] = newName;
+    }
+
+    //endregion
 }

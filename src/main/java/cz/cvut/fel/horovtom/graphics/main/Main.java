@@ -4,6 +4,8 @@ import cz.cvut.fel.horovtom.logic.DFAAutomaton;
 import cz.cvut.fel.horovtom.logic.abstracts.Automaton;
 
 import java.io.IOException;
+import java.io.InputStream;
+import java.util.Objects;
 import java.util.Scanner;
 import java.util.StringTokenizer;
 import java.util.logging.FileHandler;
@@ -24,6 +26,7 @@ public class Main {
     }
 
     static void displayMenu() {
+        System.out.println("-----------");
         if (current != null) {
             displayMenuLoaded();
             return;
@@ -59,8 +62,17 @@ public class Main {
 
     static void loadPredefinedAutomaton() {
         //TODO: IMPLEMENT
-        System.err.println("Not implemented yet!");
+        loadDFA1();
         displayMenu();
+    }
+
+    private static void loadDFA1() {
+        try (InputStream in = Objects.requireNonNull(Main.class.getClassLoader().getResource("predefined/DFA1.txt")).openStream()) {
+            current = new DFAAutomaton(in);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
     }
 
     static void userCreateAutomaton() {
@@ -117,7 +129,10 @@ public class Main {
         System.out.println("1: Check if a word is in L");
         System.out.println("2: Get automaton in string");
         System.out.println("3: Reduce");
-        System.out.println("4: Delete this automaton");
+        System.out.println("4: Rename state");
+        System.out.println("5: Rename letter");
+        System.out.println("6: Delete this automaton");
+        System.out.println("7: Exit");
         System.out.println("Your choice: ");
         int choice;
         Scanner sc = new Scanner(System.in);
@@ -133,6 +148,19 @@ public class Main {
                 reduceIt();
                 break;
             case 4:
+                System.out.println("Input original and new name separated by spaces: ");
+                String original = sc.next(), newName = sc.next();
+                current.renameState(original, newName);
+                displayMenu();
+                break;
+            case 5:
+                System.out.println("Input original and new name separated by spaces: ");
+                original = sc.next();
+                newName = sc.next();
+                current.renameLetter(original, newName);
+                displayMenu();
+                break;
+            case 6:
                 System.out.println("Are you sure? (Y/N): ");
                 char res;
                 res = sc.next().charAt(0);
@@ -141,7 +169,10 @@ public class Main {
                     displayMenu();
                     return;
                 }
+                displayMenu();
                 break;
+            case 7:
+                return;
             default:
                 System.err.println("Your choice was invalid!");
                 displayMenuLoaded();

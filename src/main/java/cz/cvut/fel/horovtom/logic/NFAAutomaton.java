@@ -9,7 +9,7 @@ public class NFAAutomaton extends Automaton {
     @Override
     public DFAAutomaton reduce() {
         NFAReducer reducer = new NFAReducer(this.Q, this.sigma, this.transitions, this.initialStates, this.acceptingStates);
-
+        //DFAAutomaton dfa = new DFAAutomaton(reducer.getReducedQ(), reducer.getReducedSigma(), reducer.getReducedTransitions(), reducer.getReducedInitial(), reducer.getReducedAccepting());
         //TODO: COMPLETE
         return null;
     }
