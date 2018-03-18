@@ -12,11 +12,21 @@ public class ENFAAutomaton extends Automaton {
 
     @Override
     public DFAAutomaton reduce() {
+        //TODO: IMPL
         return null;
     }
 
     @Override
     protected int[] getPossibleTransitions(int state, int letter) {
+        //TODO: IMPL
+
         return new int[0];
+    }
+
+    @Override
+    public Automaton copy() {
+        //TODO: IMPL
+
+        return null;
     }
 }

@@ -723,4 +723,6 @@ public abstract class Automaton {
             return null;
         }
     }
+
+    public abstract Automaton copy();
 }

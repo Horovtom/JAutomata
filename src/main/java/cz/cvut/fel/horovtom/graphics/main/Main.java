@@ -1,6 +1,7 @@
 package cz.cvut.fel.horovtom.graphics.main;
 
 import cz.cvut.fel.horovtom.logic.DFAAutomaton;
+import cz.cvut.fel.horovtom.logic.NFAAutomaton;
 import cz.cvut.fel.horovtom.logic.abstracts.Automaton;
 
 import javax.swing.*;
@@ -155,9 +156,9 @@ public class Main {
     }
 
     static void userCreateNFA() {
-        //TODO: IMPLEMENT
-        System.err.println("Not implemented yet!");
-        userCreateAutomaton();
+        current = new NFAAutomaton();
+
+        displayMenu();
     }
 
     static void userCreateDFA() {

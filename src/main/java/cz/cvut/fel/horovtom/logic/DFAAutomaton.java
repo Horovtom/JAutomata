@@ -180,6 +180,26 @@ public class DFAAutomaton extends Automaton {
     }
 
     @Override
+    public Automaton copy() {
+        String[] Q = Arrays.copyOf(this.Q, this.Q.length);
+        String[] sigma = Arrays.copyOf(this.sigma, this.sigma.length);
+        HashMap<Integer, HashMap<Integer, Integer>> transitions = new HashMap<>();
+        for (int state = 0; state < this.Q.length; state++) {
+            HashMap<Integer, Integer> curr = new HashMap<>();
+            transitions.put(state, curr);
+            HashMap<Integer, int[]> currOrig = this.transitions.get(state);
+            for (int letter = 0; letter < this.sigma.length; letter++) {
+                int[] arr = currOrig.get(letter);
+                curr.put(letter, arr[0]);
+            }
+        }
+        int[] accepting = Arrays.copyOf(this.acceptingStates, this.acceptingStates.length);
+        int initial = this.initialStates[0];
+
+        return new DFAAutomaton(Q, sigma, transitions, initial, accepting);
+    }
+
+    @Override
     public boolean acceptsWord(String[] word) {
         if (this.reduced == null) {
             reduce();
