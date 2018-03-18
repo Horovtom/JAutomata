@@ -3,6 +3,9 @@ package cz.cvut.fel.horovtom.graphics.main;
 import cz.cvut.fel.horovtom.logic.DFAAutomaton;
 import cz.cvut.fel.horovtom.logic.abstracts.Automaton;
 
+import javax.swing.*;
+import javax.swing.filechooser.FileFilter;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Objects;
@@ -37,7 +40,8 @@ public class Main {
             System.out.println("Select one option from the following:");
             System.out.println("1: Enter a new automaton");
             System.out.println("2: Use pre-defined automaton");
-            System.out.println("3: Exit");
+            System.out.println("3: Load automaton from file");
+            System.out.println("4: Exit");
 
             System.out.println("Your choice: ");
             int choice;
@@ -51,6 +55,9 @@ public class Main {
                     loadPredefinedAutomaton();
                     break;
                 case 3:
+                    loadAutomaton();
+                    break;
+                case 4:
                     return;
                 default:
                     System.err.println("Your choice was invalid!");
@@ -58,6 +65,41 @@ public class Main {
                     return;
             }
         }
+    }
+
+    private static void loadAutomaton() {
+        JFileChooser jfc = new JFileChooser();
+        jfc.setCurrentDirectory(new File(System.getProperty("user.home")));
+        jfc.setDialogTitle("Load automaton");
+        jfc.setFileFilter(new FileFilter() {
+            @Override
+            public boolean accept(File f) {
+                return f.getName().matches(".*.csv");
+            }
+
+            @Override
+            public String getDescription() {
+                return "CSV file";
+            }
+        });
+        JFrame frame = new JFrame("Save automaton");
+        frame.setFocusable(true);
+        frame.setVisible(true);
+        frame.requestFocus();
+        frame.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
+        int returnVal = jfc.showSaveDialog(frame);
+        if (returnVal == JFileChooser.APPROVE_OPTION) {
+            File fileToSave = jfc.getSelectedFile();
+            if (!fileToSave.getName().contains(".")) {
+                fileToSave = new File(fileToSave.getAbsolutePath() + ".csv");
+            }
+            System.out.println("Attempting to load from: " + fileToSave.getAbsolutePath());
+            current = Automaton.importFromCSV(fileToSave);
+        } else if (returnVal == JFileChooser.ERROR_OPTION) {
+            System.err.println("Unexpected error ocurred, while opening the save dialog!");
+        }
+        frame.dispose();
+        displayMenu();
     }
 
     static void loadPredefinedAutomaton() {
@@ -131,8 +173,9 @@ public class Main {
         System.out.println("3: Reduce");
         System.out.println("4: Rename state");
         System.out.println("5: Rename letter");
-        System.out.println("6: Delete this automaton");
-        System.out.println("7: Exit");
+        System.out.println("6: Export to CSV");
+        System.out.println("7: Delete this automaton");
+        System.out.println("8: Exit");
         System.out.println("Your choice: ");
         int choice;
         Scanner sc = new Scanner(System.in);
@@ -161,6 +204,9 @@ public class Main {
                 displayMenu();
                 break;
             case 6:
+                saveAutomaton();
+                break;
+            case 7:
                 System.out.println("Are you sure? (Y/N): ");
                 char res;
                 res = sc.next().charAt(0);
@@ -171,13 +217,48 @@ public class Main {
                 }
                 displayMenu();
                 break;
-            case 7:
+            case 8:
                 return;
             default:
                 System.err.println("Your choice was invalid!");
                 displayMenuLoaded();
                 return;
         }
+    }
+
+    private static void saveAutomaton() {
+        JFileChooser jfc = new JFileChooser();
+        jfc.setCurrentDirectory(new File(System.getProperty("user.home")));
+        jfc.setDialogTitle("Save automaton");
+        jfc.setFileFilter(new FileFilter() {
+            @Override
+            public boolean accept(File f) {
+                return f.getName().matches(".*.csv");
+            }
+
+            @Override
+            public String getDescription() {
+                return "CSV file";
+            }
+        });
+        JFrame frame = new JFrame("Save automaton");
+        frame.setFocusable(true);
+        frame.setVisible(true);
+        frame.requestFocus();
+        frame.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
+        int returnVal = jfc.showSaveDialog(frame);
+        if (returnVal == JFileChooser.APPROVE_OPTION) {
+            File fileToSave = jfc.getSelectedFile();
+            if (!fileToSave.getName().contains(".")) {
+                fileToSave = new File(fileToSave.getAbsolutePath() + ".csv");
+            }
+            System.out.println("Attempting to save to: " + fileToSave.getAbsolutePath());
+            current.exportCSV(fileToSave);
+        } else if (returnVal == JFileChooser.ERROR_OPTION) {
+            System.err.println("Unexpected error ocurred, while opening the save dialog!");
+        }
+        frame.dispose();
+        displayMenu();
     }
 
     static void reduceIt() {
@@ -217,8 +298,8 @@ public class Main {
                 return;
         }
 
-        displayMenu();
 
+        displayMenu();
     }
 
     static void isWordInL() {

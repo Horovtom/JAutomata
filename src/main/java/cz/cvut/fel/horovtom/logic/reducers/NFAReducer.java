@@ -144,8 +144,21 @@ public class NFAReducer {
         reduced.setAccepting(original.accepting);
     }
 
-    public HashMap<Integer, HashMap<Integer, int[]>> getReducedTransitions() {
-        return this.reduced.transitions;
+    public HashMap<Integer, HashMap<Integer, Integer>> getReducedTransitions() {
+        //TODO: CACHING
+        HashMap<Integer, HashMap<Integer, Integer>> returning = new HashMap<>();
+        HashMap<Integer, HashMap<Integer, int[]>> transitions = this.reduced.transitions;
+
+        for (int i = 0; i < this.reduced.Q.size(); i++) {
+            HashMap<Integer, int[]> row = transitions.get(i);
+            HashMap<Integer, Integer> newRow = new HashMap<>();
+            returning.put(i, newRow);
+            for (int letter = 0; letter < this.reduced.sigma.size(); letter++) {
+                newRow.put(letter, row.get(letter)[0]);
+            }
+        }
+
+        return returning;
     }
 
     public String[] getReducedQ() {

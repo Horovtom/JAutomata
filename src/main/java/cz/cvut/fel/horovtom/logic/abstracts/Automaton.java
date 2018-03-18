@@ -1,7 +1,12 @@
 package cz.cvut.fel.horovtom.logic.abstracts;
 
-import cz.cvut.fel.horovtom.logic.DFAAutomaton;
 
+import cz.cvut.fel.horovtom.logic.DFAAutomaton;
+import cz.cvut.fel.horovtom.logic.ENFAAutomaton;
+import cz.cvut.fel.horovtom.tools.Utilities;
+import javafx.util.Pair;
+
+import java.io.*;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -28,38 +33,68 @@ public abstract class Automaton {
     }
 
     public Automaton(String[] Q, String[] sigma, HashMap<String, HashMap<String, String>> transitions, String[] initials, String[] accepting) {
-        HashMap<String, Integer> stringIntStates = new HashMap<>();
+
+        String[] newSigma = new String[sigma.length];
+        int epsilonIndex = -1;
+        for (int i = 0; i < sigma.length; i++) {
+            if (sigma[i].equals("\\epsilon")) {
+                epsilonIndex = i;
+                break;
+            }
+        }
+
+        int current = 0, currNew = 0;
+        if (epsilonIndex != -1) {
+            newSigma[0] = sigma[epsilonIndex];
+            currNew = 1;
+        }
+        while (current < sigma.length) {
+            if (current == epsilonIndex) {
+                current++;
+                continue;
+            }
+
+            newSigma[currNew] = sigma[current];
+
+            current++;
+            currNew++;
+        }
+
+        this.Q = Q;
+        this.sigma = newSigma;
+
+
         HashMap<Integer, HashMap<Integer, int[]>> trans = new HashMap<>();
         for (int i = 0; i < Q.length; i++) {
             String from = Q[i];
-            stringIntStates.put(from, i);
             HashMap<Integer, int[]> curr = new HashMap<>();
             trans.put(i, curr);
-            for (int l = 0; l < sigma.length; l++) {
-                String by = sigma[l];
+            for (int l = 0; l < newSigma.length; l++) {
+                String by = newSigma[l];
                 String to = transitions.get(from).get(by);
-                if (!stringIntStates.containsKey(to)) {
-                    for (int i1 = 1; i1 < Q.length; i1++) {
-                        if (Q[i1].equals(to)) {
-                            stringIntStates.put(to, i1);
-                            break;
-                        }
-                    }
+                Pair<Integer, String> ret;
+                ArrayList<Integer> targets = new ArrayList<>();
+                int currentIndex = 0;
+
+                while (currentIndex >= 0) {
+                    ret = Utilities.getNextToken(to, currentIndex, ',');
+                    currentIndex = ret.getKey();
+                    if (ret.getValue().length() != 0)
+                        targets.add(getStateIndex(ret.getValue()));
                 }
-                curr.put(l, new int[]{stringIntStates.get(to)});
+
+                curr.put(l, targets.stream().mapToInt(a -> a).toArray());
             }
         }
 
         int[] acc = new int[accepting.length];
         for (int i = 0; i < acc.length; i++) {
-            acc[i] = stringIntStates.get(accepting[i]);
+            acc[i] = getStateIndex(accepting[i]);
         }
-        this.Q = Q;
-        this.sigma = sigma;
         this.transitions = trans;
         int[] init = new int[initials.length];
         for (int i = 0; i < init.length; i++) {
-            init[i] = stringIntStates.get(initials[i]);
+            init[i] = getStateIndex(initials[i]);
         }
 
         this.initialStates = init;
@@ -130,7 +165,8 @@ public abstract class Automaton {
 
             //HEADER
             result.append(String.format("%1$-" + (columnLengths[0] + 1) + "s", ""));
-            for (int i = 0; i < this.sigma.length; i++) {
+            result.append(String.format("%1$-" + (columnLengths[1] + 1) + "s", this.sigma[0].equals("\\epsilon") ? "ε" : this.sigma[0]));
+            for (int i = 1; i < this.sigma.length; i++) {
                 result.append(String.format("%1$-" + (columnLengths[i + 1] + 1) + "s", this.sigma[i]));
             }
             result.append("\n");
@@ -181,8 +217,13 @@ public abstract class Automaton {
     public String getAutomatonTableHTML() {
         if (savedToString[HTML] == null) {
             StringBuilder res = new StringBuilder("<table>\n\t<tr><td></td><td></td>");
-            for (String s : this.sigma) {
-                res.append("<td>").append(s).append("</td>");
+            if (this.sigma[0].equals("\\epsilon")) {
+                res.append("<td>ε</td>");
+            } else {
+                res.append("<td>").append(this.sigma[0]).append("</td>");
+            }
+            for (int i = 1; i < this.sigma.length; i++) {
+                res.append("<td>").append(this.sigma[i]).append("</td>");
             }
             res.append("</tr>\n");
             for (int i = 0; i < this.Q.length; i++) {
@@ -224,11 +265,11 @@ public abstract class Automaton {
     public String getAutomatonTableTEX() {
         if (savedToString[TEX] == null) {
             StringBuilder res = new StringBuilder("\\begin{tabular}{cc");
-            String[] sigma1 = this.sigma;
-            for (int i = 0; i < sigma1.length; i++) {
+            for (String ignored : this.sigma) {
                 res.append("|c");
             }
             res.append("}\n\t & ");
+
             for (String s : this.sigma) {
                 res.append("& $").append(s).append("$ ");
             }
@@ -464,7 +505,7 @@ public abstract class Automaton {
 
             for (int letter = 0; letter < this.sigma.length; letter++) {
                 int where = letter + 1;
-                ret[where] = this.sigma[letter].length();
+                ret[where] = (letter == 0 && this.sigma[0].equals("\\epsilon")) ? 1 : this.sigma[letter].length();
                 for (int state = 0; state < this.Q.length; state++) {
                     int curr = -1;
                     for (int i : this.transitions.get(state).get(letter)) {
@@ -477,6 +518,7 @@ public abstract class Automaton {
                     ret[where] = Math.max(ret[where], curr);
                 }
             }
+
             this.savedColumnLengths = ret;
             return ret;
         }
@@ -492,9 +534,9 @@ public abstract class Automaton {
         int test = getStateIndex(newName);
         if (test != -1) {
 
-                LOGGER.warning("Cannot rename state " + originalName + " to " + newName + " because state with that name already exists");
-                return;
-            }
+            LOGGER.warning("Cannot rename state " + originalName + " to " + newName + " because state with that name already exists");
+            return;
+        }
 
         //Invalidating caches
         invalidateCaches();
@@ -535,5 +577,150 @@ public abstract class Automaton {
         savedColumnLengths = null;
         stateMapping = sigmaMapping = null;
         LOGGER.fine("Caches invalidated");
+    }
+
+    public void exportCSV(File file) {
+        try {
+            Writer writer = new OutputStreamWriter(new FileOutputStream(file), "UTF-8");
+            StringBuilder sb = new StringBuilder(",");
+
+            for (String s : sigma) {
+                sb.append(",\"").append(s).append("\"");
+            }
+            sb.append("\n");
+
+            for (int i = 0; i < Q.length; i++) {
+                if (isAcceptingState(i)) {
+                    sb.append("<");
+                }
+                if (isInitialState(i)) {
+                    sb.append(">");
+                }
+                sb.append(",").append(Q[i]);
+
+                int[] curr;
+                for (int letter = 0; letter < sigma.length; letter++) {
+                    curr = transitions.get(i).get(letter);
+                    if (curr.length > 0) {
+                        sb.append(",\"").append(Q[curr[0]]);
+                        for (int c = 1; c < curr.length; c++) {
+                            sb.append(",").append(Q[curr[c]]);
+                        }
+                        sb.append("\"");
+                    } else sb.append(",");
+                }
+                sb.append("\n");
+            }
+
+            writer.write(sb.toString());
+            writer.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+
+    public static Automaton importFromCSV(File fileToLoad) {
+        try {
+            Reader reader = new InputStreamReader(new FileInputStream(fileToLoad), "UTF-8");
+            BufferedReader r = new BufferedReader(reader);
+            String line = r.readLine();
+            ArrayList<String> sigma = new ArrayList<>();
+            ArrayList<String> Q = new ArrayList<>();
+            int curr = 2;
+
+            Pair<Integer, String> ret;
+            while (curr >= 0) {
+                ret = Utilities.getNextToken(line, curr, ',');
+                curr = ret.getKey();
+                String t = ret.getValue();
+
+                if (t.charAt(0) == '\"')
+                    sigma.add(t.substring(1, t.length() - 1));
+                else
+                    sigma.add(t);
+            }
+
+            HashMap<String, HashMap<String, String>> transitions = new HashMap<>();
+            ArrayList<Integer> initials = new ArrayList<>();
+            ArrayList<Integer> accepting = new ArrayList<>();
+            int counter = 0;
+            while (r.ready()) {
+                line = r.readLine();
+                curr = 0;
+                ret = Utilities.getNextToken(line, curr, ',');
+                curr = ret.getKey();
+
+                switch (ret.getValue()) {
+                    case "<>":
+                        initials.add(counter);
+                    case "<":
+                        accepting.add(counter);
+                        break;
+                    case ">":
+                        initials.add(counter);
+                        break;
+                    case "":
+                        break;
+                    default:
+                        LOGGER.warning("Invalid CSV format, expected <>");
+                        return null;
+                }
+
+                ret = Utilities.getNextToken(line, curr, ',');
+                curr = ret.getKey();
+                String state = ret.getValue();
+                Q.add(state);
+                HashMap<String, String> row = new HashMap<>();
+                transitions.put(state, row);
+                for (String letter : sigma) {
+                    if (curr == -1) {
+                        row.put(letter, "");
+                        continue;
+                    }
+
+                    ret = Utilities.getNextToken(line, curr, ',');
+                    curr = ret.getKey();
+
+                    String t = ret.getValue();
+                    if (t.length() == 0) {
+                        row.put(letter, "");
+                    } else {
+                        if (t.charAt(0) == '\"')
+                            row.put(letter, t.substring(1, t.length() - 1));
+                        else
+                            row.put(letter, t);
+                    }
+                }
+                if (curr != -1) {
+                    LOGGER.warning("Invalid CSV file, more tokens than expected on line");
+                    return null;
+                }
+                counter++;
+            }
+
+            String[] initialString = new String[initials.size()];
+            String[] acceptingString = new String[accepting.size()];
+            for (int i = 0; i < initials.size(); i++) {
+                initialString[i] = Q.get(initials.get(i));
+            }
+            for (int i = 0; i < accepting.size(); i++) {
+                acceptingString[i] = Q.get(accepting.get(i));
+            }
+            if (reader.ready()) {
+                LOGGER.warning("Invalid CSV file");
+            }
+
+            return new ENFAAutomaton(
+                    Q.toArray(new String[0]),
+                    sigma.toArray(new String[0]),
+                    transitions,
+                    initialString,
+                    acceptingString);
+        } catch (IOException e) {
+            e.printStackTrace();
+            LOGGER.warning(e.getLocalizedMessage());
+            return null;
+        }
     }
 }

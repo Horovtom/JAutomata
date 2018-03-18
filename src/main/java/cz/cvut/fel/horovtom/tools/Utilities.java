@@ -1,5 +1,7 @@
 package cz.cvut.fel.horovtom.tools;
 
+import javafx.util.Pair;
+
 import java.util.concurrent.ThreadLocalRandom;
 
 public class Utilities {
@@ -18,6 +20,37 @@ public class Utilities {
      */
     public static double getRandDouble() {
         return Math.random();
+    }
+
+    /**
+     * Returns pair of NextPosition and String with the next token on the line from specified position
+     * E.G.:
+     * getNextToken("Hello,World,Trebuchet", 0, ',') -> Pair(6,"Hello")
+     * getNextToken("Hello,World,Trebuchet", 6, ',') -> Pair(12, "World")
+     * getNextToken("Hello,World,Trebuchet", 12, ',')-> Pair(-1, "Trebuchet)
+     * getNextToken("Hello,World,Trebuchet", -1, ',')-> Pair(-1, null)
+     */
+    public static Pair<Integer, String> getNextToken(String line, int pos, char separator) {
+        int len = line.length();
+        if (pos < 0 || pos >= len) return new Pair<>(-1, "");
+        int curr = pos;
+        boolean chain = false;
+        StringBuilder sb = new StringBuilder();
+        while (true) {
+            if (curr >= len) {
+                return new Pair<>(-1, sb.toString());
+            }
+            char currentChar = line.charAt(curr);
+            if (line.charAt(curr) == separator && !chain) {
+                return new Pair<>(curr + 1 >= len ? -1 : curr + 1, sb.toString());
+            } else {
+                if (currentChar == '\"') {
+                    chain = !chain;
+                }
+                sb.append(currentChar);
+                curr++;
+            }
+        }
     }
 
 }

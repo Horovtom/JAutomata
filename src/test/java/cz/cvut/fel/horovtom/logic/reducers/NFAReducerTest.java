@@ -87,31 +87,26 @@ public class NFAReducerTest {
         assertEquals("Invalid number of output letters!", 2, reducedSigma.length);
         assertEquals("Invalid letter name!", "a", reducedSigma[0]);
         assertEquals("Invalid letter name!", "b", reducedSigma[1]);
-        HashMap<Integer, HashMap<Integer, int[]>> reducedTransitions = reducer.getReducedTransitions();
-        for (int i = 0; i < 4; i++) {
-            for (int i1 = 0; i1 < 2; i1++) {
-                assertEquals("Invalid output transitions size!", 1, reducedTransitions.get(i).get(i1).length);
-            }
-        }
+        HashMap<Integer, HashMap<Integer, Integer>> reducedTransitions = reducer.getReducedTransitions();
 
-        HashMap<Integer, int[]> reducedRow = reducedTransitions.get(0);
-        assertEquals("Invalid transition index!", 1, reducedRow.get(0)[0]);
-        assertEquals("Invalid transition index!", 2, reducedRow.get(1)[0]);
+        HashMap<Integer, Integer> reducedRow = reducedTransitions.get(0);
+        assertEquals("Invalid transition index!", new Integer(1), reducedRow.get(0));
+        assertEquals("Invalid transition index!", new Integer(2), reducedRow.get(1));
         reducedRow = reducedTransitions.get(1);
-        assertEquals("Invalid transition index!", 1, reducedRow.get(0)[0]);
-        assertEquals("Invalid transition index!", 3, reducedRow.get(1)[0]);
+        assertEquals("Invalid transition index!", new Integer(1), reducedRow.get(0));
+        assertEquals("Invalid transition index!", new Integer(3), reducedRow.get(1));
         reducedRow = reducedTransitions.get(2);
-        assertEquals("Invalid transition index!", 4, reducedRow.get(0)[0]);
-        assertEquals("Invalid transition index!", 5, reducedRow.get(1)[0]);
+        assertEquals("Invalid transition index!", new Integer(4), reducedRow.get(0));
+        assertEquals("Invalid transition index!", new Integer(5), reducedRow.get(1));
         reducedRow = reducedTransitions.get(3);
-        assertEquals("Invalid transition index!", 4, reducedRow.get(0)[0]);
-        assertEquals("Invalid transition index!", 5, reducedRow.get(1)[0]);
+        assertEquals("Invalid transition index!", new Integer(4), reducedRow.get(0));
+        assertEquals("Invalid transition index!", new Integer(5), reducedRow.get(1));
         reducedRow = reducedTransitions.get(4);
-        assertEquals("Invalid transition index!", 4, reducedRow.get(0)[0]);
-        assertEquals("Invalid transition index!", 4, reducedRow.get(1)[0]);
+        assertEquals("Invalid transition index!", new Integer(4), reducedRow.get(0));
+        assertEquals("Invalid transition index!", new Integer(4), reducedRow.get(1));
         reducedRow = reducedTransitions.get(5);
-        assertEquals("Invalid transition index!", 4, reducedRow.get(0)[0]);
-        assertEquals("Invalid transition index!", 4, reducedRow.get(1)[0]);
+        assertEquals("Invalid transition index!", new Integer(4), reducedRow.get(0));
+        assertEquals("Invalid transition index!", new Integer(4), reducedRow.get(1));
     }
 
 
@@ -193,25 +188,21 @@ public class NFAReducerTest {
         assertEquals("Invalid number of output letters!", 2, reducedSigma.length);
         assertEquals("Invalid letter name!", "a", reducedSigma[0]);
         assertEquals("Invalid letter name!", "b", reducedSigma[1]);
-        HashMap<Integer, HashMap<Integer, int[]>> reducedTransitions = reducer.getReducedTransitions();
-        for (int i = 0; i < 4; i++) {
-            for (int i1 = 0; i1 < 2; i1++) {
-                assertEquals("Invalid output transitions size!", 1, reducedTransitions.get(i).get(i1).length);
-            }
-        }
+        HashMap<Integer, HashMap<Integer, Integer>> reducedTransitions = reducer.getReducedTransitions();
 
-        HashMap<Integer, int[]> reducedRow = reducedTransitions.get(0);
-        assertEquals("Invalid transition index!", 1, reducedRow.get(0)[0]);
-        assertEquals("Invalid transition index!", 2, reducedRow.get(1)[0]);
+
+        HashMap<Integer, Integer> reducedRow = reducedTransitions.get(0);
+        assertEquals("Invalid transition index!", new Integer(1), reducedRow.get(0));
+        assertEquals("Invalid transition index!", new Integer(2), reducedRow.get(1));
         reducedRow = reducedTransitions.get(1);
-        assertEquals("Invalid transition index!", 1, reducedRow.get(0)[0]);
-        assertEquals("Invalid transition index!", 2, reducedRow.get(1)[0]);
+        assertEquals("Invalid transition index!", new Integer(1), reducedRow.get(0));
+        assertEquals("Invalid transition index!", new Integer(2), reducedRow.get(1));
         reducedRow = reducedTransitions.get(2);
-        assertEquals("Invalid transition index!", 3, reducedRow.get(0)[0]);
-        assertEquals("Invalid transition index!", 1, reducedRow.get(1)[0]);
+        assertEquals("Invalid transition index!", new Integer(3), reducedRow.get(0));
+        assertEquals("Invalid transition index!", new Integer(1), reducedRow.get(1));
         reducedRow = reducedTransitions.get(3);
-        assertEquals("Invalid transition index!", 1, reducedRow.get(0)[0]);
-        assertEquals("Invalid transition index!", 2, reducedRow.get(1)[0]);
+        assertEquals("Invalid transition index!", new Integer(1), reducedRow.get(0));
+        assertEquals("Invalid transition index!", new Integer(2), reducedRow.get(1));
     }
 
     /**
@@ -322,12 +313,6 @@ public class NFAReducerTest {
         assertEquals("Invalid letter name!", "a", reducedSigma[0]);
         assertEquals("Invalid letter name!", "b", reducedSigma[1]);
         assertEquals("Invalid letter name!", "c", reducedSigma[2]);
-        HashMap<Integer, HashMap<Integer, int[]>> reducedTransitions = reducer.getReducedTransitions();
-        for (int i = 0; i < 4; i++) {
-            for (int i1 = 0; i1 < 2; i1++) {
-                assertEquals("Invalid output transitions size!", 1, reducedTransitions.get(i).get(i1).length);
-            }
-        }
     }
 
 
