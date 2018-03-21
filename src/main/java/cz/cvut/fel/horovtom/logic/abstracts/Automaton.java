@@ -33,7 +33,58 @@ public abstract class Automaton {
     }
 
     public Automaton(String[] Q, String[] sigma, HashMap<String, HashMap<String, String>> transitions, String[] initials, String[] accepting) {
+        initializeQSigma(Q, sigma);
 
+        HashMap<Integer, HashMap<Integer, int[]>> trans = new HashMap<>();
+        for (int i = 0; i < Q.length; i++) {
+            String from = Q[i];
+            HashMap<Integer, int[]> curr = new HashMap<>();
+            trans.put(i, curr);
+            for (int l = 0; l < this.sigma.length; l++) {
+                String by = this.sigma[l];
+                String to = transitions.get(from).get(by);
+                Pair<Integer, String> ret;
+                ArrayList<Integer> targets = new ArrayList<>();
+                int currentIndex = 0;
+
+                while (currentIndex >= 0) {
+                    ret = Utilities.getNextToken(to, currentIndex, ',');
+                    currentIndex = ret.getKey();
+                    if (ret.getValue().length() != 0)
+                        targets.add(getStateIndex(ret.getValue()));
+                }
+
+                curr.put(l, targets.stream().mapToInt(a -> a).toArray());
+            }
+        }
+        this.transitions = trans;
+
+        initializeInitAcc(initials, accepting);
+    }
+
+    /**
+     * Method used by {@link #Automaton(String[], String[], HashMap, String[], String[])} and
+     * {@link cz.cvut.fel.horovtom.logic.NFAAutomaton#NFAAutomaton(String[], String[], HashMap, String[], String[])}
+     */
+    protected void initializeInitAcc(String[] initials, String[] accepting) {
+        int[] acc = new int[accepting.length];
+        for (int i = 0; i < acc.length; i++) {
+            acc[i] = getStateIndex(accepting[i]);
+        }
+        int[] init = new int[initials.length];
+        for (int i = 0; i < init.length; i++) {
+            init[i] = getStateIndex(initials[i]);
+        }
+
+        this.initialStates = init;
+        this.acceptingStates = acc;
+    }
+
+    /**
+     * Method used by {@link #Automaton(String[], String[], HashMap, String[], String[])} and
+     * {@link cz.cvut.fel.horovtom.logic.NFAAutomaton#NFAAutomaton(String[], String[], HashMap, String[], String[])}
+     */
+    protected void initializeQSigma(String[] Q, String[] sigma) {
         String[] newSigma = new String[sigma.length];
         int epsilonIndex = -1;
         for (int i = 0; i < sigma.length; i++) {
@@ -63,42 +114,6 @@ public abstract class Automaton {
         this.Q = Q;
         this.sigma = newSigma;
 
-
-        HashMap<Integer, HashMap<Integer, int[]>> trans = new HashMap<>();
-        for (int i = 0; i < Q.length; i++) {
-            String from = Q[i];
-            HashMap<Integer, int[]> curr = new HashMap<>();
-            trans.put(i, curr);
-            for (int l = 0; l < newSigma.length; l++) {
-                String by = newSigma[l];
-                String to = transitions.get(from).get(by);
-                Pair<Integer, String> ret;
-                ArrayList<Integer> targets = new ArrayList<>();
-                int currentIndex = 0;
-
-                while (currentIndex >= 0) {
-                    ret = Utilities.getNextToken(to, currentIndex, ',');
-                    currentIndex = ret.getKey();
-                    if (ret.getValue().length() != 0)
-                        targets.add(getStateIndex(ret.getValue()));
-                }
-
-                curr.put(l, targets.stream().mapToInt(a -> a).toArray());
-            }
-        }
-
-        int[] acc = new int[accepting.length];
-        for (int i = 0; i < acc.length; i++) {
-            acc[i] = getStateIndex(accepting[i]);
-        }
-        this.transitions = trans;
-        int[] init = new int[initials.length];
-        for (int i = 0; i < init.length; i++) {
-            init[i] = getStateIndex(initials[i]);
-        }
-
-        this.initialStates = init;
-        this.acceptingStates = acc;
     }
 
     public int getQSize() {
@@ -512,7 +527,7 @@ public abstract class Automaton {
                         curr += this.Q[i].length() + 1;
                     }
                     if (curr < 0) {
-                        LOGGER.warning("Somehow a maxSize of column " + (letter + 1) + "was < 0!");
+                        LOGGER.warning("Somehow a maxSize of column " + (letter + 1) + " was < 0!");
                         curr = 0;
                     }
                     ret[where] = Math.max(ret[where], curr);
@@ -596,7 +611,7 @@ public abstract class Automaton {
                 if (isInitialState(i)) {
                     sb.append(">");
                 }
-                sb.append(",").append(Q[i]);
+                sb.append(",\"").append(Q[i]).append("\"");
 
                 int[] curr;
                 for (int letter = 0; letter < sigma.length; letter++) {

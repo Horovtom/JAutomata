@@ -36,6 +36,7 @@ public class NFAAutomaton extends Automaton {
             LOGGER.info("Asking user to enter state names...");
             System.out.println("Enter state names on a single line, separated by spaces:");
 
+            //LOAD STATES
             String line = br.readLine();
             StringTokenizer st = new StringTokenizer(line);
             this.Q = new String[st.countTokens()];
@@ -46,7 +47,7 @@ public class NFAAutomaton extends Automaton {
             }
             System.out.println("Loaded " + this.Q.length + " states.\n");
 
-
+            //LOAD LETTERS
             System.out.println("Enter letter names on a single line, separated by spaces: ");
             LOGGER.info("Asking user to enter letter names...");
             line = br.readLine();
@@ -58,7 +59,10 @@ public class NFAAutomaton extends Automaton {
                 LOGGER.info(i + ": " + this.sigma[i]);
             }
             System.out.println("Loaded " + this.sigma.length + " letters.\n");
+
+            //LOAD TRANSITIONS
             System.out.println("Enter transitions for this automaton. Separate cells by spaces and states by commas. If nothing is in a cell, mark it by '-'");
+            //Print header
             System.out.print("state \t");
             for (String s : this.sigma) {
                 System.out.print(s + " ");
@@ -78,6 +82,7 @@ public class NFAAutomaton extends Automaton {
                     System.err.println("Invalid number of tokens on this line! Try again!");
                     i--;
                 } else {
+                    //Get the cell
                     for (int letter = 0; letter < sigma.length; letter++) {
                         String tok = st.nextToken();
                         if (tok.equals("-")) {
@@ -88,6 +93,7 @@ public class NFAAutomaton extends Automaton {
                         int current = 0;
                         ArrayList<Integer> cell = new ArrayList<>();
                         while (current < tok.length()) {
+                            //Get next token from letter
                             Pair<Integer, String> res = Utilities.getNextToken(tok, current, ',');
                             current = res.getKey();
                             if (res.getValue().length() == 0) {
@@ -106,13 +112,31 @@ public class NFAAutomaton extends Automaton {
                 }
                 i++;
             }
-            System.out.println("Specify initial state: ");
+
+            //GET INITIAL STATES
+            System.out.println("Specify initial states on one line separated by spaces: ");
             line = br.readLine();
             st = new StringTokenizer(line);
-            if (st.countTokens() != 1) {
-                LOGGER.warning("More than 1 initial state specified. Getting first one, ignoring rest");
+            if (st.countTokens() == 0) {
+                LOGGER.info("0 initial states specified.");
+                System.err.println("0 initial states specified.");
             }
-            this.initialStates = new int[]{this.getStateIndex(st.nextToken())};
+
+            ArrayList<Integer> initials = new ArrayList<>();
+
+            while (st.hasMoreTokens()) {
+                String state = st.nextToken();
+                int curr = this.getStateIndex(state);
+                if (curr == -1) {
+                    LOGGER.info("State " + state + " does not exist! Ignoring!");
+                    System.err.println("State " + state + " does not exist! Ignoring!");
+                    continue;
+                }
+                initials.add(curr);
+            }
+            this.initialStates = initials.stream().mapToInt(a -> a).toArray();
+
+            //GET ACCEPTING STATES
             System.out.println("Specify accepting states on one line separated by spaces: ");
             line = br.readLine();
             st = new StringTokenizer(line);
@@ -139,6 +163,34 @@ public class NFAAutomaton extends Automaton {
         this.transitions = transitions;
         this.initialStates = initial;
         this.acceptingStates = accepting;
+    }
+
+    public NFAAutomaton(String[] Q, String[] sigma, HashMap<String, HashMap<String, String[]>> transitions, String[] initials, String[] accepting) {
+        initializeQSigma(Q, sigma);
+
+        HashMap<Integer, HashMap<Integer, int[]>> trans = new HashMap<>();
+        for (int i = 0; i < Q.length; i++) {
+            String from = Q[i];
+            HashMap<Integer, int[]> curr = new HashMap<>();
+            trans.put(i, curr);
+            for (int l = 0; l < this.sigma.length; l++) {
+                String by = this.sigma[l];
+                String[] to = transitions.get(from).get(by);
+                ArrayList<Integer> targets = new ArrayList<>();
+                for (String s : to) {
+                    int ind = getStateIndex(s);
+                    if (ind < 0) {
+                        LOGGER.warning("State " + s + " does not exist!");
+                        continue;
+                    }
+                    targets.add(ind);
+                }
+
+                curr.put(l, targets.stream().mapToInt(a -> a).toArray());
+            }
+        }
+        this.transitions = trans;
+        initializeInitAcc(initials, accepting);
     }
 
     @Override

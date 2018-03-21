@@ -1,10 +1,13 @@
 package cz.cvut.fel.horovtom.logic.automaton;
 
+import cz.cvut.fel.horovtom.logic.DFAAutomaton;
 import cz.cvut.fel.horovtom.logic.ENFAAutomaton;
+import cz.cvut.fel.horovtom.logic.NFAAutomaton;
 import cz.cvut.fel.horovtom.logic.abstracts.Automaton;
 import org.junit.Test;
 
-import java.io.File;
+import java.io.*;
+import java.util.HashMap;
 import java.util.Objects;
 
 import static org.junit.Assert.assertEquals;
@@ -55,5 +58,80 @@ public class ImportExportTest {
                         "  C   A     B,A "
                 , automaton.getAutomatonTablePlainText());
 
+    }
+
+    @Test
+    public void testExportCSVDFA() {
+        HashMap<String, HashMap<String, String>> map = new HashMap<>();
+        HashMap<String, String> current;
+        current = new HashMap<>();
+        current.put("a", "A");
+        current.put("b", "S");
+        map.put("S", current);
+        current = new HashMap<>();
+        current.put("a", "B");
+        current.put("b", "B");
+        map.put("A", current);
+        current = new HashMap<>();
+        current.put("a", "S");
+        current.put("b", "A");
+        map.put("B", current);
+        String[] states = new String[]{"S", "A", "B"};
+        String[] letters = new String[]{"a", "b"};
+        String[] accepting = new String[]{"A", "B"};
+        String initial = "S";
+        Automaton automaton = new DFAAutomaton(states, letters, map, initial, accepting);
+        try {
+            File file = File.createTempFile("dfa", "csv");
+            automaton.exportCSV(file);
+            BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream(file)));
+            assertEquals("CSV was incorrect", ",,\"a\",\"b\"", br.readLine());
+            assertEquals("CSV was incorrect", ">,\"S\",\"A\",\"S\"", br.readLine());
+            assertEquals("CSV was incorrect", "<,\"A\",\"B\",\"B\"", br.readLine());
+            assertEquals("CSV was incorrect", "<,\"B\",\"S\",\"A\"", br.readLine());
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Test
+    public void testExportCSVNFA() {
+        HashMap<String, HashMap<String, String[]>> map = new HashMap<>();
+        HashMap<String, String[]> current;
+        current = new HashMap<>();
+        current.put("a", new String[0]);
+        current.put("b", new String[]{"S", "A"});
+        map.put("S", current);
+        current = new HashMap<>();
+        current.put("a", new String[]{"S", "B"});
+        current.put("b", new String[]{"B"});
+        map.put("A", current);
+        current = new HashMap<>();
+        current.put("a", new String[0]);
+        current.put("b", new String[0]);
+        map.put("B", current);
+        String[] states = new String[]{"S", "A", "B"};
+        String[] letters = new String[]{"a", "b"};
+        String[] initials = new String[]{"S", "A"};
+        String[] accepting = new String[]{"A"};
+        NFAAutomaton automaton = new NFAAutomaton(states, letters, map, initials, accepting);
+        try {
+            File file = File.createTempFile("nfa", "csv");
+            automaton.exportCSV(file);
+            BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream(file)));
+            assertEquals("CSV was incorrect", ",,\"a\",\"b\"", br.readLine());
+            assertEquals("CSV was incorrect", ">,\"S\",,\"S,A\"", br.readLine());
+            assertEquals("CSV was incorrect", "<>,\"A\",\"S,B\",\"B\"", br.readLine());
+            assertEquals("CSV was incorrect", ",\"B\",,", br.readLine());
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Test
+    public void testExportCSVENFA() {
+        //TODO: IMPL
     }
 }
