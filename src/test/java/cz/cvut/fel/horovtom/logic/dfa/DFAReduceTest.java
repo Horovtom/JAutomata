@@ -2,19 +2,18 @@ package cz.cvut.fel.horovtom.logic.dfa;
 
 import cz.cvut.fel.horovtom.logic.DFAAutomaton;
 import cz.cvut.fel.horovtom.logic.abstracts.Automaton;
+import cz.cvut.fel.horovtom.logic.samples.Samples;
 import org.junit.Test;
 
 import java.util.HashMap;
 
 import static cz.cvut.fel.horovtom.logic.dfa.DFADefinitionTest.testWords;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 public class DFAReduceTest {
     @Test
     public void testReductionDFA1() {
-        DFAAutomaton dfa = DFASamples.getDFA1();
+        DFAAutomaton dfa = Samples.getDFA1();
         dfa = dfa.reduce();
         assertEquals("Reduction did not remove all unnessesary states!", 5, dfa.getQSize());
         assertEquals("Reduction removed letters, which it shouldn't!", 2, dfa.getSigmaSize());

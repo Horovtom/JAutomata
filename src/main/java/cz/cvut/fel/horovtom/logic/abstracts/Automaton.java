@@ -1,38 +1,89 @@
 package cz.cvut.fel.horovtom.logic.abstracts;
 
-
 import cz.cvut.fel.horovtom.logic.DFAAutomaton;
 import cz.cvut.fel.horovtom.logic.ENFAAutomaton;
 import cz.cvut.fel.horovtom.tools.Utilities;
 import javafx.util.Pair;
 
 import java.io.*;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.HashSet;
+import java.util.*;
 import java.util.logging.Logger;
 
 public abstract class Automaton {
     private final static Logger LOGGER = Logger.getLogger(Automaton.class.getName());
-    protected String[] Q, sigma;
+    /**
+     * Ordered array of state names in Q
+     */
+    protected String[] Q;
+    /**
+     * Ordered array of letter names in Sigma
+     * If automaton has epsilon transitions, epsilon will always be the first letter in this array, so its index is 0
+     */
+    protected String[] sigma;
+    /**
+     * Array containing indices of initial states in no particular order
+     */
     protected int[] initialStates;
+    /**
+     * Array containing indices of accepting states in no particular order
+     */
     protected int[] acceptingStates;
+    /**
+     * Representation of transitions table, where first key is the current state, second key is the current letter and
+     * the result is the array of indices of all possible target states.
+     * <p>
+     * Transitions: &delta; : Q x &Sigma; &rarr; P(Q) <br>
+     * </p>
+     * <p>
+     * We get &delta;(0, 1) = A &sube; Q <br>
+     * as A = transitions.get(0).get(1) <br>
+     * where 0 is the index of current state and 1 is the index of the letter letter
+     * </p>
+     */
     protected HashMap<Integer, HashMap<Integer, int[]>> transitions;
-    protected DFAAutomaton reduced = null;
-    private HashMap<String, Integer> sigmaMapping, stateMapping;
 
+    //region CACHES
+    /**
+     * This contains the reduced automaton, has it been calculated yet. Else it contains null.
+     */
+    protected DFAAutomaton reduced = null;
+    /**
+     * These variables hold the cache for fast getting indices of states and letters from strings
+     */
+    private HashMap<String, Integer> sigmaMapping = null, stateMapping = null;
     /**
      * Constants to be used as indices for {@link #savedToString}
      */
     protected final int PLAIN_TEXT = 0, HTML = 1, TEX = 2, TIKZ = 3;
+    /**
+     * This variable holds the cache for string formats of this automaton
+     * <p>E.G.: {@link #getAutomatonTableHTML()} or {@link #getAutomatonTIKZ()}</p>
+     */
     protected final String[] savedToString = new String[4];
+    /**
+     * This variable holds the cache for column lengths, used mainly by {@link #getAutomatonTablePlainText()}
+     */
     protected int[] savedColumnLengths;
+    //endregion
 
+    //region CONSTRUCTORS
+
+    /**
+     * Mandatory
+     */
     protected Automaton() {
     }
 
-    public Automaton(String[] Q, String[] sigma, HashMap<String, HashMap<String, String>> transitions, String[] initials, String[] accepting) {
+    /**
+     * Constructor used to initialize the variables. It is used by children of this abstract class.
+     *
+     * @param Q           State names of the automaton
+     * @param sigma       Letter names of the automaton
+     * @param transitions Table of transitions in text form. The value of this map can be empty, or state names separated by commas
+     * @param initials    Initial state names of the automaton in text form.
+     * @param accepting   Accepting state names of the automaton in text form
+     */
+    public Automaton(String[] Q, String[] sigma, HashMap<String, HashMap<String, String[]>> transitions, String[] initials, String[] accepting) {
         initializeQSigma(Q, sigma);
 
         HashMap<Integer, HashMap<Integer, int[]>> trans = new HashMap<>();
@@ -42,30 +93,24 @@ public abstract class Automaton {
             trans.put(i, curr);
             for (int l = 0; l < this.sigma.length; l++) {
                 String by = this.sigma[l];
-                String to = transitions.get(from).get(by);
-                Pair<Integer, String> ret;
+                String[] to = transitions.get(from).get(by);
                 ArrayList<Integer> targets = new ArrayList<>();
-                int currentIndex = 0;
-
-                while (currentIndex >= 0) {
-                    ret = Utilities.getNextToken(to, currentIndex, ',');
-                    currentIndex = ret.getKey();
-                    if (ret.getValue().length() != 0)
-                        targets.add(getStateIndex(ret.getValue()));
+                for (String s : to) {
+                    int ind = getStateIndex(s);
+                    if (ind < 0) {
+                        LOGGER.warning("State " + s + " does not exist!");
+                        continue;
+                    }
+                    targets.add(ind);
                 }
 
                 curr.put(l, targets.stream().mapToInt(a -> a).toArray());
             }
         }
         this.transitions = trans;
-
         initializeInitAcc(initials, accepting);
     }
 
-    /**
-     * Method used by {@link #Automaton(String[], String[], HashMap, String[], String[])} and
-     * {@link cz.cvut.fel.horovtom.logic.NFAAutomaton#NFAAutomaton(String[], String[], HashMap, String[], String[])}
-     */
     protected void initializeInitAcc(String[] initials, String[] accepting) {
         int[] acc = new int[accepting.length];
         for (int i = 0; i < acc.length; i++) {
@@ -80,13 +125,11 @@ public abstract class Automaton {
         this.acceptingStates = acc;
     }
 
-    /**
-     * Method used by {@link #Automaton(String[], String[], HashMap, String[], String[])} and
-     * {@link cz.cvut.fel.horovtom.logic.NFAAutomaton#NFAAutomaton(String[], String[], HashMap, String[], String[])}
-     */
     protected void initializeQSigma(String[] Q, String[] sigma) {
         String[] newSigma = new String[sigma.length];
+
         int epsilonIndex = -1;
+        //Search for epsilon letter
         for (int i = 0; i < sigma.length; i++) {
             if (sigma[i].equals("\\epsilon")) {
                 epsilonIndex = i;
@@ -115,6 +158,34 @@ public abstract class Automaton {
         this.sigma = newSigma;
 
     }
+
+    public void initializeTransitionsCompact(HashMap<String, HashMap<String, String>> transitions) {
+        HashMap<Integer, HashMap<Integer, int[]>> trans = new HashMap<>();
+        for (int i = 0; i < Q.length; i++) {
+            String from = Q[i];
+            HashMap<Integer, int[]> curr = new HashMap<>();
+            trans.put(i, curr);
+            for (int l = 0; l < this.sigma.length; l++) {
+                String by = this.sigma[l];
+                String to = transitions.get(from).get(by);
+                Pair<Integer, String> ret;
+                ArrayList<Integer> targets = new ArrayList<>();
+                int currentIndex = 0;
+
+                while (currentIndex >= 0) {
+                    ret = Utilities.getNextToken(to, currentIndex, ',');
+                    currentIndex = ret.getKey();
+                    if (ret.getValue().length() != 0)
+                        targets.add(getStateIndex(ret.getValue()));
+                }
+
+                curr.put(l, targets.stream().mapToInt(a -> a).toArray());
+            }
+        }
+        this.transitions = trans;
+    }
+
+    //endregion
 
     public int getQSize() {
         return Q.length;
@@ -167,7 +238,7 @@ public abstract class Automaton {
 
     @Override
     public String toString() {
-        return "Automaton" + getAutomatonTablePlainText();
+        return "Automaton:\n" + getAutomatonTablePlainText();
     }
 
     /**
@@ -634,7 +705,6 @@ public abstract class Automaton {
         }
     }
 
-
     public static Automaton importFromCSV(File fileToLoad) {
         try {
             Reader reader = new InputStreamReader(new FileInputStream(fileToLoad), "UTF-8");
@@ -740,4 +810,57 @@ public abstract class Automaton {
     }
 
     public abstract Automaton copy();
+
+    /**
+     * @return whether the automaton has any epsilon transitions
+     */
+    public boolean hasEpsilonTransitions() {
+        return this.sigma[0].equals("\\epsilon");
+        //TODO: TEST THIS
+    }
+
+    /**
+     * Array of states that are accessible from specified state by epsilon transitions.
+     *
+     * @return Null if state doesn't exist
+     */
+    public String[] getEpsilonClosure(String state) {
+        int stateIndex = this.getStateIndex(state);
+        if (stateIndex == -1) {
+            LOGGER.info("Invalid state name passed: " + state);
+            return null;
+        }
+        int[] ret = getEpsilonClosure(stateIndex);
+        String[] returning = new String[ret.length];
+        for (int i = 0; i < ret.length; i++) {
+            returning[i] = this.sigma[ret[i]];
+        }
+        return returning;
+    }
+
+    /**
+     * @return Array of state indices that are accessible from specified state by epsilon transitions
+     */
+    protected int[] getEpsilonClosure(int state) {
+        if (!hasEpsilonTransitions()) {
+            return new int[]{state};
+        }
+
+        LinkedList<Integer> toDo = new LinkedList<>();
+        toDo.add(state);
+        TreeSet<Integer> closure = new TreeSet<>();
+        while (!toDo.isEmpty()) {
+            int curr = toDo.poll();
+            if (!closure.contains(curr)) {
+                closure.add(curr);
+                int[] targ = this.transitions.get(curr).get(0);
+                for (int i : targ) {
+                    if (!closure.contains(i)) {
+                        toDo.add(i);
+                    }
+                }
+            }
+        }
+        return closure.stream().mapToInt(a -> a).toArray();
+    }
 }

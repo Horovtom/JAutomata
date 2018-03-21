@@ -1,7 +1,7 @@
 package cz.cvut.fel.horovtom.logic.automaton;
 
 import cz.cvut.fel.horovtom.logic.DFAAutomaton;
-import cz.cvut.fel.horovtom.logic.dfa.DFASamples;
+import cz.cvut.fel.horovtom.logic.samples.Samples;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
@@ -9,7 +9,7 @@ import static org.junit.Assert.assertEquals;
 public class RenamingTest {
     @Test
     public void testDFA() {
-        DFAAutomaton dfa = DFASamples.getDFA3();
+        DFAAutomaton dfa = Samples.getDFA3();
         dfa.renameLetter("aa", "bb");
         String[] sigma = dfa.getSigma();
         assertEquals("Renaming of non-existing letter changed sigma",

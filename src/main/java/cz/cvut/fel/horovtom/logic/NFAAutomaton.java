@@ -9,10 +9,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.StringTokenizer;
+import java.util.*;
 import java.util.logging.Logger;
 
 public class NFAAutomaton extends Automaton {
@@ -165,32 +162,27 @@ public class NFAAutomaton extends Automaton {
         this.acceptingStates = accepting;
     }
 
-    public NFAAutomaton(String[] Q, String[] sigma, HashMap<String, HashMap<String, String[]>> transitions, String[] initials, String[] accepting) {
+    public NFAAutomaton(String[] Q, String[] sigma, HashMap<String, HashMap<String, String[]>> transitions, String[] initial, String[] accepting) {
+        super(Q, sigma, transitions, initial, accepting);
+    }
+
+    //FIXME: The map is actually trying to get rid of erasure problems - ASK
+
+    /**
+     * Constructor used to initialize the variables. It is used by children of this abstract class.
+     *
+     * @param Q           State names of the automaton
+     * @param sigma       Letter names of the automaton
+     * @param transitions Table of transitions in text form. The value of this map can be empty, or state names separated by commas
+     * @param initial     Initial state names of the automaton in text form.
+     * @param accepting   Accepting state names of the automaton in text form
+     */
+    public NFAAutomaton(String[] Q, String[] sigma, Map<String, HashMap<String, String>> transitions, String[] initial, String[] accepting) {
         initializeQSigma(Q, sigma);
-
-        HashMap<Integer, HashMap<Integer, int[]>> trans = new HashMap<>();
-        for (int i = 0; i < Q.length; i++) {
-            String from = Q[i];
-            HashMap<Integer, int[]> curr = new HashMap<>();
-            trans.put(i, curr);
-            for (int l = 0; l < this.sigma.length; l++) {
-                String by = this.sigma[l];
-                String[] to = transitions.get(from).get(by);
-                ArrayList<Integer> targets = new ArrayList<>();
-                for (String s : to) {
-                    int ind = getStateIndex(s);
-                    if (ind < 0) {
-                        LOGGER.warning("State " + s + " does not exist!");
-                        continue;
-                    }
-                    targets.add(ind);
-                }
-
-                curr.put(l, targets.stream().mapToInt(a -> a).toArray());
-            }
-        }
-        this.transitions = trans;
-        initializeInitAcc(initials, accepting);
+        initializeTransitionsCompact((transitions instanceof HashMap)
+                ? (HashMap) transitions
+                : new HashMap<>(transitions));
+        initializeInitAcc(initial, accepting);
     }
 
     @Override

@@ -120,7 +120,9 @@ public class DFAAutomaton extends Automaton {
      */
     public DFAAutomaton(String[] Q, String[] sigma, HashMap<String, HashMap<String, String>> transitions,
                         String initial, String[] accepting) {
-        super(Q, sigma, transitions, new String[]{initial}, accepting);
+        initializeQSigma(Q, sigma);
+        initializeTransitionsCompact(transitions);
+        initializeInitAcc(new String[]{initial}, accepting);
     }
 
     /**

@@ -1,6 +1,7 @@
 package cz.cvut.fel.horovtom.logic.dfa;
 
 import cz.cvut.fel.horovtom.logic.DFAAutomaton;
+import cz.cvut.fel.horovtom.logic.samples.Samples;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
@@ -9,7 +10,7 @@ public class DFAToStringTest {
 
     @Test
     public void testPlainText1() {
-        DFAAutomaton dfa = DFASamples.getDFA1();
+        DFAAutomaton dfa = Samples.getDFA1();
         assertEquals("DFA1 did not create plain text output correctly!",
                 "    a b \n" +
                         "  1 2 1 \n" +
@@ -24,7 +25,7 @@ public class DFAToStringTest {
 
     @Test
     public void testRenaming() {
-        DFAAutomaton dfa = DFASamples.getDFA1();
+        DFAAutomaton dfa = Samples.getDFA1();
         assertEquals("DFA1 did not create plain text output correctly!",
                 "    a b \n" +
                         "  1 2 1 \n" +
@@ -232,7 +233,7 @@ public class DFAToStringTest {
 
     @Test
     public void testPlainText2() {
-        DFAAutomaton dfa = DFASamples.getDFA2();
+        DFAAutomaton dfa = Samples.getDFA2();
         assertEquals("DFA2 did not create plain text output correctly!",
                 "    0.12 -6.38 0 213.002 \n" +
                         " >0 1    0     0 0       \n" +
@@ -248,7 +249,7 @@ public class DFAToStringTest {
 
     @Test
     public void testPlainText3() {
-        DFAAutomaton dfa = DFASamples.getDFA3();
+        DFAAutomaton dfa = Samples.getDFA3();
         assertEquals("DFA2 did not create plain text output correctly!",
                 "    \\alpha \\beta \n" +
                         "<>0 0      1     \n" +
@@ -258,7 +259,7 @@ public class DFAToStringTest {
 
     @Test
     public void testHTML1() {
-        DFAAutomaton dfa = DFASamples.getDFA1();
+        DFAAutomaton dfa = Samples.getDFA1();
         assertEquals("DFA1 did not output HTML code properly!",
                 "<table>\n" +
                         "\t<tr><td></td><td></td><td>a</td><td>b</td></tr>\n" +
@@ -276,7 +277,7 @@ public class DFAToStringTest {
 
     @Test
     public void testHTML2() {
-        DFAAutomaton dfa = DFASamples.getDFA2();
+        DFAAutomaton dfa = Samples.getDFA2();
         assertEquals("DFA2 did not output HTML code properly!",
                 "<table>\n" +
                         "\t<tr><td></td><td></td><td>0.12</td><td>-6.38</td><td>0</td><td>213.002</td></tr>\n" +
@@ -294,7 +295,7 @@ public class DFAToStringTest {
 
     @Test
     public void testHTML3() {
-        DFAAutomaton dfa = DFASamples.getDFA3();
+        DFAAutomaton dfa = Samples.getDFA3();
         assertEquals("DFA3 did not output HTML code properly!",
                 "<table>\n" +
                         "\t<tr><td></td><td></td><td>\\alpha</td><td>\\beta</td></tr>\n" +
@@ -306,7 +307,7 @@ public class DFAToStringTest {
 
     @Test
     public void testTEX1() {
-        DFAAutomaton dfa = DFASamples.getDFA1();
+        DFAAutomaton dfa = Samples.getDFA1();
         assertEquals("DFA1 did not output TEX code properly!",
                 "\\begin{tabular}{cc|c|c}\n" +
                         "\t & & $a$ & $b$ \\\\\\hline\n" +
@@ -323,7 +324,7 @@ public class DFAToStringTest {
 
     @Test
     public void testTEX2() {
-        DFAAutomaton dfa = DFASamples.getDFA2();
+        DFAAutomaton dfa = Samples.getDFA2();
         assertEquals("DFA2 did not output TEX code properly!",
                 "\\begin{tabular}{cc|c|c|c|c}\n" +
                         "\t & & $0.12$ & $-6.38$ & $0$ & $213.002$ \\\\\\hline\n" +
@@ -347,7 +348,7 @@ public class DFAToStringTest {
                         "\t$\\leftrightarrow$ & $0$ & $0$ & $1$ \\\\\n" +
                         "\t & $1$ & $1$ & $1$ \n" +
                         "\\end{tabular}",
-                DFASamples.getDFA3().getAutomatonTableTEX());
+                Samples.getDFA3().getAutomatonTableTEX());
     }
 
     @Test
@@ -384,7 +385,7 @@ public class DFAToStringTest {
                         "\t\t\tedge [bend left] node {$b$} (3)\n" +
                         "\t\t\tedge [loop above] node {$a$} (6);\n" +
                         "\\end{tikzpicture}",
-                DFASamples.getDFA1().getAutomatonTIKZ());
+                Samples.getDFA1().getAutomatonTIKZ());
     }
 
     @Test
@@ -424,7 +425,7 @@ public class DFAToStringTest {
                         "\t\t(7)\n" +
                         "\t\t\tedge [loop above] node {$0.12,-6.38,0,213.002$} (7);\n" +
                         "\\end{tikzpicture}",
-                DFASamples.getDFA2().getAutomatonTIKZ());
+                Samples.getDFA2().getAutomatonTIKZ());
     }
 
     @Test
@@ -440,6 +441,6 @@ public class DFAToStringTest {
                         "\t\t(1)\n" +
                         "\t\t\tedge [loop above] node {$\\alpha,\\beta$} (1);\n" +
                         "\\end{tikzpicture}",
-                DFASamples.getDFA3().getAutomatonTIKZ());
+                Samples.getDFA3().getAutomatonTIKZ());
     }
 }
