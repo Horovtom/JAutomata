@@ -202,6 +202,11 @@ public class DFAAutomaton extends Automaton {
     }
 
     @Override
+    public boolean hasEpsilonTransitions() {
+        return false;
+    }
+
+    @Override
     public boolean acceptsWord(String[] word) {
         if (this.reduced == null) {
             reduce();

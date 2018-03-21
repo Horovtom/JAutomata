@@ -362,13 +362,137 @@ public class Samples {
         return new NFAAutomaton(states, sigma, transitions, initials, accepting);
     }
 
+    /**
+     * Image: cz/cvut/fel/horovtom/logic/samples/nfa_3.png <br>
+     * This automaton accepts this language: <br>
+     * <b>L = {w | w &isin; {a,b,c}<sup>*</sup>, w is described by regular expression: (ba)<sup>*</sup>c<sup>*</sup>a(bc)<sup>*</sup>}</b>
+     * <p>
+     * <hr>
+     * <table><tr><th><br></th><th></th><th>a</th><th>b</th><th>c<br></th></tr><tr><td>→</td><td>0<br></td><td>4</td><td>1</td><td>3</td></tr><tr><td><br></td><td>1</td><td>2<br></td><td><br></td><td></td></tr><tr><td></td><td>2</td><td>4</td><td>1</td><td>3</td></tr><tr><td></td><td>3</td><td>4</td><td></td><td>3</td></tr><tr><td>←</td><td>4</td><td></td><td>5</td><td></td></tr><tr><td></td><td>5</td><td></td><td></td><td>6</td></tr><tr><td>←</td><td>6</td><td></td><td>5</td><td></td></tr></table>
+     * <hr>
+     * <pre>
+     * +---+---+---+---+---+
+     * |   |   | a | b | c |
+     * +---+---+---+---+---+
+     * | → | 0 | 4 | 1 | 3 |
+     * +---+---+---+---+---+
+     * |   | 1 | 2 |   |   |
+     * +---+---+---+---+---+
+     * |   | 2 | 4 | 1 | 3 |
+     * +---+---+---+---+---+
+     * |   | 3 | 4 |   | 3 |
+     * +---+---+---+---+---+
+     * | ← | 4 |   | 5 |   |
+     * +---+---+---+---+---+
+     * |   | 5 |   |   | 6 |
+     * +---+---+---+---+---+
+     * | ← | 6 |   | 5 |   |
+     * +---+---+---+---+---+
+     * </pre>
+     * <p>
+     * <p>
+     * In reduced DFA form it is:
+     * <hr>
+     * <table>
+     * <tr><td></td><td></td><td>a</td><td>b</td><td>c</td></tr>
+     * <tr><td>&rarr;</td><td>0</td><td>1</td><td>2</td><td>3</td></tr>
+     * <tr><td>&larr;</td><td>1</td><td>4</td><td>5</td><td>4</td></tr>
+     * <tr><td></td><td>2</td><td>0</td><td>4</td><td>4</td></tr>
+     * <tr><td></td><td>3</td><td>1</td><td>4</td><td>3</td></tr>
+     * <tr><td></td><td>4</td><td>4</td><td>4</td><td>4</td></tr>
+     * <tr><td></td><td>5</td><td>4</td><td>4</td><td>1</td></tr>
+     * </table>
+     * <hr>
+     * <pre>
+     * a b c
+     * >0 1 2 3
+     * <1 4 5 4
+     * 2 0 4 4
+     * 3 1 4 3
+     * 4 4 4 4
+     * 5 4 4 1
+     * </pre>
+     * </p>
+     */
     public static NFAAutomaton getNFA3() {
-        //TODO: IMPL
-        return null;
+        String[] states = new String[]{"0", "1", "2", "3", "4", "5", "6"};
+        String[] letters = new String[]{"a", "b", "c"};
+        HashMap<String, HashMap<String, String>> transitions = new HashMap<>();
+        HashMap<String, String> curr;
+        curr = new HashMap<>();
+        curr.put("a", "4");
+        curr.put("b", "1");
+        curr.put("c", "3");
+        transitions.put("0", curr);
+        curr = new HashMap<>();
+        curr.put("a", "2");
+        curr.put("b", "");
+        curr.put("c", "");
+        transitions.put("1", curr);
+        curr = new HashMap<>();
+        curr.put("a", "4");
+        curr.put("b", "1");
+        curr.put("c", "3");
+        transitions.put("2", curr);
+        curr = new HashMap<>();
+        curr.put("a", "4");
+        curr.put("b", "");
+        curr.put("c", "3");
+        transitions.put("3", curr);
+        curr = new HashMap<>();
+        curr.put("a", "");
+        curr.put("b", "5");
+        curr.put("c", "");
+        transitions.put("4", curr);
+        curr = new HashMap<>();
+        curr.put("a", "");
+        curr.put("b", "");
+        curr.put("c", "6");
+        transitions.put("5", curr);
+        curr = new HashMap<>();
+        curr.put("a", "");
+        curr.put("b", "5");
+        curr.put("c", "");
+        transitions.put("6", curr);
+        String[] init = new String[]{"0"};
+        String[] acc = new String[]{"4", "6"};
+        return new NFAAutomaton(states, letters, transitions, init, acc);
     }
 
+    /**
+     * Image: cz/cvut/fel/horovtom/logic/samples/nfa_4.png
+     * This automaton is actually a reduced DFA automaton which accepts language: <br>
+     *     <b>L = {w | w &isin; {\alpha, \epsilon}<sup>*</sup>, w contains only '\alpha'}</b>
+     * <p>
+     *     <hr>
+     *         <table><tr><th><br></th><th></th><th>\alpha</th><th>\epsilon<br></th></tr><tr><td>↔</td><td>0<br></td><td>0<br></td><td>1</td></tr><tr><td><br></td><td>1</td><td>1<br></td><td>Error</td></tr></table>
+     *     <hr>
+     * <pre>
+     * +---+---+--------+----------+
+     * |   |   | \alpha | \epsilon |
+     * +---+---+--------+----------+
+     * | ↔ | 0 | 0      | 1        |
+     * +---+---+--------+----------+
+     * |   | 1 | 1      | Error    |
+     * +---+---+--------+----------+
+     * </pre>
+     * </p>
+     */
     public static NFAAutomaton getNFA4() {
-        //TODO: IMPL
-        return null;
+        String[] states = new String[]{"0", "1"};
+        String[] letters = new String[]{"\\alpha", "\\epsilon"};
+        HashMap<String, HashMap<String, String>> transitions = new HashMap<>();
+        HashMap<String, String> curr;
+        curr = new HashMap<>();
+        curr.put("\\alpha", "0");
+        curr.put("\\epsilon", "1");
+        transitions.put("0", curr);
+        curr = new HashMap<>();
+        curr.put("\\alpha", "1");
+        curr.put("\\epsilon", "1");
+        transitions.put("1", curr);
+        String[] initial = new String[]{"\\alpha"};
+        String[] accepting = new String[]{"\\alpha"};
+        return new NFAAutomaton(states, letters, transitions, initial, accepting);
     }
 }

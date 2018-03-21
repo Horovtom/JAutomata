@@ -219,4 +219,9 @@ public class NFAAutomaton extends Automaton {
 
         return new NFAAutomaton(Q, sigma, transitions, initial, accepting);
     }
+
+    @Override
+    public boolean hasEpsilonTransitions() {
+        return false;
+    }
 }

@@ -814,10 +814,7 @@ public abstract class Automaton {
     /**
      * @return whether the automaton has any epsilon transitions
      */
-    public boolean hasEpsilonTransitions() {
-        return this.sigma[0].equals("\\epsilon");
-        //TODO: TEST THIS
-    }
+    public abstract boolean hasEpsilonTransitions();
 
     /**
      * Array of states that are accessible from specified state by epsilon transitions.

@@ -32,4 +32,11 @@ public class ENFAAutomaton extends Automaton {
 
         return null;
     }
+
+    @Override
+    public boolean hasEpsilonTransitions() {
+        return this.sigma[0].equals("\\epsilon");
+        //TODO: TEST THIS
+
+    }
 }
