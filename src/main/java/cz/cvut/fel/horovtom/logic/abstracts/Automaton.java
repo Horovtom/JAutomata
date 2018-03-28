@@ -501,7 +501,7 @@ public abstract class Automaton {
     /**
      * This function does not use the optimized reduced automaton to get answer!
      */
-    public boolean acceptsWordVerbose(String[] word) {
+    public boolean acceptsWordUnified(String[] word) {
         //TODO: VERBOSE Workflow?
         ArrayList<HashSet<Integer>> possibilities = new ArrayList<>(2);
         possibilities.add(new HashSet<>(this.Q.length));
@@ -526,6 +526,7 @@ public abstract class Automaton {
             }
             current = possibilities.get(c);
             next = possibilities.get(n);
+            next.clear();
             for (Integer currentState : current) {
                 int[] p = getPossibleTransitions(currentState, letterIndex);
                 for (int toAddState : p) {
@@ -554,7 +555,11 @@ public abstract class Automaton {
             reduce();
         }
 
-        return this.reduced.acceptsWord(word);
+        if (this.reduced != null) {
+            return this.reduced.acceptsWord(word);
+        } else {
+            return this.acceptsWordUnified(word);
+        }
     }
 
     /**

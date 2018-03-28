@@ -4,6 +4,7 @@ import cz.cvut.fel.horovtom.logic.DFAAutomaton;
 import cz.cvut.fel.horovtom.logic.ENFAAutomaton;
 import cz.cvut.fel.horovtom.logic.NFAAutomaton;
 import cz.cvut.fel.horovtom.logic.abstracts.Automaton;
+import cz.cvut.fel.horovtom.logic.samples.Samples;
 import org.junit.Test;
 
 import java.io.*;
@@ -125,6 +126,26 @@ public class ImportExportTest {
             assertEquals("CSV was incorrect", "<>,\"A\",\"S,B\",\"B\"", br.readLine());
             assertEquals("CSV was incorrect", ",\"B\",,", br.readLine());
 
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Test
+    public void testExportCSVNFA2() {
+        NFAAutomaton automaton = Samples.getNFA3();
+        try {
+            File file = File.createTempFile("nfa2", "csv");
+            automaton.exportCSV(file);
+            BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream(file)));
+            assertEquals("CSV was incorrect", ",,\"a\",\"b\",\"c\"", br.readLine());
+            assertEquals("CSV was incorrect", ">,\"0\",\"4\",\"1\",\"3\"", br.readLine());
+            assertEquals("CSV was incorrect", ",\"1\",\"2\",,", br.readLine());
+            assertEquals("CSV was incorrect", ",\"2\",\"4\",\"1\",\"3\"", br.readLine());
+            assertEquals("CSV was incorrect", ",\"3\",\"4\",,\"3\"", br.readLine());
+            assertEquals("CSV was incorrect", "<,\"4\",,\"5\",", br.readLine());
+            assertEquals("CSV was incorrect", ",\"5\",,,\"6\"", br.readLine());
+            assertEquals("CSV was incorrect", "<,\"6\",,\"5\",", br.readLine());
         } catch (IOException e) {
             e.printStackTrace();
         }

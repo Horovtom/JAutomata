@@ -3,6 +3,7 @@ package cz.cvut.fel.horovtom.logic;
 import cz.cvut.fel.horovtom.logic.abstracts.Automaton;
 
 import java.util.HashMap;
+import java.util.TreeSet;
 
 //TODO: IMPLEMENT
 public class ENFAAutomaton extends Automaton {
@@ -20,10 +21,16 @@ public class ENFAAutomaton extends Automaton {
 
     @Override
     protected int[] getPossibleTransitions(int state, int letter) {
-        //TODO: IMPL
+        int[] closure = getEpsilonClosure(state);
+        TreeSet<Integer> returning = new TreeSet<>();
+        for (int i : closure) {
+            int[] curr = this.transitions.get(i).get(letter);
+            for (int i1 : curr) {
+                returning.add(i1);
+            }
+        }
 
-
-        return new int[0];
+        return returning.stream().mapToInt(a -> a).toArray();
     }
 
     @Override

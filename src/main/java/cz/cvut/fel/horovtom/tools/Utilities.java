@@ -46,8 +46,9 @@ public class Utilities {
             } else {
                 if (currentChar == '\"') {
                     chain = !chain;
+                } else {
+                    sb.append(currentChar);
                 }
-                sb.append(currentChar);
                 curr++;
             }
         }
