@@ -99,7 +99,7 @@ public class Samples {
      * Image cz/cvut/fel/horovtom/logic/samples/dfa_2.png
      * <p>
      * This automaton is <b>reduced</b> and it accepts this language: <br>
-     * <b> &Sigma; = {0.12, -6.38, 0, 213.002}, L = {w | w &isin;&Sigma;<sup>*</sup>, w contains "lolipop" as a substring}</b>
+     * <b> &Sigma; = {0.12, -6.38, 0, 213.002}, L = {w | w &isin;&Sigma;<sup>*</sup>, w contains "0.12 -6.38 0.12 0 213.002 -6.38 213.002" as a substring}</b>
      * <hr>
      * <table><tr><th colspan="2">Q<br></th><th>0.12</th><th>-6.38<br></th><th>0</th><th>213.002</th></tr><tr><td>→</td><td>0</td><td>1</td><td>0<br></td><td>0</td><td>0</td></tr><tr><td></td><td>1</td><td>0</td><td>2</td><td>0</td><td>0</td></tr><tr><td><br></td><td>2</td><td>3</td><td>0</td><td>0</td><td>0</td></tr><tr><td></td><td>3</td><td>0</td><td>0</td><td>4</td><td>0</td></tr><tr><td></td><td>4</td><td>0</td><td>0</td><td>0</td><td>5</td></tr><tr><td><br></td><td>5</td><td>0</td><td>6</td><td>0</td><td>0</td></tr><tr><td></td><td>6</td><td>0</td><td>0</td><td>0</td><td>7</td></tr><tr><td>←</td><td>7</td><td>7</td><td>7</td><td>7</td><td>7</td></tr></table>
      * <hr>

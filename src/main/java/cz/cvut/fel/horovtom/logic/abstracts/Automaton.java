@@ -641,6 +641,10 @@ public abstract class Automaton {
      * Renames originalName state to newName state. It does not rename if newName is already a state
      */
     public void renameState(String originalName, String newName) {
+        if (newName.isEmpty()) {
+            LOGGER.warning("Trying to rename state to empty string!");
+            return;
+        }
         LOGGER.fine("Trying to rename state " + originalName + " to " + newName);
         int test = getStateIndex(newName);
         if (test != -1) {
@@ -663,6 +667,10 @@ public abstract class Automaton {
      * Renames originalName letter to newName letter. It does not rename if newName is already a letter
      */
     public void renameLetter(String originalName, String newName) {
+        if (newName.isEmpty()) {
+            LOGGER.warning("Trying to rename letter to empty string!");
+            return;
+        }
         LOGGER.fine("Trying to rename letter " + originalName + " to " + newName);
         int test = getLetterIndex(newName);
         if (test != -1) {
@@ -731,6 +739,10 @@ public abstract class Automaton {
     }
 
     public static Automaton importFromCSV(File fileToLoad) {
+        if (fileToLoad == null) {
+            LOGGER.warning("Cannot import from CSV file which is null!");
+            return null;
+        }
         try {
             Reader reader = new InputStreamReader(new FileInputStream(fileToLoad), "UTF-8");
             BufferedReader r = new BufferedReader(reader);

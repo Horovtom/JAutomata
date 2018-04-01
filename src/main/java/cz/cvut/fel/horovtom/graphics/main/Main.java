@@ -75,7 +75,7 @@ public class Main {
         jfc.setFileFilter(new FileFilter() {
             @Override
             public boolean accept(File f) {
-                return f.getName().matches(".*.csv");
+                return f.getName().matches(".*.csv") || f.isDirectory();
             }
 
             @Override
@@ -104,18 +104,58 @@ public class Main {
     }
 
     static void loadPredefinedAutomaton() {
-        //TODO: IMPLEMENT
-        loadDFA1();
-        displayMenu();
-    }
-
-    private static void loadDFA1() {
-        try (InputStream in = Objects.requireNonNull(Main.class.getClassLoader().getResource("predefined/DFA1.txt")).openStream()) {
-            current = new DFAAutomaton(in);
-        } catch (IOException e) {
-            e.printStackTrace();
+        System.out.println("Which predefined automaton do you want to create?");
+        System.out.println("1: DFA1 - w starts and ends with the same character\n" +
+                "2: DFA2 - w contains \"0.12 -6.38 0.12 0 213.002 -6.38 213.002\" as a substring\n" +
+                "3: DFA3 - w = α*\n" +
+                "4: NFA1 - w begins and ends with 'a'\n" +
+                "5: NFA2 - w satisfies: second character is 'a', and the last but one character is ’b’ and |w| ≥ 3 or w = ε\n" +
+                "6: NFA3 - w is described by regular expression: (ba)*c*a(bc)*\n" +
+                "7: NFA4 - w contains only '\\alpha'\n" +
+                "8: ENFA1 - w ∈ {a, b}");
+        Scanner sc = new Scanner(System.in);
+        switch (sc.nextInt()) {
+            case 1:
+                try {
+                    InputStream in = Objects.requireNonNull(Main.class.getClassLoader().getResource("predefined/DFA1.txt")).openStream();
+                    current = new DFAAutomaton(in);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+                break;
+            case 2:
+                current = Automaton.importFromCSV(
+                        new File(Objects.requireNonNull(Main.class.getClassLoader().getResource("predefined/DFA2.csv")).getFile()));
+                break;
+            case 3:
+                current = Automaton.importFromCSV(
+                        new File(Objects.requireNonNull(Main.class.getClassLoader().getResource("predefined/DFA3.csv")).getFile()));
+                break;
+            case 4:
+                current = Automaton.importFromCSV(
+                        new File(Objects.requireNonNull(Main.class.getClassLoader().getResource("predefined/NFA1.csv")).getFile()));
+                break;
+            case 5:
+                current = Automaton.importFromCSV(
+                        new File(Objects.requireNonNull(Main.class.getClassLoader().getResource("predefined/NFA2.csv")).getFile()));
+                break;
+            case 6:
+                current = Automaton.importFromCSV(
+                        new File(Objects.requireNonNull(Main.class.getClassLoader().getResource("predefined/NFA3.csv")).getFile()));
+                break;
+            case 7:
+                current = Automaton.importFromCSV(
+                        new File(Objects.requireNonNull(Main.class.getClassLoader().getResource("predefined/NFA4.csv")).getFile()));
+                break;
+            case 8:
+                current = Automaton.importFromCSV(
+                        new File(Objects.requireNonNull(Main.class.getClassLoader().getResource("predefined/ENFA1.csv")).getFile()));
+                break;
+            default:
+                System.err.println("Invalid choice");
         }
 
+        displayMenu();
     }
 
     static void userCreateAutomaton() {
@@ -234,7 +274,7 @@ public class Main {
         jfc.setFileFilter(new FileFilter() {
             @Override
             public boolean accept(File f) {
-                return f.getName().matches(".*.csv");
+                return f.getName().matches(".*.csv") || f.isDirectory();
             }
 
             @Override

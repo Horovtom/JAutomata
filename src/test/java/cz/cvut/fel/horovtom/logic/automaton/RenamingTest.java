@@ -1,6 +1,7 @@
 package cz.cvut.fel.horovtom.logic.automaton;
 
 import cz.cvut.fel.horovtom.logic.DFAAutomaton;
+import cz.cvut.fel.horovtom.logic.NFAAutomaton;
 import cz.cvut.fel.horovtom.logic.samples.Samples;
 import org.junit.Test;
 
@@ -61,7 +62,39 @@ public class RenamingTest {
 
     @Test
     public void testNFA() {
-        //TODO: IMPL
+        NFAAutomaton automaton = Samples.getNFA2();
+        automaton.renameState("0", "");
+        String[] Q = automaton.getQ();
+        assertEquals("Changing state name to empty changed the size of Q!", 5, Q.length);
+        assertEquals("Changing state name to empty changed the state name!", "0", Q[0]);
+        automaton.renameLetter("b", "");
+        String[] sigma = automaton.getSigma();
+        assertEquals("Changing letter name to empty changed the size of sigma!", 2, sigma.length);
+        assertEquals("Changing letter name to empty changed the letter name!", "b", sigma[1]);
+        automaton.renameState("1", "a");
+        Q = automaton.getQ();
+        assertEquals("Changing state name did not actually change the name!", "a", Q[1]);
+        assertEquals("Changing state name changed the automaton table in an unpredictable way!",
+                "<table>\n" +
+                        "\t<tr><td></td><td></td><td>a</td><td>b</td></tr>\n" +
+                        "\t<tr><td>&harr;</td><td>0</td><td>a</td><td>a</td></tr>\n" +
+                        "\t<tr><td></td><td>a</td><td>2</td><td></td></tr>\n" +
+                        "\t<tr><td></td><td>2</td><td>2</td><td>2,3</td></tr>\n" +
+                        "\t<tr><td></td><td>3</td><td>4</td><td>4</td></tr>\n" +
+                        "\t<tr><td>&larr;</td><td>4</td><td></td><td></td></tr>\n" +
+                        "</table>",
+                automaton.getAutomatonTableHTML());
+        automaton.renameLetter("a", "c");
+        assertEquals("Changing letter name changed the automaton table in an unpredictable way!",
+                "<table>\n" +
+                        "\t<tr><td></td><td></td><td>c</td><td>b</td></tr>\n" +
+                        "\t<tr><td>&harr;</td><td>0</td><td>a</td><td>a</td></tr>\n" +
+                        "\t<tr><td></td><td>a</td><td>2</td><td></td></tr>\n" +
+                        "\t<tr><td></td><td>2</td><td>2</td><td>2,3</td></tr>\n" +
+                        "\t<tr><td></td><td>3</td><td>4</td><td>4</td></tr>\n" +
+                        "\t<tr><td>&larr;</td><td>4</td><td></td><td></td></tr>\n" +
+                        "</table>",
+                automaton.getAutomatonTableHTML());
     }
 
     @Test
