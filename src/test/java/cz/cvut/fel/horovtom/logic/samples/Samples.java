@@ -1,6 +1,7 @@
 package cz.cvut.fel.horovtom.logic.samples;
 
 import cz.cvut.fel.horovtom.logic.DFAAutomaton;
+import cz.cvut.fel.horovtom.logic.ENFAAutomaton;
 import cz.cvut.fel.horovtom.logic.NFAAutomaton;
 
 import java.util.HashMap;
@@ -494,5 +495,62 @@ public class Samples {
         String[] initial = new String[]{"\\alpha"};
         String[] accepting = new String[]{"\\alpha"};
         return new NFAAutomaton(states, letters, transitions, initial, accepting);
+    }
+
+    /**
+     * Image: cz/cvut/fel/horovtom/logic/samples/enfa_1.png
+     * This automaton is accepting this language: <br>
+     * <b>L = {w | w &isin; {a, b}}</b>
+     * <p>
+     * <hr>
+     * <table>
+     * <tr><th> </th><th> </th><th>ε</th><th>a</th><th>b</th></tr>
+     * <tr><td>→</td><td>0</td><td>1</td><td>2</td><td> </td></tr>
+     * <tr><td> </td><td>1</td><td> </td><td> </td><td>3</td></tr>
+     * <tr><td>←</td><td>2</td><td> </td><td> </td><td> </td></tr>
+     * <tr><td>←</td><td>3</td><td> </td><td> </td><td> </td></tr>
+     * </table>
+     * <hr>
+     * <pre>
+     * +---+---+---+---+---+
+     * |   |   | ε | a | b |
+     * +---+---+---+---+---+
+     * | → | 0 | 1 | 2 |   |
+     * +---+---+---+---+---+
+     * |   | 1 |   |   | 3 |
+     * +---+---+---+---+---+
+     * | ← | 2 |   |   |   |
+     * +---+---+---+---+---+
+     * | ← | 3 |   |   |   |
+     * +---+---+---+---+---+
+     * </pre>
+     */
+    public static ENFAAutomaton getENFA1() {
+        String[] states = new String[]{"0", "1", "2", "3"};
+        String[] sigma = new String[]{"a", "ε", "b"};
+        HashMap<String, HashMap<String, String[]>> transitions = new HashMap<>();
+        HashMap<String, String[]> curr = new HashMap<>();
+        curr.put("a", new String[]{"2"});
+        curr.put("b", new String[]{});
+        curr.put("ε", new String[]{"1"});
+        transitions.put("0", curr);
+        curr = new HashMap<>();
+        curr.put("ε", new String[0]);
+        curr.put("a", new String[0]);
+        curr.put("b", new String[]{"3"});
+        transitions.put("1", curr);
+        curr = new HashMap<>();
+        curr.put("ε", new String[0]);
+        curr.put("a", new String[0]);
+        curr.put("b", new String[0]);
+        transitions.put("2", curr);
+        curr = new HashMap<>();
+        curr.put("ε", new String[0]);
+        curr.put("a", new String[0]);
+        curr.put("b", new String[0]);
+        transitions.put("3", curr);
+        String[] initial = new String[]{"0"};
+        String[] accepting = new String[]{"2", "3"};
+        return new ENFAAutomaton(states, sigma, initial, accepting, transitions);
     }
 }

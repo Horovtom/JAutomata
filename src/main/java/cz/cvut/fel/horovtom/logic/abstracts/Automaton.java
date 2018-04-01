@@ -86,28 +86,29 @@ public abstract class Automaton {
     public Automaton(String[] Q, String[] sigma, HashMap<String, HashMap<String, String[]>> transitions, String[] initials, String[] accepting) {
         initializeQSigma(Q, sigma);
 
-        HashMap<Integer, HashMap<Integer, int[]>> trans = new HashMap<>();
-        for (int i = 0; i < Q.length; i++) {
-            String from = Q[i];
-            HashMap<Integer, int[]> curr = new HashMap<>();
-            trans.put(i, curr);
-            for (int l = 0; l < this.sigma.length; l++) {
-                String by = this.sigma[l];
-                String[] to = transitions.get(from).get(by);
-                ArrayList<Integer> targets = new ArrayList<>();
-                for (String s : to) {
-                    int ind = getStateIndex(s);
-                    if (ind < 0) {
-                        LOGGER.warning("State " + s + " does not exist!");
-                        continue;
-                    }
-                    targets.add(ind);
-                }
-
-                curr.put(l, targets.stream().mapToInt(a -> a).toArray());
-            }
-        }
-        this.transitions = trans;
+        initializeTransitions(transitions);
+//        HashMap<Integer, HashMap<Integer, int[]>> trans = new HashMap<>();
+//        for (int i = 0; i < Q.length; i++) {
+//            String from = Q[i];
+//            HashMap<Integer, int[]> curr = new HashMap<>();
+//            trans.put(i, curr);
+//            for (int l = 0; l < this.sigma.length; l++) {
+//                String by = this.sigma[l];
+//                String[] to = transitions.get(from).get(by);
+//                ArrayList<Integer> targets = new ArrayList<>();
+//                for (String s : to) {
+//                    int ind = getStateIndex(s);
+//                    if (ind < 0) {
+//                        LOGGER.warning("State " + s + " does not exist!");
+//                        continue;
+//                    }
+//                    targets.add(ind);
+//                }
+//
+//                curr.put(l, targets.stream().mapToInt(a -> a).toArray());
+//            }
+//        }
+//        this.transitions = trans;
         initializeInitAcc(initials, accepting);
     }
 
@@ -131,7 +132,7 @@ public abstract class Automaton {
         int epsilonIndex = -1;
         //Search for epsilon letter
         for (int i = 0; i < sigma.length; i++) {
-            if (sigma[i].equals("\\epsilon")) {
+            if (sigma[i].equals("\\epsilon") || sigma[i].equals("ε")) {
                 epsilonIndex = i;
                 break;
             }
@@ -159,7 +160,26 @@ public abstract class Automaton {
 
     }
 
-    public void initializeTransitionsCompact(HashMap<String, HashMap<String, String>> transitions) {
+    protected void initializeTransitions(HashMap<String, HashMap<String, String[]>> transitions) {
+        HashMap<Integer, HashMap<Integer, int[]>> trans = new HashMap<>();
+        for (int i = 0; i < Q.length; i++) {
+            String from = Q[i];
+            HashMap<Integer, int[]> curr = new HashMap<>();
+            trans.put(i, curr);
+            for (int l = 0; l < this.sigma.length; l++) {
+                String by = this.sigma[l];
+                String[] to = transitions.get(from).get(by);
+                TreeSet<Integer> targets = new TreeSet<>();
+                for (String aTo : to) {
+                    targets.add(this.getStateIndex(aTo));
+                }
+                curr.put(l, targets.stream().mapToInt(a -> a).toArray());
+            }
+        }
+        this.transitions = trans;
+    }
+
+    protected void initializeTransitionsCompact(HashMap<String, HashMap<String, String>> transitions) {
         HashMap<Integer, HashMap<Integer, int[]>> trans = new HashMap<>();
         for (int i = 0; i < Q.length; i++) {
             String from = Q[i];

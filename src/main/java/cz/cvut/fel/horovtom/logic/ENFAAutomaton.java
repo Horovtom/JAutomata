@@ -13,6 +13,20 @@ public class ENFAAutomaton extends Automaton {
         initializeInitAcc(initialString, acceptingString);
     }
 
+    /**
+     * This constructor has array of states as a value in transitions map.
+     *
+     * @param states      Array of strings, representing states of the automaton
+     * @param sigma       Array of strings, representing letters of the automaton
+     * @param initials    Array of strings, containing state names that are considered initial states
+     * @param acceptings  Array of strings, containing state names that are considered accepting states
+     * @param transitions <pre>HashMap< State, < Letter, TargetState[] > ></pre>, where State is the source state, Letter is the transition label and TargetState is the set of targets. <br>
+     *                    State &times; Letter &rarr; TargetState[]=P(Q), <br>where P(Q) = {X | X ⊆ Q}
+     */
+    public ENFAAutomaton(String[] states, String[] sigma, String[] initials, String[] acceptings, HashMap<String, HashMap<String, String[]>> transitions) {
+        super(states, sigma, transitions, initials, acceptings);
+    }
+
     @Override
     public DFAAutomaton reduce() {
         //TODO: IMPL

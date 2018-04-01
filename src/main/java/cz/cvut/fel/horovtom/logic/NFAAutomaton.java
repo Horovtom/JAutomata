@@ -162,11 +162,19 @@ public class NFAAutomaton extends Automaton {
         this.acceptingStates = accepting;
     }
 
-    public NFAAutomaton(String[] Q, String[] sigma, HashMap<String, HashMap<String, String[]>> transitions, String[] initial, String[] accepting) {
+    /**
+     * This constructor has array of states as a value in transitions map.
+     *
+     * @param Q           Array of strings, representing states of the automaton
+     * @param sigma       Array of strings, representing letters of the automaton
+     * @param initial     Array of strings, containing state names that are considered initial states
+     * @param accepting   Array of strings, containing state names that are considered accepting states
+     * @param transitions <pre>HashMap< State, < Letter, TargetState[] > ></pre>, where State is the source state, Letter is the transition label and TargetState is the set of targets. <br>
+     *                    State &times; Letter &rarr; TargetState[]=P(Q), <br>where P(Q) = {X | X ⊆ Q}
+     */
+    public NFAAutomaton(String[] Q, String[] sigma, String[] initial, String[] accepting, HashMap<String, HashMap<String, String[]>> transitions) {
         super(Q, sigma, transitions, initial, accepting);
     }
-
-    //FIXME: The map is actually trying to get rid of erasure problems - ASK
 
     /**
      * Constructor used to initialize the variables. It is used by children of this abstract class.
@@ -177,11 +185,9 @@ public class NFAAutomaton extends Automaton {
      * @param initial     Initial state names of the automaton in text form.
      * @param accepting   Accepting state names of the automaton in text form
      */
-    public NFAAutomaton(String[] Q, String[] sigma, Map<String, HashMap<String, String>> transitions, String[] initial, String[] accepting) {
+    public NFAAutomaton(String[] Q, String[] sigma, HashMap<String, HashMap<String, String>> transitions, String[] initial, String[] accepting) {
         initializeQSigma(Q, sigma);
-        initializeTransitionsCompact((transitions instanceof HashMap)
-                ? (HashMap) transitions
-                : new HashMap<>(transitions));
+        initializeTransitionsCompact(transitions);
         initializeInitAcc(initial, accepting);
     }
 

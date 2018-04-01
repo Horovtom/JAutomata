@@ -116,7 +116,7 @@ public class ImportExportTest {
         String[] letters = new String[]{"a", "b"};
         String[] initials = new String[]{"S", "A"};
         String[] accepting = new String[]{"A"};
-        NFAAutomaton automaton = new NFAAutomaton(states, letters, map, initials, accepting);
+        NFAAutomaton automaton = new NFAAutomaton(states, letters, initials, accepting, map);
         try {
             File file = File.createTempFile("nfa", "csv");
             automaton.exportCSV(file);
@@ -153,6 +153,19 @@ public class ImportExportTest {
 
     @Test
     public void testExportCSVENFA() {
-        //TODO: IMPL
+        ENFAAutomaton automaton =
+                Samples.getENFA1();
+        try {
+            File file = File.createTempFile("enfa1", "csv");
+            automaton.exportCSV(file);
+            BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream(file)));
+            assertEquals("CSV was incorrect", ",,\"ε\",\"a\",\"b\"", br.readLine());
+            assertEquals("CSV was incorrect", ">,\"0\",\"1\",\"2\",", br.readLine());
+            assertEquals("CSV was incorrect", ",\"1\",,,\"3\"", br.readLine());
+            assertEquals("CSV was incorrect", "<,\"2\",,,", br.readLine());
+            assertEquals("CSV was incorrect", "<,\"3\",,,", br.readLine());
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 }
