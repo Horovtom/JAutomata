@@ -17,7 +17,7 @@ import java.util.logging.Handler;
 import java.util.logging.Logger;
 
 public class Main {
-    static Automaton current;
+    private static Automaton current;
 
     public static void main(String[] args) throws IOException {
         Handler fh = new FileHandler("LOG.log");

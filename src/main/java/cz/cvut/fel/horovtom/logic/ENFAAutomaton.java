@@ -2,6 +2,7 @@ package cz.cvut.fel.horovtom.logic;
 
 import cz.cvut.fel.horovtom.logic.abstracts.Automaton;
 
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.TreeSet;
 
@@ -27,6 +28,26 @@ public class ENFAAutomaton extends Automaton {
         super(states, sigma, transitions, initials, acceptings);
     }
 
+    /**
+     * Used for copy constructor
+     */
+    private ENFAAutomaton(String[] q, String[] sigma, HashMap<Integer, HashMap<Integer, int[]>> transitions, int[] initialStates, int[] acceptingStates) {
+        this.Q = Arrays.copyOf(q, q.length);
+        this.sigma = Arrays.copyOf(sigma, sigma.length);
+        this.initialStates = Arrays.copyOf(initialStates, initialStates.length);
+        this.acceptingStates = Arrays.copyOf(acceptingStates, acceptingStates.length);
+        this.transitions = new HashMap<>();
+        for (int s = 0; s < q.length; s++) {
+            HashMap<Integer, int[]> curr = new HashMap<>();
+            HashMap<Integer, int[]> currentRow = transitions.get(s);
+            for (int l = 0; l < sigma.length; l++) {
+                int[] currentTransitions = currentRow.get(l);
+                curr.put(l, Arrays.copyOf(currentTransitions, currentTransitions.length));
+            }
+            this.transitions.put(s, curr);
+        }
+    }
+
     @Override
     public DFAAutomaton reduce() {
         //TODO: IMPL
@@ -49,15 +70,11 @@ public class ENFAAutomaton extends Automaton {
 
     @Override
     public Automaton copy() {
-        //TODO: IMPL
-
-        return null;
+        return new ENFAAutomaton(this.Q, this.sigma, this.transitions, this.initialStates, this.acceptingStates);
     }
 
     @Override
     public boolean hasEpsilonTransitions() {
-        return this.sigma[0].equals("\\epsilon");
-        //TODO: TEST THIS
-
+        return this.sigma[0].equals("\\epsilon") || this.sigma[0].equals("ε");
     }
 }

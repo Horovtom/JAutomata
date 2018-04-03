@@ -1,11 +1,14 @@
 package cz.cvut.fel.horovtom.logic.automaton;
 
 import cz.cvut.fel.horovtom.logic.DFAAutomaton;
+import cz.cvut.fel.horovtom.logic.ENFAAutomaton;
 import cz.cvut.fel.horovtom.logic.NFAAutomaton;
 import cz.cvut.fel.horovtom.logic.samples.Samples;
 import org.junit.Test;
 
+import static junit.framework.TestCase.assertTrue;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 
 public class RenamingTest {
     @Test
@@ -84,7 +87,7 @@ public class RenamingTest {
                         "\t<tr><td>&larr;</td><td>4</td><td></td><td></td></tr>\n" +
                         "</table>",
                 automaton.getAutomatonTableHTML());
-        automaton.renameLetter("a", "c");
+        assertTrue(automaton.renameLetter("a", "c"));
         assertEquals("Changing letter name changed the automaton table in an unpredictable way!",
                 "<table>\n" +
                         "\t<tr><td></td><td></td><td>c</td><td>b</td></tr>\n" +
@@ -99,6 +102,10 @@ public class RenamingTest {
 
     @Test
     public void testENFA() {
-        //TODO: IMPL
+        ENFAAutomaton automaton = Samples.getENFA1();
+        assertFalse(automaton.renameLetter("ε", "d"));
+        String[] sigma = automaton.getSigma();
+        assertEquals("Changing epsilon letter to other name changed the size of sigma!", 3, sigma.length);
+        assertEquals("Changing epsilon letter to other name, changed the letter!", "ε", sigma[0]);
     }
 }

@@ -85,30 +85,7 @@ public abstract class Automaton {
      */
     public Automaton(String[] Q, String[] sigma, HashMap<String, HashMap<String, String[]>> transitions, String[] initials, String[] accepting) {
         initializeQSigma(Q, sigma);
-
         initializeTransitions(transitions);
-//        HashMap<Integer, HashMap<Integer, int[]>> trans = new HashMap<>();
-//        for (int i = 0; i < Q.length; i++) {
-//            String from = Q[i];
-//            HashMap<Integer, int[]> curr = new HashMap<>();
-//            trans.put(i, curr);
-//            for (int l = 0; l < this.sigma.length; l++) {
-//                String by = this.sigma[l];
-//                String[] to = transitions.get(from).get(by);
-//                ArrayList<Integer> targets = new ArrayList<>();
-//                for (String s : to) {
-//                    int ind = getStateIndex(s);
-//                    if (ind < 0) {
-//                        LOGGER.warning("State " + s + " does not exist!");
-//                        continue;
-//                    }
-//                    targets.add(ind);
-//                }
-//
-//                curr.put(l, targets.stream().mapToInt(a -> a).toArray());
-//            }
-//        }
-//        this.transitions = trans;
         initializeInitAcc(initials, accepting);
     }
 
@@ -183,11 +160,30 @@ public abstract class Automaton {
         HashMap<Integer, HashMap<Integer, int[]>> trans = new HashMap<>();
         for (int i = 0; i < Q.length; i++) {
             String from = Q[i];
+            HashMap<String, String> transRow = transitions.get(from);
+
+
             HashMap<Integer, int[]> curr = new HashMap<>();
             trans.put(i, curr);
+
+            //If entire row is missing, we assume that no connections are there
+            if (transRow == null) {
+                for (int l = 0; l < this.sigma.length; l++) {
+                    curr.put(l, new int[0]);
+                }
+                continue;
+            }
+
             for (int l = 0; l < this.sigma.length; l++) {
                 String by = this.sigma[l];
-                String to = transitions.get(from).get(by);
+
+                //If we got incomplete map, we assume that no connections are there
+                if (!transRow.containsKey(by)) {
+                    curr.put(l, new int[0]);
+                    continue;
+                }
+
+                String to = transRow.get(by);
                 Pair<Integer, String> ret;
                 ArrayList<Integer> targets = new ArrayList<>();
                 int currentIndex = 0;
@@ -516,6 +512,9 @@ public abstract class Automaton {
         return res;
     }
 
+    /**
+     * @return reduced version of this automaton
+     */
     public abstract DFAAutomaton reduce();
 
     /**
@@ -639,18 +638,20 @@ public abstract class Automaton {
 
     /**
      * Renames originalName state to newName state. It does not rename if newName is already a state
+     *
+     * @return Whether the renaming was successful
      */
-    public void renameState(String originalName, String newName) {
+    public boolean renameState(String originalName, String newName) {
         if (newName.isEmpty()) {
             LOGGER.warning("Trying to rename state to empty string!");
-            return;
+            return false;
         }
         LOGGER.fine("Trying to rename state " + originalName + " to " + newName);
         int test = getStateIndex(newName);
         if (test != -1) {
 
             LOGGER.warning("Cannot rename state " + originalName + " to " + newName + " because state with that name already exists");
-            return;
+            return false;
         }
 
         //Invalidating caches
@@ -658,35 +659,43 @@ public abstract class Automaton {
         int index = this.getStateIndex(originalName);
         if (index == -1) {
             LOGGER.info("Renaming failed, because state " + originalName + " does not exist");
-            return;
+            return false;
         }
         Q[index] = newName;
+        return true;
     }
 
     /**
      * Renames originalName letter to newName letter. It does not rename if newName is already a letter
+     *
+     * @return Whether the renaming was successful
      */
-    public void renameLetter(String originalName, String newName) {
+    public boolean renameLetter(String originalName, String newName) {
         if (newName.isEmpty()) {
             LOGGER.warning("Trying to rename letter to empty string!");
-            return;
+            return false;
         }
         LOGGER.fine("Trying to rename letter " + originalName + " to " + newName);
         int test = getLetterIndex(newName);
         if (test != -1) {
 
             LOGGER.warning("Cannot rename letter " + originalName + " to " + newName + " because letter with that name already exists");
-            return;
+            return false;
 
         }
+
         invalidateCaches();
         LOGGER.fine("Saved toString caches invalidated");
         int index = this.getLetterIndex(originalName);
         if (index == -1) {
             LOGGER.info("Renaming failed, because letter " + originalName + " does not exist");
-            return;
+            return false;
+        } else if (index == 0 && hasEpsilonTransitions()) {
+            LOGGER.warning("Cannot rename epsilon state!");
+            return false;
         }
         sigma[index] = newName;
+        return true;
     }
 
     //endregion
@@ -896,5 +905,69 @@ public abstract class Automaton {
             }
         }
         return closure.stream().mapToInt(a -> a).toArray();
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (!(obj instanceof Automaton)) return false;
+        if (super.equals(obj)) return true;
+
+        Automaton other = (Automaton) obj;
+        DFAAutomaton reducedOther = other.reduce();
+        if (this.reduced == null) {
+            this.reduced = this.reduce();
+        }
+
+        DFAAutomaton a = this.reduced;
+        DFAAutomaton b = reducedOther;
+
+        //Has the same number of letters?
+        if (b.getSigmaSize() != a.getSigmaSize()) return false;
+        //Has the same number of states?
+        if (b.getQSize() != this.reduced.getQSize()) return false;
+        //Has the same number of accepting states?
+        if (b.acceptingStates.length != this.reduced.acceptingStates.length) return false;
+
+        //Can sigma be equal?
+
+
+        // Array, denoting reducedOther indices in relation to this.reduced
+        int[] sigmaMapping = new int[this.reduced.getSigmaSize()];
+        outer:
+        for (int i = 0; i < this.reduced.sigma.length; i++) {
+            for (int o = 0; o < b.sigma.length; o++) {
+                if (this.reduced.sigma[i].equals(b.sigma[o])) {
+                    sigmaMapping[i] = o;
+                    continue outer;
+                }
+            }
+            LOGGER.fine("Automaton is not equal, because it's alphabets are incompatible");
+            return false;
+        }
+
+        int[] stateMapping = new int[this.reduced.getQSize()];
+        Arrays.setAll(stateMapping, val -> -1);
+        //We start with initial state:
+        stateMapping[a.initialStates[0]] = b.initialStates[0];
+        Queue<Integer> queue = new PriorityQueue<>();
+        queue.add(a.initialStates[0]);
+        while (!queue.isEmpty()) {
+            int current = queue.poll();
+            for (int i = 0; i < a.sigma.length; i++) {
+                int currATarg = a.transitions.get(current).get(i)[0];
+                int currBTarg = b.transitions.get(stateMapping[current]).get(sigmaMapping[i])[0];
+                if (stateMapping[currATarg] == -1) {
+                    stateMapping[currATarg] = currBTarg;
+                    queue.add(currATarg);
+                } else if (stateMapping[currATarg] != currBTarg) return false;
+            }
+        }
+
+        for (int i = 0; i < stateMapping.length; i++) {
+            if (stateMapping[i] == -1) return false;
+            if (a.isAcceptingState(i) != b.isAcceptingState(stateMapping[i])) return false;
+        }
+
+        return true;
     }
 }
