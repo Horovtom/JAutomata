@@ -89,6 +89,9 @@ public abstract class Automaton {
         initializeInitAcc(initials, accepting);
     }
 
+    /**
+     * Initializes initial and accepting states. Should be called after {@link #initializeQSigma(String[], String[])}
+     */
     protected void initializeInitAcc(String[] initials, String[] accepting) {
         int[] acc = new int[accepting.length];
         for (int i = 0; i < acc.length; i++) {
@@ -103,6 +106,9 @@ public abstract class Automaton {
         this.acceptingStates = acc;
     }
 
+    /**
+     * Initializes state names and letter names
+     */
     protected void initializeQSigma(String[] Q, String[] sigma) {
         String[] newSigma = new String[sigma.length];
 
@@ -137,6 +143,9 @@ public abstract class Automaton {
 
     }
 
+    /**
+     * Initializes transition table of the automaton. Should be called after {@link #initializeQSigma(String[], String[])}
+     */
     protected void initializeTransitions(HashMap<String, HashMap<String, String[]>> transitions) {
         HashMap<Integer, HashMap<Integer, int[]>> trans = new HashMap<>();
         for (int i = 0; i < Q.length; i++) {
@@ -156,6 +165,11 @@ public abstract class Automaton {
         this.transitions = trans;
     }
 
+    /**
+     * Initializes transitions table of the automaton from the compact map.
+     *
+     * @param transitions Map where the values hold strings, containing comma-separated lists of target transitions
+     */
     protected void initializeTransitionsCompact(HashMap<String, HashMap<String, String>> transitions) {
         HashMap<Integer, HashMap<Integer, int[]>> trans = new HashMap<>();
         for (int i = 0; i < Q.length; i++) {
@@ -905,6 +919,27 @@ public abstract class Automaton {
             }
         }
         return closure.stream().mapToInt(a -> a).toArray();
+    }
+
+    /**
+     * Converts automaton to regular expression
+     *
+     * @return regular expression describing the language accepted by this automaton
+     */
+    public String toRegex() {
+        //TODO: IMPLEMENT
+        return "";
+    }
+
+    /**
+     * Generates automaton accepting the same language as regular expression
+     *
+     * @param regex String containing the regular expression
+     * @return Automaton that accepts the same language
+     */
+    public static ENFAAutomaton fromRegex(String regex) {
+        //TODO: IMPLEMENT
+        return null;
     }
 
     @Override

@@ -3,4 +3,6 @@
 *.iml
 target/
 *.log
+*.log.1
 *.csv#
+
