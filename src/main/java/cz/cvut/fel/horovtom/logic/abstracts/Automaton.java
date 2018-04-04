@@ -922,6 +922,40 @@ public abstract class Automaton {
     }
 
     /**
+     * This function will return automaton that accepts language L3 = L1L2
+     *
+     * @param a
+     * @param b
+     * @return
+     */
+    public static Automaton getConcatenation(Automaton a, Automaton b) {
+        //TODO: IMPLEMENT
+        return null;
+    }
+
+    /**
+     * This function will return automaton that accepts L*
+     */
+    public Automaton getKleeny() {
+        //TODO: IMPLEMENT
+        return null;
+    }
+
+    /**
+     * This function will return automaton that is the result of Cartesian multiplication of states.
+     *
+     * @param a Automaton accepting language L1
+     * @param b Automaton accepting language L2
+     * @return Automaton accepting language L1+L2
+     */
+    public static Automaton cartMult(Automaton a, Automaton b) {
+        //TODO: IMPLEMENT
+
+
+        return null;
+    }
+
+    /**
      * Converts automaton to regular expression
      *
      * @return regular expression describing the language accepted by this automaton
