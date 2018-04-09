@@ -2,6 +2,7 @@ package cz.cvut.fel.horovtom.logic;
 
 import cz.cvut.fel.horovtom.logic.abstracts.Automaton;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.TreeSet;
@@ -50,7 +51,7 @@ public class ENFAAutomaton extends Automaton {
 
     @Override
     public DFAAutomaton reduce() {
-        //TODO: IMPL
+
         return null;
     }
 
