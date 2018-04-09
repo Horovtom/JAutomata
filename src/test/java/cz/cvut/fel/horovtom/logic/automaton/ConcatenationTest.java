@@ -1,6 +1,7 @@
 package cz.cvut.fel.horovtom.logic.automaton;
 
 import cz.cvut.fel.horovtom.logic.DFAAutomaton;
+import cz.cvut.fel.horovtom.logic.ENFAAutomaton;
 import cz.cvut.fel.horovtom.logic.abstracts.Automaton;
 import cz.cvut.fel.horovtom.logic.samples.Samples;
 import org.junit.Test;
@@ -151,5 +152,16 @@ public class ConcatenationTest {
         }
 
         assertFalse("Automaton should not accept word that has invalid characters", concatenation.acceptsWord(new String[]{"a", "b", "b", "a", "c"}));
+    }
+
+    @Test
+    public void testENFA1() {
+        ENFAAutomaton enfa1 = Samples.getENFA1();
+        Automaton enfa2 = enfa1.copy();
+        Automaton concatenation = Automaton.getConcatenation(enfa1, enfa2);
+
+        assertTrue(concatenation != null);
+
+        //TODO: COMPLETE
     }
 }
