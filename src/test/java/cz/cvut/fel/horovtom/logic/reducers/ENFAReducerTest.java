@@ -90,7 +90,6 @@ public class ENFAReducerTest {
 
     @Test
     public void testIntermediate() {
-        //TODO: Test on some medium-sized enfa automaton
         /*
             Automaton that accepts r = (01*+101)*0*1
              ,  ,eps    ,0,1

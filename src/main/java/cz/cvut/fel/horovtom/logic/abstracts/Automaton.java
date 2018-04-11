@@ -658,7 +658,6 @@ public abstract class Automaton {
                         curr += this.Q[i].length() + 1;
                     }
                     if (curr < 0) {
-                        LOGGER.warning("Somehow a maxSize of column " + (letter + 1) + " was < 0!");
                         curr = 0;
                     }
                     ret[where] = Math.max(ret[where], curr);
