@@ -80,11 +80,11 @@ public class ENFAReducer {
         Arrays.sort(reducedAccepting);
     }
 
-    public int[] getNewAccepting() {
+    public int[] getAccepting() {
         return reducedAccepting;
     }
 
-    public String[] getStateNames() {
+    public String[] getQ() {
         return stateNames.toArray(new String[0]);
     }
 
@@ -92,11 +92,11 @@ public class ENFAReducer {
         return sigma;
     }
 
-    public HashMap<Integer, HashMap<Integer, int[]>> getReducedTransitions() {
+    public HashMap<Integer, HashMap<Integer, int[]>> getTransitions() {
         return reducedTransitions;
     }
 
-    public int getInitialIndex() {
+    public int getInitial() {
         return 0;
     }
 

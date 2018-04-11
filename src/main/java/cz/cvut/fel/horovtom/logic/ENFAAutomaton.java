@@ -58,7 +58,7 @@ public class ENFAAutomaton extends Automaton {
         }
 
         ENFAReducer reducer = new ENFAReducer(this.Q, this.sigma, this.transitions, this.initialStates, this.acceptingStates, 0);
-        NFAAutomaton nfa = new NFAAutomaton(reducer.getStateNames(), reducer.getSigma(), reducer.getReducedTransitions(), new int[]{reducer.getInitialIndex()}, reducer.getNewAccepting());
+        NFAAutomaton nfa = new NFAAutomaton(reducer.getQ(), reducer.getSigma(), reducer.getTransitions(), new int[]{reducer.getInitial()}, reducer.getAccepting());
         return nfa.getReduced();
     }
 

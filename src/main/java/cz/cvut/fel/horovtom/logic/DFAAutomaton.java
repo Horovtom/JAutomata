@@ -205,7 +205,7 @@ public class DFAAutomaton extends Automaton {
     @Override
     public boolean acceptsWord(String[] word) {
         if (this.reduced == null) {
-            reduce();
+            this.getReduced();
         }
 
         if (this.reduced == this) {
