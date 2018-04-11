@@ -48,7 +48,7 @@ public class DFAReduceTest {
         String initial = "A";
         String[] accepting = new String[]{"S", "C"};
         Automaton dfa = new DFAAutomaton(states, letters, transitions, initial, accepting);
-        dfa = dfa.reduce();
+        dfa = dfa.getReduced();
         testWords(dfa);
     }
 

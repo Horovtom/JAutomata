@@ -56,6 +56,13 @@ public abstract class Automaton {
      */
     protected final int PLAIN_TEXT = 0, HTML = 1, TEX = 2, TIKZ = 3;
     /**
+     * Array of names that are evaluated as epsilon letters
+     */
+    protected final String[] epsilonNames = new String[]{
+            "\\epsilon", "ε", "eps"
+    };
+
+    /**
      * This variable holds the cache for string formats of this automaton
      * <p>E.G.: {@link #getAutomatonTableHTML()} or {@link #getAutomatonTIKZ()}</p>
      */
@@ -115,9 +122,11 @@ public abstract class Automaton {
         int epsilonIndex = -1;
         //Search for epsilon letter
         for (int i = 0; i < sigma.length; i++) {
-            if (sigma[i].equals("\\epsilon") || sigma[i].equals("ε")) {
-                epsilonIndex = i;
-                break;
+            for (String epsilonName : epsilonNames) {
+                if (epsilonName.equals(sigma[i])) {
+                    epsilonIndex = i;
+                    break;
+                }
             }
         }
 
@@ -155,7 +164,7 @@ public abstract class Automaton {
             for (int l = 0; l < this.sigma.length; l++) {
                 String by = this.sigma[l];
                 String[] to = transitions.get(from).get(by);
-                TreeSet<Integer> targets = new TreeSet<>();
+                Set<Integer> targets = new HashSet<>();
                 for (String aTo : to) {
                     targets.add(this.getStateIndex(aTo));
                 }
@@ -529,7 +538,20 @@ public abstract class Automaton {
     /**
      * @return reduced version of this automaton
      */
-    public abstract DFAAutomaton reduce();
+    public DFAAutomaton getReduced() {
+        if (reduced == null) {
+            LOGGER.fine("Reducing automaton:\n" + this.toString());
+            reduced = reduce();
+        }
+        return (DFAAutomaton) reduced.copy();
+    }
+
+    /**
+     * This method is called if the automaton was not already reduced
+     *
+     * @return reduced version of this automaton
+     */
+    protected abstract DFAAutomaton reduce();
 
     /**
      * This function does not use the optimized reduced automaton to get answer!
@@ -905,7 +927,7 @@ public abstract class Automaton {
 
         LinkedList<Integer> toDo = new LinkedList<>();
         toDo.add(state);
-        TreeSet<Integer> closure = new TreeSet<>();
+        Set<Integer> closure = new HashSet<>();
         while (!toDo.isEmpty()) {
             int curr = toDo.poll();
             if (!closure.contains(curr)) {

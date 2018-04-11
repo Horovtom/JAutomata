@@ -303,7 +303,7 @@ public class Main {
     }
 
     static void reduceIt() {
-        current = current.reduce();
+        current = current.getReduced();
         displayMenu();
     }
 

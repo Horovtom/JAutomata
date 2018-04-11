@@ -154,14 +154,6 @@ public class NFAAutomaton extends Automaton {
         }
     }
 
-    private NFAAutomaton(String[] q, String[] sigma, HashMap<Integer, HashMap<Integer, int[]>> transitions, int[] initial, int[] accepting) {
-        this.Q = q;
-        this.sigma = sigma;
-        this.transitions = transitions;
-        this.initialStates = initial;
-        this.acceptingStates = accepting;
-    }
-
     /**
      * This constructor has array of states as a value in transitions map.
      *
@@ -191,13 +183,33 @@ public class NFAAutomaton extends Automaton {
         initializeInitAcc(initial, accepting);
     }
 
+    /**
+     * Constructor used to initialize by reducers
+     */
+    NFAAutomaton(String[] q, String[] sigma, HashMap<Integer, HashMap<Integer, int[]>> transitions, int[] initialStates, int[] acceptingStates) {
+        this.Q = Arrays.copyOf(q, q.length);
+        this.sigma = Arrays.copyOf(sigma, sigma.length);
+        //Copy transitions
+        this.transitions = new HashMap<>();
+        for (int i = 0; i < q.length; i++) {
+            HashMap<Integer, int[]> curr = new HashMap<>();
+            this.transitions.put(i, curr);
+            HashMap<Integer, int[]> currRow = transitions.get(i);
+            for (int l = 0; l < sigma.length; l++) {
+                int[] targets = currRow.get(l);
+                curr.put(l, Arrays.copyOf(targets, targets.length));
+            }
+        }
+        this.initialStates = Arrays.copyOf(initialStates, initialStates.length);
+        this.acceptingStates = Arrays.copyOf(acceptingStates, acceptingStates.length);
+    }
+
     @Override
     public DFAAutomaton reduce() {
         NFAReducer reducer = new NFAReducer(this.Q, this.sigma, this.transitions, this.initialStates, this.acceptingStates);
         DFAAutomaton dfa = new DFAAutomaton(reducer.getReducedQ(), reducer.getReducedSigma(), reducer.getReducedTransitions(), reducer.getReducedInitial(), reducer.getReducedAccepting());
-        dfa = dfa.reduce();
-        this.reduced = dfa;
-        return (DFAAutomaton) dfa.copy();
+        dfa = dfa.getReduced();
+        return dfa;
     }
 
     @Override

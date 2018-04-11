@@ -1,13 +1,13 @@
 package cz.cvut.fel.horovtom.logic;
 
 import cz.cvut.fel.horovtom.logic.abstracts.Automaton;
+import cz.cvut.fel.horovtom.logic.reducers.ENFAReducer;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
-import java.util.TreeSet;
+import java.util.HashSet;
+import java.util.Set;
 
-//TODO: IMPLEMENT
 public class ENFAAutomaton extends Automaton {
     public ENFAAutomaton(String[] strings, String[] strings1, HashMap<String, HashMap<String, String>> transitions, String[] initialString, String[] acceptingString) {
         initializeQSigma(strings, strings1);
@@ -52,13 +52,20 @@ public class ENFAAutomaton extends Automaton {
     @Override
     public DFAAutomaton reduce() {
 
-        return null;
+        if (!this.hasEpsilonTransitions()) {
+            NFAAutomaton nfa = new NFAAutomaton(this.Q, this.sigma, this.transitions, this.initialStates, this.acceptingStates);
+            return nfa.getReduced();
+        }
+
+        ENFAReducer reducer = new ENFAReducer(this.Q, this.sigma, this.transitions, this.initialStates, this.acceptingStates, 0);
+        NFAAutomaton nfa = new NFAAutomaton(reducer.getStateNames(), reducer.getSigma(), reducer.getReducedTransitions(), new int[]{reducer.getInitialIndex()}, reducer.getNewAccepting());
+        return nfa.getReduced();
     }
 
     @Override
     protected int[] getPossibleTransitions(int state, int letter) {
         int[] closure = getEpsilonClosure(state);
-        TreeSet<Integer> returning = new TreeSet<>();
+        Set<Integer> returning = new HashSet<>();
         for (int i : closure) {
             int[] curr = this.transitions.get(i).get(letter);
             for (int i1 : curr) {
@@ -76,6 +83,9 @@ public class ENFAAutomaton extends Automaton {
 
     @Override
     public boolean hasEpsilonTransitions() {
-        return this.sigma[0].equals("\\epsilon") || this.sigma[0].equals("ε");
+        for (String epsilonName : this.epsilonNames) {
+            if (this.sigma[0].equals(epsilonName)) return true;
+        }
+        return false;
     }
 }

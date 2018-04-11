@@ -146,8 +146,6 @@ public class DFAAutomaton extends Automaton {
 
     @Override
     public DFAAutomaton reduce() {
-        if (this.reduced != null) return this.reduced;
-
         //Transfer transitions to DFAReducer format:
         HashMap<Integer, HashMap<Integer, Integer>> formattedTransitions = new HashMap<>();
         for (int s = 0; s < this.Q.length; s++) {
@@ -160,7 +158,6 @@ public class DFAAutomaton extends Automaton {
         }
         DFAReducer reductor = new DFAReducer(formattedTransitions, this.initialStates[0], this.acceptingStates);
         if (reductor.wasReduced()) {
-            this.reduced = this;
             return this;
         }
         HashMap<Integer, HashMap<Integer, Integer>> reducedTransitions = reductor.getReducedTransitions();
@@ -172,7 +169,6 @@ public class DFAAutomaton extends Automaton {
 
         DFAAutomaton dfa = new DFAAutomaton(q, sigma,
                 reducedTransitions, reducedInitial, reducedAccepting);
-        this.reduced = dfa;
         return dfa;
     }
 
