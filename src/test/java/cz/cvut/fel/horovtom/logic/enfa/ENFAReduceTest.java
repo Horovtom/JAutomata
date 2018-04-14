@@ -24,6 +24,6 @@ public class ENFAReduceTest {
         assertTrue(automaton.acceptsWord(new String[]{"1"}));
         assertFalse(automaton.acceptsWord(new String[0]));
         assertTrue(automaton.acceptsWord(new String[]{"1", "0", "1", "0", "1", "1", "1", "1"}));
-
     }
+
 }

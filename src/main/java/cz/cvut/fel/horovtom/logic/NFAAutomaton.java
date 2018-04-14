@@ -29,7 +29,7 @@ public class NFAAutomaton extends Automaton {
         try {
             BufferedReader br = new BufferedReader(new InputStreamReader(in));
             System.out.println("Interactive mode\n" +
-                    "Now you will be asked to enter specifics for this DFA automaton.");
+                    "Now you will be asked to enter specifics for this NFA automaton.");
             LOGGER.info("Asking user to enter state names...");
             System.out.println("Enter state names on a single line, separated by spaces:");
 

@@ -1,6 +1,7 @@
 package cz.cvut.fel.horovtom.graphics.main;
 
 import cz.cvut.fel.horovtom.logic.DFAAutomaton;
+import cz.cvut.fel.horovtom.logic.ENFAAutomaton;
 import cz.cvut.fel.horovtom.logic.NFAAutomaton;
 import cz.cvut.fel.horovtom.logic.abstracts.Automaton;
 
@@ -190,9 +191,9 @@ public class Main {
     }
 
     static void userCreateENFA() {
-        //TODO: IMPLEMENT
-        System.err.println("Not implemented yet!");
-        userCreateAutomaton();
+        current = new ENFAAutomaton();
+
+        displayMenu();
     }
 
     static void userCreateNFA() {
