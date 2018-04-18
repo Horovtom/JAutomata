@@ -1,6 +1,5 @@
 package cz.cvut.fel.horovtom.logic;
 
-import cz.cvut.fel.horovtom.logic.abstracts.Automaton;
 import cz.cvut.fel.horovtom.logic.reducers.DFAReducer;
 
 import java.io.BufferedReader;

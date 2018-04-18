@@ -2,6 +2,8 @@ package cz.cvut.fel.horovtom.tools;
 
 import javafx.util.Pair;
 
+import java.util.Arrays;
+import java.util.HashMap;
 import java.util.concurrent.ThreadLocalRandom;
 
 public class Utilities {
@@ -54,4 +56,17 @@ public class Utilities {
         }
     }
 
+    public static HashMap<Integer, HashMap<Integer, int[]>> getCopyOfHashMap(HashMap<Integer, HashMap<Integer, int[]>> transitions) {
+        HashMap<Integer, HashMap<Integer, int[]>> copyOfTransitions = new HashMap<>();
+        for (Integer integer : transitions.keySet()) {
+            HashMap<Integer, int[]> current = transitions.get(integer);
+            HashMap<Integer, int[]> currentRow = new HashMap<>();
+            for (Integer integer1 : current.keySet()) {
+                int[] ints = current.get(integer1);
+                currentRow.put(integer1, Arrays.copyOf(ints, ints.length));
+            }
+            copyOfTransitions.put(integer, currentRow);
+        }
+        return copyOfTransitions;
+    }
 }

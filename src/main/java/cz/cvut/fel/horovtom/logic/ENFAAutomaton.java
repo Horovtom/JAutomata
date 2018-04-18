@@ -1,6 +1,5 @@
 package cz.cvut.fel.horovtom.logic;
 
-import cz.cvut.fel.horovtom.logic.abstracts.Automaton;
 import cz.cvut.fel.horovtom.logic.reducers.ENFAReducer;
 import cz.cvut.fel.horovtom.tools.Utilities;
 import javafx.util.Pair;
@@ -45,21 +44,12 @@ public class ENFAAutomaton extends Automaton {
     /**
      * Used for copy constructor
      */
-    private ENFAAutomaton(String[] q, String[] sigma, HashMap<Integer, HashMap<Integer, int[]>> transitions, int[] initialStates, int[] acceptingStates) {
+    ENFAAutomaton(String[] q, String[] sigma, HashMap<Integer, HashMap<Integer, int[]>> transitions, int[] initialStates, int[] acceptingStates) {
         this.Q = Arrays.copyOf(q, q.length);
         this.sigma = Arrays.copyOf(sigma, sigma.length);
         this.initialStates = Arrays.copyOf(initialStates, initialStates.length);
         this.acceptingStates = Arrays.copyOf(acceptingStates, acceptingStates.length);
-        this.transitions = new HashMap<>();
-        for (int s = 0; s < q.length; s++) {
-            HashMap<Integer, int[]> curr = new HashMap<>();
-            HashMap<Integer, int[]> currentRow = transitions.get(s);
-            for (int l = 0; l < sigma.length; l++) {
-                int[] currentTransitions = currentRow.get(l);
-                curr.put(l, Arrays.copyOf(currentTransitions, currentTransitions.length));
-            }
-            this.transitions.put(s, curr);
-        }
+        this.transitions = Utilities.getCopyOfHashMap(transitions);
     }
 
     /**
@@ -289,7 +279,7 @@ public class ENFAAutomaton extends Automaton {
 
     @Override
     public boolean hasEpsilonTransitions() {
-        for (String epsilonName : this.epsilonNames) {
+        for (String epsilonName : epsilonNames) {
             if (this.sigma[0].equals(epsilonName)) return true;
         }
         return false;

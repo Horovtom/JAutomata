@@ -1,18 +1,17 @@
 package cz.cvut.fel.horovtom.logic.automaton;
 
+import cz.cvut.fel.horovtom.logic.Automaton;
 import cz.cvut.fel.horovtom.logic.DFAAutomaton;
 import cz.cvut.fel.horovtom.logic.ENFAAutomaton;
-import cz.cvut.fel.horovtom.logic.abstracts.Automaton;
 import cz.cvut.fel.horovtom.logic.samples.Samples;
 import org.junit.Test;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Random;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 public class ConcatenationTest {
 
@@ -108,7 +107,7 @@ public class ConcatenationTest {
         Automaton concatenation = Automaton.getConcatenation(dfa1, dfa2);
         assertTrue(concatenation != null);
         String[] sigma = concatenation.getSigma();
-        assertEquals("Concatenated sigma size should be the sum of the two sizes!", 4, sigma.length);
+        assertEquals("Concatenated sigma size should be 5", 5, sigma.length);
         String[] Q = concatenation.getQ();
         assertEquals("Concatenated states size should be the sum of the two sizes!", 9, Q.length);
 
@@ -161,7 +160,42 @@ public class ConcatenationTest {
         Automaton concatenation = Automaton.getConcatenation(enfa1, enfa2);
 
         assertTrue(concatenation != null);
+        assertTrue("Automaton should accept 'aa'", concatenation.acceptsWord(new String[]{"a", "a"}));
+        assertTrue("Automaton should accept 'ab'", concatenation.acceptsWord(new String[]{"a", "b"}));
+        assertTrue("Automaton should accept 'ba'", concatenation.acceptsWord(new String[]{"b", "a"}));
+        assertTrue("Automaton should accept 'bb'", concatenation.acceptsWord(new String[]{"b", "b"}));
 
-        //TODO: COMPLETE
+        ArrayList<String> word;
+        Random random = new Random();
+        for (int i = 0; i < 1000; i++) {
+            int letters = random.nextInt(50) + 1;
+            if (letters != 2) {
+                word = new ArrayList<>();
+                for (int i1 = 0; i1 < letters; i1++) {
+                    if (random.nextInt(2) + 1 == 1) {
+                        word.add("a");
+                    } else {
+                        word.add("b");
+                    }
+                }
+
+                if (concatenation.acceptsWord(word.toArray(new String[]{}))) {
+                    StringBuilder sb = new StringBuilder();
+                    for (String s : word) {
+                        sb.append(s);
+                    }
+                    assertFalse("Automaton should not accept word: " + sb.toString(), true);
+                }
+            }
+        }
     }
+
+    @Test
+    public void testENFA2() {
+        //TODO: IMPLEMENT
+        ENFAAutomaton a = Samples.getENFA2();
+        ENFAAutomaton b = Samples.getENFA3();
+    }
+
+
 }

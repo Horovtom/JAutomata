@@ -1,10 +1,13 @@
 package cz.cvut.fel.horovtom.logic.samples;
 
+import cz.cvut.fel.horovtom.logic.Automaton;
 import cz.cvut.fel.horovtom.logic.DFAAutomaton;
 import cz.cvut.fel.horovtom.logic.ENFAAutomaton;
 import cz.cvut.fel.horovtom.logic.NFAAutomaton;
 
+import java.io.File;
 import java.util.HashMap;
+import java.util.Objects;
 
 public class Samples {
     /**
@@ -552,5 +555,63 @@ public class Samples {
         String[] initial = new String[]{"0"};
         String[] accepting = new String[]{"2", "3"};
         return new ENFAAutomaton(states, sigma, initial, accepting, transitions);
+    }
+
+    /**
+     * Image: cz/cvut/fel/horovtom/logic/samples/enfa_2.png
+     * This automaton accepts language: <br>
+     * <b>L = {w | w is described by regex: r = (a + b*)a }</b>
+     * <p>
+     * <hr>
+     * <table><tr><th></th><th></th><th>ε</th><th>a</th><th>b</th></tr><tr><td>→</td><td>0</td><td>2</td><td>1</td><td></td></tr><tr><td></td><td>1</td><td></td><td>3</td><td></td></tr><tr><td></td><td>2</td><td></td><td></td><td></td></tr><tr><td>←</td><td>3</td><td></td><td></td><td></td></tr></table>
+     * <hr>
+     * <pre>
+     * +---+---+---+---+---+
+     * |   |   | ε | a | b |
+     * +---+---+---+---+---+
+     * | → | 0 | 2 | 1 |   |
+     * +---+---+---+---+---+
+     * |   | 1 |   | 3 |   |
+     * +---+---+---+---+---+
+     * |   | 2 |   |   |   |
+     * +---+---+---+---+---+
+     * | ← | 3 |   |   |   |
+     * +---+---+---+---+---+
+     * </pre>
+     */
+    public static ENFAAutomaton getENFA2() {
+        return (ENFAAutomaton) Automaton.importFromCSV(
+                new File(Objects.requireNonNull(Samples.class.getClassLoader().getResource("enfa_(a+b*)a.csv")).getFile()));
+
+    }
+
+    /**
+     * Image: cz/cvut/fel/horovtom/logic/samples/enfa_3.png
+     * This automaton accepts language: <br>
+     * <b>L = {w | w &isin; {aa, c, a} }</b>
+     * <p>
+     * <hr>
+     * <table><tr><th></th><th></th><th>ε</th><th>c</th><th>a</th></tr><tr><td>→</td><td>0</td><td>1</td><td></td><td>2</td></tr><tr><td></td><td>1</td><td>2</td><td>3</td><td></td></tr><tr><td></td><td>2</td><td></td><td></td><td>4</td></tr><tr><td>←</td><td>3</td><td></td><td></td><td></td></tr><tr><td>←</td><td>4</td><td></td><td></td><td></td></tr><tr><td>→</td><td>5</td><td>0</td><td></td><td></td></tr></table>
+     * <hr>
+     * <pre>
+     * +---+---+---+---+---+
+     * |   |   | ε | c | a |
+     * +---+---+---+---+---+
+     * | → | 0 | 1 |   | 2 |
+     * +---+---+---+---+---+
+     * |   | 1 | 2 | 3 |   |
+     * +---+---+---+---+---+
+     * |   | 2 |   |   | 4 |
+     * +---+---+---+---+---+
+     * | ← | 3 |   |   |   |
+     * +---+---+---+---+---+
+     * | ← | 4 |   |   |   |
+     * +---+---+---+---+---+
+     * | → | 5 | 0 |   |   |
+     * +---+---+---+---+---+
+     */
+    public static ENFAAutomaton getENFA3() {
+        return (ENFAAutomaton) Automaton.importFromCSV(
+                new File(Objects.requireNonNull(Samples.class.getClassLoader().getResource("enfa_{aa,c,a}.csv")).getFile()));
     }
 }

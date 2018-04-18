@@ -3,7 +3,7 @@ package cz.cvut.fel.horovtom.logic.automaton;
 import cz.cvut.fel.horovtom.logic.DFAAutomaton;
 import cz.cvut.fel.horovtom.logic.ENFAAutomaton;
 import cz.cvut.fel.horovtom.logic.NFAAutomaton;
-import cz.cvut.fel.horovtom.logic.abstracts.Automaton;
+import cz.cvut.fel.horovtom.logic.Automaton;
 import cz.cvut.fel.horovtom.logic.samples.Samples;
 import org.junit.Test;
 

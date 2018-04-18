@@ -1,6 +1,6 @@
 package cz.cvut.fel.horovtom.logic.automaton;
 
-import cz.cvut.fel.horovtom.logic.abstracts.Automaton;
+import cz.cvut.fel.horovtom.logic.Automaton;
 import cz.cvut.fel.horovtom.logic.samples.Samples;
 import org.junit.Test;
 

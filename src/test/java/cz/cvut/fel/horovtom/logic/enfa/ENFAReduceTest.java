@@ -1,7 +1,7 @@
 package cz.cvut.fel.horovtom.logic.enfa;
 
 import cz.cvut.fel.horovtom.logic.ENFAAutomaton;
-import cz.cvut.fel.horovtom.logic.abstracts.Automaton;
+import cz.cvut.fel.horovtom.logic.Automaton;
 import org.junit.Test;
 
 import java.io.File;

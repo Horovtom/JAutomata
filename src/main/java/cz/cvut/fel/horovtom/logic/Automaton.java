@@ -1,7 +1,5 @@
-package cz.cvut.fel.horovtom.logic.abstracts;
+package cz.cvut.fel.horovtom.logic;
 
-import cz.cvut.fel.horovtom.logic.DFAAutomaton;
-import cz.cvut.fel.horovtom.logic.ENFAAutomaton;
 import cz.cvut.fel.horovtom.tools.Utilities;
 import javafx.util.Pair;
 
@@ -58,7 +56,7 @@ public abstract class Automaton {
     /**
      * Array of names that are evaluated as epsilon letters
      */
-    protected final String[] epsilonNames = new String[]{
+    public static final String[] epsilonNames = new String[]{
             "\\epsilon", "ε", "eps"
     };
 
@@ -607,12 +605,13 @@ public abstract class Automaton {
      */
     public boolean acceptsWord(String[] word) {
         if (this.reduced == null) {
-            reduce();
+            this.reduced = getReduced();
         }
 
         if (this.reduced != null) {
             return this.reduced.acceptsWord(word);
         } else {
+            LOGGER.warning("Reduction of automaton failed for some reason!");
             return this.acceptsWordUnified(word);
         }
     }
@@ -945,13 +944,13 @@ public abstract class Automaton {
     /**
      * This function will return automaton that accepts language L3 = L1L2
      *
-     * @param a
-     * @param b
-     * @return
+     * @param a Automaton accepting language L1
+     * @param b Automaton accepting language L2
+     * @return Automaton accepting language L1L2 (not reduced)
      */
     public static Automaton getConcatenation(Automaton a, Automaton b) {
-        //TODO: IMPLEMENT
-        return null;
+        BinaryOperators operators = new BinaryOperators(a, b);
+        return operators.getL1L2();
     }
 
     /**
@@ -1059,5 +1058,17 @@ public abstract class Automaton {
         }
 
         return true;
+    }
+
+    HashMap<Integer, HashMap<Integer, int[]>> getTransitions() {
+        return Utilities.getCopyOfHashMap(this.transitions);
+    }
+
+    int[] getInitialStates() {
+        return Arrays.copyOf(this.initialStates, this.initialStates.length);
+    }
+
+    int[] getAcceptingStates() {
+        return Arrays.copyOf(this.acceptingStates, this.acceptingStates.length);
     }
 }

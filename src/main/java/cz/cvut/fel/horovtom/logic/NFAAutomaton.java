@@ -1,6 +1,5 @@
 package cz.cvut.fel.horovtom.logic;
 
-import cz.cvut.fel.horovtom.logic.abstracts.Automaton;
 import cz.cvut.fel.horovtom.logic.reducers.NFAReducer;
 import cz.cvut.fel.horovtom.tools.Utilities;
 import javafx.util.Pair;
