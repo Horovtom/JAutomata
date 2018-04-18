@@ -792,13 +792,16 @@ public abstract class Automaton {
             String line = r.readLine();
             ArrayList<String> sigma = new ArrayList<>();
             ArrayList<String> Q = new ArrayList<>();
-            int curr = 2;
-
             Pair<Integer, String> ret;
+            ret = Utilities.getNextToken(line, 0, ',');
+            ret = Utilities.getNextToken(line, ret.getKey(), ',');
+            int curr = ret.getKey();
+
             while (curr >= 0) {
                 ret = Utilities.getNextToken(line, curr, ',');
                 curr = ret.getKey();
                 String t = ret.getValue();
+                t = t.trim();
 
                 if (t.charAt(0) == '\"')
                     sigma.add(t.substring(1, t.length() - 1));
@@ -826,6 +829,7 @@ public abstract class Automaton {
                         initials.add(counter);
                         break;
                     case "":
+                    case " ":
                         break;
                     default:
                         LOGGER.warning("Invalid CSV format, expected <>");
@@ -848,6 +852,7 @@ public abstract class Automaton {
                     curr = ret.getKey();
 
                     String t = ret.getValue();
+                    t = t.trim();
                     if (t.length() == 0) {
                         row.put(letter, "");
                     } else {

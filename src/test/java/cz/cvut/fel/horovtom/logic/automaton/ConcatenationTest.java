@@ -172,7 +172,7 @@ public class ConcatenationTest {
             if (letters != 2) {
                 word = new ArrayList<>();
                 for (int i1 = 0; i1 < letters; i1++) {
-                    if (random.nextInt(2) + 1 == 1) {
+                    if (random.nextBoolean()) {
                         word.add("a");
                     } else {
                         word.add("b");
@@ -195,6 +195,93 @@ public class ConcatenationTest {
         //TODO: IMPLEMENT
         ENFAAutomaton a = Samples.getENFA2();
         ENFAAutomaton b = Samples.getENFA3();
+        Automaton concatenation = Automaton.getConcatenation(a, b);
+        assertEquals(10, concatenation.getQSize());
+        assertEquals(4, concatenation.getSigmaSize());
+
+        //(a+b*)a(aa+c+a)
+
+        assertTrue(concatenation.acceptsWord(new String[]{"a", "c"}));
+        assertTrue(concatenation.acceptsWord(new String[]{"a", "a", "a"}));
+        assertTrue(concatenation.acceptsWord(new String[]{"b", "b", "b", "b", "a", "c"}));
+        assertTrue(concatenation.acceptsWord(new String[]{"a", "a", "a", "a"}));
+        assertTrue(concatenation.acceptsWord(new String[]{"b", "b", "a", "a"}));
+        assertTrue(concatenation.acceptsWord(new String[]{"a", "a"}));
+        assertTrue(concatenation.acceptsWord(new String[]{"a", "c"}));
+        assertFalse(concatenation.acceptsWord(new String[]{"c"}));
+
+        Random random = new Random();
+        outer:
+        for (int i = 0; i < 1000; i++) {
+            StringBuilder sb = new StringBuilder();
+            ArrayList<String> word = new ArrayList<>();
+            int count = random.nextInt(1000) + 1;
+            for (int i1 = 0; i1 < count; i1++) {
+                int next = random.nextInt(2);
+                if (next == 0) {
+                    sb.append("a");
+                    word.add("a");
+                } else if (next == 1) {
+                    sb.append("b");
+                    word.add("b");
+                } else {
+                    sb.append("c");
+                    word.add("c");
+                }
+            }
+            boolean acceptable = true;
+            int j = 0;
+            if (word.get(j).equals("a")) {
+                //A start:
+                if (!word.get(++j).equals("a")) {
+                    //We got to L2 prematurely
+                    j--;
+                } else {
+                    if (word.size() == j + 1
+                            //It was the a case from L2 and it is ok...
+                            ||
+                            //It is the aa case from L2 and it is ok...
+                            (word.get(++j).equals("a") && word.size() == j + 1)
+                            ||
+                            //It is the (a + b*)a part, we have L2 left
+                            testL2(word, j)) {
+                        assertTrue("Automaton should accept word: " + sb.toString(), concatenation.acceptsWord(word.toArray(new String[]{})));
+                        continue;
+                    } else {
+                        acceptable = false;
+                    }
+                }
+            } else if (word.get(j).equals("b")) {
+                j++;
+                while (word.get(j).equals("b")) {
+                    j++;
+                    if (word.size() <= j) {
+                        if (concatenation.acceptsWord(word.toArray(new String[]{}))) {
+                            assertFalse("Automaton should not accept word: " + sb.toString(), true);
+                        }
+                        continue outer;
+                    }
+                }
+                if (!word.get(j++).equals("a")) acceptable = false;
+            }
+
+            if (acceptable && testL2(word, j)) {
+                assertTrue("Automaton should accept word: " + sb.toString(), concatenation.acceptsWord(word.toArray(new String[]{})));
+            } else {
+                assertFalse("Automaton should accept word: " + sb.toString(), concatenation.acceptsWord(word.toArray(new String[]{})));
+            }
+
+        }
+    }
+
+    private static boolean testL2(ArrayList<String> s, int currIndex) {
+        if (s.size() == currIndex + 1) {
+            return s.get(currIndex).equals("a") || s.get(currIndex).equals("c");
+        } else if (s.size() == currIndex + 2) {
+            return s.get(currIndex).equals("a") && s.get(currIndex + 1).equals("a");
+        }
+
+        return false;
     }
 
 

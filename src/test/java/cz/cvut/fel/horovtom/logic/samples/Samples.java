@@ -563,7 +563,7 @@ public class Samples {
      * <b>L = {w | w is described by regex: r = (a + b*)a }</b>
      * <p>
      * <hr>
-     * <table><tr><th></th><th></th><th>ε</th><th>a</th><th>b</th></tr><tr><td>→</td><td>0</td><td>2</td><td>1</td><td></td></tr><tr><td></td><td>1</td><td></td><td>3</td><td></td></tr><tr><td></td><td>2</td><td></td><td></td><td></td></tr><tr><td>←</td><td>3</td><td></td><td></td><td></td></tr></table>
+     * <table><tr><th></th><th></th><th>ε</th><th></th><th></th></tr><tr><td>→</td><td>0</td><td>2</td><td>1</td><td></td></tr><tr><td></td><td>1</td><td></td><td>3</td><td></td></tr><tr><td><br></td><td>2</td><td>1</td><td></td><td>2</td></tr><tr><td>←</td><td>3</td><td></td><td></td><td></td></tr></table>
      * <hr>
      * <pre>
      * +---+---+---+---+---+
@@ -573,16 +573,15 @@ public class Samples {
      * +---+---+---+---+---+
      * |   | 1 |   | 3 |   |
      * +---+---+---+---+---+
-     * |   | 2 |   |   |   |
+     * |   | 2 | 1 |   | 2 |
      * +---+---+---+---+---+
      * | ← | 3 |   |   |   |
      * +---+---+---+---+---+
      * </pre>
      */
     public static ENFAAutomaton getENFA2() {
-        return (ENFAAutomaton) Automaton.importFromCSV(
-                new File(Objects.requireNonNull(Samples.class.getClassLoader().getResource("enfa_(a+b*)a.csv")).getFile()));
-
+        File f = new File(Objects.requireNonNull(Samples.class.getClassLoader().getResource("enfa_(a+b*)a.csv")).getFile());
+        return (ENFAAutomaton) Automaton.importFromCSV(f);
     }
 
     /**
@@ -612,6 +611,6 @@ public class Samples {
      */
     public static ENFAAutomaton getENFA3() {
         return (ENFAAutomaton) Automaton.importFromCSV(
-                new File(Objects.requireNonNull(Samples.class.getClassLoader().getResource("enfa_{aa,c,a}.csv")).getFile()));
+                new File(Objects.requireNonNull(Samples.class.getClassLoader().getResource("enfa_aa,c,a.csv")).getFile()));
     }
 }
