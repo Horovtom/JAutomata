@@ -1,4 +1,4 @@
-package cz.cvut.fel.horovtom.logic.automaton;
+package cz.cvut.fel.horovtom.logic.automaton.operators;
 
 import cz.cvut.fel.horovtom.logic.Automaton;
 import cz.cvut.fel.horovtom.logic.DFAAutomaton;
@@ -192,7 +192,6 @@ public class ConcatenationTest {
 
     @Test
     public void testENFA2() {
-        //TODO: IMPLEMENT
         ENFAAutomaton a = Samples.getENFA2();
         ENFAAutomaton b = Samples.getENFA3();
         Automaton concatenation = Automaton.getConcatenation(a, b);
@@ -233,10 +232,7 @@ public class ConcatenationTest {
             int j = 0;
             if (word.get(j).equals("a")) {
                 //A start:
-                if (!word.get(++j).equals("a")) {
-                    //We got to L2 prematurely
-                    j--;
-                } else {
+                if (word.get(++j).equals("a")) {
                     if (word.size() == j + 1
                             //It was the a case from L2 and it is ok...
                             ||
@@ -250,6 +246,9 @@ public class ConcatenationTest {
                     } else {
                         acceptable = false;
                     }
+                } else {
+                    //We got to L2 prematurely
+                    j--;
                 }
             } else if (word.get(j).equals("b")) {
                 j++;

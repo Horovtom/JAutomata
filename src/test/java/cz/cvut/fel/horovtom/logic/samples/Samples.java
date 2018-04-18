@@ -613,4 +613,138 @@ public class Samples {
         return (ENFAAutomaton) Automaton.importFromCSV(
                 new File(Objects.requireNonNull(Samples.class.getClassLoader().getResource("enfa_aa,c,a.csv")).getFile()));
     }
+
+    /**
+     * Image: cz/cvut/fel/horovtom/logic/samples/enfa_aab.png
+     * This automaton accepts language: <br>
+     * <b> L = {w | w is described by regular expression r = aab(a+b)* }</b>
+     * <p>
+     * <hr>
+     * <table><tr><th></th><th></th><th>a</th><th>b</th></tr><tr><td>→</td><td>0</td><td>1</td><td></td></tr><tr><td></td><td>1</td><td>1</td><td></td></tr><tr><td></td><td>2</td><td></td><td>3</td></tr><tr><td>←</td><td>3</td><td></td><td></td></tr></table>
+     * <hr>
+     * <pre>
+     * +---+---+---+---+
+     * |   |   | a | b |
+     * +---+---+---+---+
+     * | → | 0 | 1 |   |
+     * +---+---+---+---+
+     * |   | 1 | 1 |   |
+     * +---+---+---+---+
+     * |   | 2 |   | 3 |
+     * +---+---+---+---+
+     * | ← | 3 |   |   |
+     * +---+---+---+---+
+     */
+    public static ENFAAutomaton getENFA_aab() {
+        String[] Q = new String[]{"0", "1", "2", "3"};
+        String[] sigma = new String[]{"a", "b"};
+        String[] initials = new String[]{"0"};
+        String[] accepting = new String[]{"3"};
+        HashMap<String, HashMap<String, String[]>> transitions = new HashMap<>();
+        HashMap<String, String[]> curr = new HashMap<>();
+        curr.put("a", new String[]{"1"});
+        transitions.put("0", curr);
+        curr = new HashMap<>();
+        curr.put("a", new String[]{"2"});
+        transitions.put("1", curr);
+        curr = new HashMap<>();
+        curr.put("b", new String[]{"3"});
+        transitions.put("2", curr);
+        curr = new HashMap<>();
+        curr.put("a", new String[]{});
+        curr.put("b", new String[]{});
+        transitions.put("3", curr);
+
+        return new ENFAAutomaton(Q, sigma, initials, accepting, transitions);
+    }
+
+    /**
+     * Image cz/cvut/fel/horovtom/logic/samples/dfa_2.png
+     * <p>
+     * This automaton is <b>reduced</b> and it accepts this language: <br>
+     * <b> &Sigma; = {l, o, i, p}, L = {w | w &isin;&Sigma;<sup>*</sup>, w contains "lolipop" as a substring}</b>
+     * <hr>
+     * <table><tr><th colspan="2">Q<br></th><th>l</th><th>o<br></th><th>i</th><th>p</th></tr><tr><td>→</td><td>0</td><td>1</td><td>0<br></td><td>0</td><td>0</td></tr><tr><td></td><td>1</td><td>0</td><td>2</td><td>0</td><td>0</td></tr><tr><td><br></td><td>2</td><td>3</td><td>0</td><td>0</td><td>0</td></tr><tr><td></td><td>3</td><td>0</td><td>0</td><td>4</td><td>0</td></tr><tr><td></td><td>4</td><td>0</td><td>0</td><td>0</td><td>5</td></tr><tr><td><br></td><td>5</td><td>0</td><td>6</td><td>0</td><td>0</td></tr><tr><td></td><td>6</td><td>0</td><td>0</td><td>0</td><td>7</td></tr><tr><td>←</td><td>7</td><td>7</td><td>7</td><td>7</td><td>7</td></tr></table>
+     * <hr>
+     * <pre>
+     * +-------+------+-------+---+-----------------+ <br>
+     * | Q     | l    | o     | i | p               | <br>
+     * +-------+------+-------+---+-----------------+ <br>
+     * | → | 0 | 1    | 0     | 0 | 0               | <br>
+     * +---+---+------+-------+---+-----------------+ <br>
+     * |   | 1 | 0    | 2     | 0 | 0               | <br>
+     * +---+---+------+-------+---+-----------------+ <br>
+     * |   | 2 | 3    | 0     | 0 | 0               | <br>
+     * +---+---+------+-------+---+-----------------+ <br>
+     * |   | 3 | 0    | 0     | 4 | 0               | <br>
+     * +---+---+------+-------+---+-----------------+ <br>
+     * |   | 4 | 0    | 0     | 0 | 5               | <br>
+     * +---+---+------+-------+---+-----------------+ <br>
+     * |   | 5 | 0    | 6     | 0 | 0               | <br>
+     * +---+---+------+-------+---+-----------------+ <br>
+     * |   | 6 | 0    | 0     | 0 | 7               | <br>
+     * +---+---+------+-------+---+-----------------+ <br>
+     * | ← | 7 | 7    | 7     | 7 | 7               | <br>
+     * +---+---+------+-------+---+-----------------+
+     * </pre>
+     */
+    public static DFAAutomaton getDFA_lolipop() {
+        String[] Q = new String[]{
+                "0", "1", "2", "3", "4", "5", "6", "7"
+        };
+        String[] sigma = new String[]{
+                "l", "o", "i", "p"
+        };
+        HashMap<String, HashMap<String, String>> transitions = new HashMap<>();
+        HashMap<String, String> current = new HashMap<>();
+        current.put("l", "1");
+        current.put("o", "0");
+        current.put("i", "0");
+        current.put("p", "0");
+        transitions.put("0", current);
+        current = new HashMap<>();
+        current.put("l", "0");
+        current.put("o", "2");
+        current.put("i", "0");
+        current.put("p", "0");
+        transitions.put("1", current);
+        current = new HashMap<>();
+        current.put("l", "3");
+        current.put("o", "0");
+        current.put("i", "0");
+        current.put("p", "0");
+        transitions.put("2", current);
+        current = new HashMap<>();
+        current.put("l", "0");
+        current.put("o", "0");
+        current.put("i", "4");
+        current.put("p", "0");
+        transitions.put("3", current);
+        current = new HashMap<>();
+        current.put("l", "0");
+        current.put("o", "0");
+        current.put("i", "0");
+        current.put("p", "5");
+        transitions.put("4", current);
+        current = new HashMap<>();
+        current.put("l", "0");
+        current.put("o", "6");
+        current.put("i", "0");
+        current.put("p", "0");
+        transitions.put("5", current);
+        current = new HashMap<>();
+        current.put("l", "0");
+        current.put("o", "0");
+        current.put("i", "0");
+        current.put("p", "7");
+        transitions.put("6", current);
+        current = new HashMap<>();
+        current.put("l", "7");
+        current.put("o", "7");
+        current.put("i", "7");
+        current.put("p", "7");
+        transitions.put("7", current);
+
+        return new DFAAutomaton(Q, sigma, transitions, "0", new String[]{"7"});
+    }
 }
