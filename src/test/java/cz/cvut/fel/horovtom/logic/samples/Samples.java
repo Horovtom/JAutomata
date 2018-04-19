@@ -620,7 +620,7 @@ public class Samples {
      * <b> L = {w | w is described by regular expression r = aab(a+b)* }</b>
      * <p>
      * <hr>
-     * <table><tr><th></th><th></th><th>a</th><th>b</th></tr><tr><td>→</td><td>0</td><td>1</td><td></td></tr><tr><td></td><td>1</td><td>1</td><td></td></tr><tr><td></td><td>2</td><td></td><td>3</td></tr><tr><td>←</td><td>3</td><td></td><td></td></tr></table>
+     * <table><tr><th></th><th></th><th>a</th><th>b</th></tr><tr><td>→</td><td>0</td><td>1</td><td></td></tr><tr><td></td><td>1</td><td>2</td><td></td></tr><tr><td></td><td>2</td><td></td><td>3</td></tr><tr><td>←</td><td>3</td><td></td><td></td></tr></table>
      * <hr>
      * <pre>
      * +---+---+---+---+
@@ -628,7 +628,7 @@ public class Samples {
      * +---+---+---+---+
      * | → | 0 | 1 |   |
      * +---+---+---+---+
-     * |   | 1 | 1 |   |
+     * |   | 1 | 2 |   |
      * +---+---+---+---+
      * |   | 2 |   | 3 |
      * +---+---+---+---+

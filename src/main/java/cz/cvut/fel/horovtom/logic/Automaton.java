@@ -159,12 +159,17 @@ public abstract class Automaton {
             String from = Q[i];
             HashMap<Integer, int[]> curr = new HashMap<>();
             trans.put(i, curr);
+            //TODO: DEBUG! NULL?!
             for (int l = 0; l < this.sigma.length; l++) {
                 String by = this.sigma[l];
                 String[] to = transitions.get(from).get(by);
                 Set<Integer> targets = new HashSet<>();
-                for (String aTo : to) {
-                    targets.add(this.getStateIndex(aTo));
+                if (to != null) {
+                    for (String aTo : to) {
+                        int tar = this.getStateIndex(aTo);
+                        if (tar >= 0)
+                            targets.add(this.getStateIndex(aTo));
+                    }
                 }
                 curr.put(l, targets.stream().mapToInt(a -> a).toArray());
             }
@@ -962,8 +967,9 @@ public abstract class Automaton {
      * This function will return automaton that accepts L*
      */
     public Automaton getKleeny() {
-        //TODO: IMPLEMENT
-        return null;
+        //FIXME: This might cause some performance issues, consider caching the result
+        UnaryOperators operators = new UnaryOperators(this);
+        return operators.getKleeny();
     }
 
     /**
@@ -1065,6 +1071,9 @@ public abstract class Automaton {
         return true;
     }
 
+    /**
+     * @return deep values copy of transitions map
+     */
     HashMap<Integer, HashMap<Integer, int[]>> getTransitions() {
         return Utilities.getCopyOfHashMap(this.transitions);
     }
