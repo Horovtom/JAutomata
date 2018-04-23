@@ -664,7 +664,15 @@ public class Samples {
      * This automaton is <b>reduced</b> and it accepts this language: <br>
      * <b> &Sigma; = {l, o, i, p}, L = {w | w &isin;&Sigma;<sup>*</sup>, w contains "lolipop" as a substring}</b>
      * <hr>
-     * <table><tr><th colspan="2">Q<br></th><th>l</th><th>o<br></th><th>i</th><th>p</th></tr><tr><td>→</td><td>0</td><td>1</td><td>0<br></td><td>0</td><td>0</td></tr><tr><td></td><td>1</td><td>0</td><td>2</td><td>0</td><td>0</td></tr><tr><td><br></td><td>2</td><td>3</td><td>0</td><td>0</td><td>0</td></tr><tr><td></td><td>3</td><td>0</td><td>0</td><td>4</td><td>0</td></tr><tr><td></td><td>4</td><td>0</td><td>0</td><td>0</td><td>5</td></tr><tr><td><br></td><td>5</td><td>0</td><td>6</td><td>0</td><td>0</td></tr><tr><td></td><td>6</td><td>0</td><td>0</td><td>0</td><td>7</td></tr><tr><td>←</td><td>7</td><td>7</td><td>7</td><td>7</td><td>7</td></tr></table>
+     * <table><tr><th colspan="2">Q<br></th><th>l</th><th>o<br></th><th>i</th><th>p</th></tr>
+     * <tr><td>→</td><td>0</td><td>1</td><td>0<br></td><td>0</td><td>0</td></tr>
+     * <tr><td></td><td>1</td><td>1</td><td>2</td><td>0</td><td>0</td></tr>
+     * <tr><td><br></td><td>2</td><td>3</td><td>0</td><td>0</td><td>0</td></tr>
+     * <tr><td></td><td>3</td><td>1</td><td>0</td><td>4</td><td>0</td></tr>
+     * <tr><td></td><td>4</td><td>1</td><td>0</td><td>0</td><td>5</td></tr>
+     * <tr><td><br></td><td>5</td><td>1</td><td>6</td><td>0</td><td>0</td></tr>
+     * <tr><td></td><td>6</td><td>1</td><td>0</td><td>0</td><td>7</td></tr>
+     * <tr><td>←</td><td>7</td><td>7</td><td>7</td><td>7</td><td>7</td></tr></table>
      * <hr>
      * <pre>
      * +-------+------+-------+---+-----------------+ <br>
@@ -672,17 +680,17 @@ public class Samples {
      * +-------+------+-------+---+-----------------+ <br>
      * | → | 0 | 1    | 0     | 0 | 0               | <br>
      * +---+---+------+-------+---+-----------------+ <br>
-     * |   | 1 | 0    | 2     | 0 | 0               | <br>
+     * |   | 1 | 1    | 2     | 0 | 0               | <br>
      * +---+---+------+-------+---+-----------------+ <br>
      * |   | 2 | 3    | 0     | 0 | 0               | <br>
      * +---+---+------+-------+---+-----------------+ <br>
-     * |   | 3 | 0    | 0     | 4 | 0               | <br>
+     * |   | 3 | 1    | 0     | 4 | 0               | <br>
      * +---+---+------+-------+---+-----------------+ <br>
-     * |   | 4 | 0    | 0     | 0 | 5               | <br>
+     * |   | 4 | 1    | 0     | 0 | 5               | <br>
      * +---+---+------+-------+---+-----------------+ <br>
-     * |   | 5 | 0    | 6     | 0 | 0               | <br>
+     * |   | 5 | 1    | 6     | 0 | 0               | <br>
      * +---+---+------+-------+---+-----------------+ <br>
-     * |   | 6 | 0    | 0     | 0 | 7               | <br>
+     * |   | 6 | 1    | 0     | 0 | 7               | <br>
      * +---+---+------+-------+---+-----------------+ <br>
      * | ← | 7 | 7    | 7     | 7 | 7               | <br>
      * +---+---+------+-------+---+-----------------+
@@ -703,7 +711,7 @@ public class Samples {
         current.put("p", "0");
         transitions.put("0", current);
         current = new HashMap<>();
-        current.put("l", "0");
+        current.put("l", "1");
         current.put("o", "2");
         current.put("i", "0");
         current.put("p", "0");
@@ -715,25 +723,25 @@ public class Samples {
         current.put("p", "0");
         transitions.put("2", current);
         current = new HashMap<>();
-        current.put("l", "0");
+        current.put("l", "1");
         current.put("o", "0");
         current.put("i", "4");
         current.put("p", "0");
         transitions.put("3", current);
         current = new HashMap<>();
-        current.put("l", "0");
+        current.put("l", "1");
         current.put("o", "0");
         current.put("i", "0");
         current.put("p", "5");
         transitions.put("4", current);
         current = new HashMap<>();
-        current.put("l", "0");
+        current.put("l", "1");
         current.put("o", "6");
         current.put("i", "0");
         current.put("p", "0");
         transitions.put("5", current);
         current = new HashMap<>();
-        current.put("l", "0");
+        current.put("l", "1");
         current.put("o", "0");
         current.put("i", "0");
         current.put("p", "7");

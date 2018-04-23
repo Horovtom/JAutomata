@@ -1,9 +1,8 @@
 package cz.cvut.fel.horovtom.logic;
 
 import cz.cvut.fel.horovtom.logic.reducers.ENFAReducer;
+import cz.cvut.fel.horovtom.tools.Pair;
 import cz.cvut.fel.horovtom.tools.Utilities;
-import javafx.util.Pair;
-
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
@@ -50,6 +49,7 @@ public class ENFAAutomaton extends Automaton {
         this.initialStates = Arrays.copyOf(initialStates, initialStates.length);
         this.acceptingStates = Arrays.copyOf(acceptingStates, acceptingStates.length);
         this.transitions = Utilities.getCopyOfHashMap(transitions);
+        refactorTransitions();
     }
 
     /**

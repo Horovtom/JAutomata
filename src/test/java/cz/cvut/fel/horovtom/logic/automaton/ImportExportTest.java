@@ -56,9 +56,9 @@ public class ImportExportTest {
             BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream(file)));
             assertEquals("CSV was incorrect", "\"This automaton accepts words that contain substring: 'troy'\",,\"t\",\"r\",\"o\",\"y\"", br.readLine());
             assertEquals("CSV was incorrect", ">,\"0\",\"0,1\",\"0\",\"0\",\"0\"", br.readLine());
-            assertEquals("CSV was incorrect", ",\"1\",\"0,1\",\"0,2\",\"0\",\"0\"", br.readLine());
-            assertEquals("CSV was incorrect", ",\"2\",\"0,1\",\"0\",\"0,3\",\"0\"", br.readLine());
-            assertEquals("CSV was incorrect", ",\"3\",\"0,1\",\"0\",\"0\",\"4\"", br.readLine());
+            assertEquals("CSV was incorrect", ",\"1\",,\"2\",,", br.readLine());
+            assertEquals("CSV was incorrect", ",\"2\",,,\"3\",", br.readLine());
+            assertEquals("CSV was incorrect", ",\"3\",,,,\"4\"", br.readLine());
             assertEquals("CSV was incorrect", "<,\"4\",\"4\",\"4\",\"4\",\"4\"", br.readLine());
             assertEquals("CSV was incorrect", null, br.readLine());
 

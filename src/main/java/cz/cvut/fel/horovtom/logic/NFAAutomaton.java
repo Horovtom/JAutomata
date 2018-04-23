@@ -1,9 +1,8 @@
 package cz.cvut.fel.horovtom.logic;
 
 import cz.cvut.fel.horovtom.logic.reducers.NFAReducer;
+import cz.cvut.fel.horovtom.tools.Pair;
 import cz.cvut.fel.horovtom.tools.Utilities;
-import javafx.util.Pair;
-
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;

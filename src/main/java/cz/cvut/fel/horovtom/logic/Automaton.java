@@ -1,8 +1,7 @@
 package cz.cvut.fel.horovtom.logic;
 
+import cz.cvut.fel.horovtom.tools.Pair;
 import cz.cvut.fel.horovtom.tools.Utilities;
-import javafx.util.Pair;
-
 import java.io.*;
 import java.util.*;
 import java.util.logging.Logger;
@@ -399,6 +398,17 @@ public abstract class Automaton {
         return savedToString[HTML];
     }
 
+    @Deprecated
+    public boolean acceptsWord(String word) {
+        int a = word.length();
+        String[] wordAr = new String[a];
+        for (int w = 0; w < a; w++) {
+            wordAr[w] = String.valueOf(word.charAt(w));
+        }
+        return acceptsWord(wordAr);
+        //TODO: TEMPORARY METHOD
+    }
+
     /**
      * @return String containing formatted table as tex code
      */
@@ -410,7 +420,14 @@ public abstract class Automaton {
             }
             res.append("}\n\t & ");
 
+            outer:
             for (String s : this.sigma) {
+                for (String epsilonName : epsilonNames) {
+                    if (s.equals(epsilonName)) {
+                        res.append("& $\\varepsilon$ ");
+                        continue outer;
+                    }
+                }
                 res.append("& $").append(s).append("$ ");
             }
             res.append("\\\\\\hline\n");
@@ -438,7 +455,8 @@ public abstract class Automaton {
                     for (int i = 1; i < current.length; i++) {
                         res.append(",").append(this.Q[current[i]]);
                     }
-                    res.append("$ ");
+                    if (current.length != 0)
+                        res.append("$ ");
                 }
                 if (state != this.Q.length - 1)
                     res.append("\\\\\n");
@@ -1083,6 +1101,32 @@ public abstract class Automaton {
     }
 
     /**
+     * Attempts to refactor transitions so that every state has filled rows
+     */
+    protected void refactorTransitions() {
+        HashMap<Integer, HashMap<Integer, int[]>> newTransitions = new HashMap<>();
+
+        for (int state = 0; state < this.Q.length; state++) {
+            HashMap<Integer, int[]> curr = new HashMap<>();
+            newTransitions.put(state, curr);
+            for (int letter = 0; letter < this.sigma.length; letter++) {
+                int[] orig;
+                if (this.transitions.containsKey(state)) {
+                    if (this.transitions.get(state).containsKey(letter)) {
+                        orig = this.transitions.get(state).get(letter);
+                    } else {
+                        orig = new int[0];
+                    }
+                } else {
+                    orig = new int[0];
+                }
+                curr.put(letter, Arrays.copyOf(orig, orig.length));
+            }
+        }
+        this.transitions = newTransitions;
+    }
+
+    /**
      * Converts automaton to regular expression
      *
      * @return regular expression describing the language accepted by this automaton
@@ -1090,6 +1134,10 @@ public abstract class Automaton {
     public String toRegex() {
         //TODO: IMPLEMENT
         return "";
+    }
+
+    public boolean acceptsWord(ArrayList<String> input) {
+        return acceptsWord(input.toArray(new String[]{}));
     }
 
     /**

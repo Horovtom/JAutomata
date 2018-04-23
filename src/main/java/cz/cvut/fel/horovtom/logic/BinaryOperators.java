@@ -230,38 +230,41 @@ public class BinaryOperators {
                 if (state < bStart && aSigmaMap.containsKey(letter)) {
                     Integer aLetter = aSigmaMap.get(letter);
                     int[] ints = aTransitions.get(state - 1).get(aLetter);
-                    currRow.put(letter, Arrays.copyOf(ints, ints.length));
+                    int[] newInts = Arrays.copyOf(ints, ints.length);
+                    for (int i = 0; i < newInts.length; i++) {
+                        newInts[i]++;
+                    }
+
+                    currRow.put(letter, newInts);
                 } else if (state >= bStart && bSigmaMap.containsKey(letter)) {
                     Integer bLetter = bSigmaMap.get(letter);
                     int[] ints = bTransitions.get(state - bStart).get(bLetter);
-                    currRow.put(letter, Arrays.copyOf(ints, ints.length));
+                    int[] newInts = Arrays.copyOf(ints, ints.length);
+                    for (int i = 0; i < newInts.length; i++) {
+                        newInts[i] += bStart;
+                    }
+
+                    currRow.put(letter, newInts);
                 } else {
                     currRow.put(letter, new int[0]);
                 }
             }
-
-            //FIXME: DEBUG PRINT
-            System.out.print("Row: ");
-            for (int i = 0; i < sigma.length; i++) {
-
-                int[] ints = currRow.get(i);
-                for (int anInt : ints) {
-                    System.out.print(anInt + ",");
-                }
-                System.out.print(" ; ");
-            }
-            System.out.println("");
 
             transitions.put(state, currRow);
         }
 
         int[] initials = new int[]{0};
         int[] aAcc = a.getAcceptingStates();
+        for (int i = 0; i < aAcc.length; i++) {
+            aAcc[i]++;
+        }
         int[] bAcc = b.getAcceptingStates();
+        for (int i = 0; i < bAcc.length; i++) {
+            bAcc[i] += bStart;
+        }
         int[] accepting = new int[aAcc.length + bAcc.length];
         System.arraycopy(aAcc, 0, accepting, 0, aAcc.length);
         System.arraycopy(bAcc, 0, accepting, aAcc.length, bAcc.length);
-
 
         this.union = new ENFAAutomaton(Q, sigma, transitions, initials, accepting);
     }

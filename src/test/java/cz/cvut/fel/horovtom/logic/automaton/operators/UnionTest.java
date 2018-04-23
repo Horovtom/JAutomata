@@ -17,10 +17,10 @@ public class UnionTest {
     public void test1() {
         DFAAutomaton lolipopAutomaton = Samples.getDFA_lolipop();
         Automaton troyAutomaton = Samples.getNFA_troy();
-
         Automaton union = Automaton.getUnion(lolipopAutomaton, troyAutomaton);
+
         assertTrue("Failed to create union, even though it should be possible", union != null);
-        Random r = new Random(System.currentTimeMillis());
+        Random r = new Random();
         //Both alphabet's at once
         String[] alphabeth = new String[]{"l", "i", "p", "o", "t", "r", "y"};
         for (int i = 0; i < 1000; i++) {
@@ -31,13 +31,10 @@ public class UnionTest {
             int lolipopCounter = 0;
             int troyCounter = 0;
 
-
             int length = r.nextInt(1000);
             StringBuilder sb = new StringBuilder();
             ArrayList<String> word = new ArrayList<>();
             for (int i1 = 0; i1 < length; i1++) {
-                // l o i p t r y
-                //FIXME: Maybe - 1?
                 int curr = r.nextInt(alphabeth.length);
                 sb.append(alphabeth[curr]);
                 word.add(alphabeth[curr]);
@@ -51,22 +48,22 @@ public class UnionTest {
                     switch (curr) {
                         case 0:
                             if (lolipopCounter == 0 || lolipopCounter == 2) lolipopCounter++;
-                            else lolipopCounter = 1;
+                            else lolipopValid = false;
                             break;
                         case 1:
                             if (lolipopCounter == 3) lolipopCounter++;
-                            else lolipopCounter = 0;
+                            else lolipopValid = false;
                             break;
                         case 2:
                             if (lolipopCounter == 4) lolipopCounter++;
                             else if (lolipopCounter == 6) {
                                 lolipopCounter = 7;
                                 lolipopFound = true;
-                            } else lolipopCounter = 0;
+                            } else lolipopValid = false;
                             break;
                         case 3:
                             if (lolipopCounter == 1 || lolipopCounter == 5) lolipopCounter++;
-                            else lolipopCounter = 0;
+                            else lolipopValid = false;
                             break;
                         default:
                             lolipopValid = false;
@@ -100,7 +97,7 @@ public class UnionTest {
             if ((lolipopValid && lolipopFound) || (troyValid && troyFound)) {
                 assertTrue("Union should accept the word: " + sb.toString(), union.acceptsWord(word.toArray(new String[]{})));
             } else {
-                assertFalse("Union should accept the word: " + sb.toString(), union.acceptsWord(word.toArray(new String[]{})));
+                assertFalse("Union should not accept the word: " + sb.toString(), union.acceptsWord(word.toArray(new String[]{})));
             }
         }
 
@@ -120,10 +117,6 @@ public class UnionTest {
                 word.add(alphabeth[curr]);
                 if (!troyFound) {
                     switch (curr) {
-                        case 2:
-                            if (troyCounter == 2) troyCounter = 3;
-                            else troyCounter = 0;
-                            break;
                         case 0:
                             troyCounter = 1;
                             break;
@@ -131,11 +124,15 @@ public class UnionTest {
                             if (troyCounter == 1) troyCounter = 2;
                             else troyCounter = 0;
                             break;
+                        case 2:
+                            if (troyCounter == 2) troyCounter = 3;
+                            else troyCounter = 0;
+                            break;
                         case 3:
                             if (troyCounter == 3) {
                                 troyCounter = 4;
                                 troyFound = true;
-                            }
+                            } else troyCounter = 0;
                             break;
                     }
                 }
@@ -144,7 +141,7 @@ public class UnionTest {
             if (troyFound) {
                 assertTrue("Union should accept the word: " + sb.toString(), union.acceptsWord(word.toArray(new String[]{})));
             } else {
-                assertFalse("Union should accept the word: " + sb.toString(), union.acceptsWord(word.toArray(new String[]{})));
+                assertFalse("Union should not accept the word: " + sb.toString(), union.acceptsWord(word.toArray(new String[]{})));
             }
         }
 
@@ -190,7 +187,7 @@ public class UnionTest {
             if (lolipopFound) {
                 assertTrue("Union should accept the word: " + sb.toString(), union.acceptsWord(word.toArray(new String[]{})));
             } else {
-                assertFalse("Union should accept the word: " + sb.toString(), union.acceptsWord(word.toArray(new String[]{})));
+                assertFalse("Union should not accept the word: " + sb.toString(), union.acceptsWord(word.toArray(new String[]{})));
             }
         }
     }
