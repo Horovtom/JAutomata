@@ -16,7 +16,7 @@ public class BinaryOperators {
     private HashMap<Integer, Integer> bSigmaMap, aSigmaMap;
     private Automaton L1L2;
 
-    public BinaryOperators(Automaton a, Automaton b) {
+    BinaryOperators(Automaton a, Automaton b) {
         this.a = a;
         this.b = b;
 
@@ -29,7 +29,6 @@ public class BinaryOperators {
     private void createCommon() {
         //States
         String[] Q = new String[a.getQSize() + b.getQSize()];
-        //FIXME: Same names of states case!
         String[] aQ = a.getQ();
         String[] bQ = b.getQ();
         int currIndex = 0;

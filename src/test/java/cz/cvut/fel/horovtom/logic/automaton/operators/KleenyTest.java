@@ -17,7 +17,7 @@ public class KleenyTest {
     @Test
     public void kleeny1() {
         ENFAAutomaton enfa = Samples.getENFA1();
-        Automaton kleeny = enfa.getKleeny();
+        Automaton kleeny = enfa.getKleene();
         assertEquals("Kleeny automaton should have the same number of states as the original", 4, kleeny.getQSize());
         assertEquals("Kleeny should have the same number of letters with epsilon transition as the original", 3, kleeny.getSigmaSize());
 
@@ -41,7 +41,7 @@ public class KleenyTest {
     @Test
     public void kleeny2() {
         ENFAAutomaton aab = Samples.getENFA_aab();
-        Automaton kleeny = aab.getKleeny();
+        Automaton kleeny = aab.getKleene();
         assertFalse(kleeny.acceptsWord(new String[0]));
         assertTrue(kleeny.acceptsWord(new String[]{"a", "a", "b"}));
         assertTrue(kleeny.acceptsWord(new String[]{"a", "a", "b", "a", "a", "b", "a", "a", "b"}));

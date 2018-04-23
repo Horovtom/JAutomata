@@ -43,7 +43,7 @@ public class Utilities {
                 return new Pair<>(-1, sb.toString());
             }
             char currentChar = line.charAt(curr);
-            if (line.charAt(curr) == separator && !chain) {
+            if (currentChar == separator && !chain) {
                 return new Pair<>(curr + 1 >= len ? -1 : curr + 1, sb.toString());
             } else {
                 if (currentChar == '\"') {

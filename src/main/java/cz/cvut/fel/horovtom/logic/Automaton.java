@@ -9,6 +9,11 @@ import java.util.logging.Logger;
 
 public abstract class Automaton {
     private final static Logger LOGGER = Logger.getLogger(Automaton.class.getName());
+
+    /**
+     * This holds the automaton description, language accepted and so on
+     */
+    protected String description;
     /**
      * Ordered array of state names in Q
      */
@@ -159,7 +164,6 @@ public abstract class Automaton {
             String from = Q[i];
             HashMap<Integer, int[]> curr = new HashMap<>();
             trans.put(i, curr);
-            //TODO: DEBUG! NULL?!
             for (int l = 0; l < this.sigma.length; l++) {
                 String by = this.sigma[l];
                 String[] to = transitions.get(from).get(by);
@@ -269,6 +273,14 @@ public abstract class Automaton {
      */
     public String[] getQ() {
         return Arrays.copyOf(Q, Q.length);
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+    public String getDescription() {
+        return this.description;
     }
 
     /**
@@ -786,7 +798,36 @@ public abstract class Automaton {
         }
     }
 
+    /**
+     * Calls {@link #importFromCSV(File, char)}
+     * and uses default separator: ','
+     */
     public static Automaton importFromCSV(File fileToLoad) {
+        return importFromCSV(fileToLoad, ',');
+    }
+
+    /**
+     * This function imports automaton from CSV file specified with a specified separator.
+     * This requires CSV file to be in this format:
+     * E.G.:
+     * <pre>
+     * [Description],,[letter1],[letter2],[letter3]
+     * [IA],[state1],[trans11],[trans12],[trans13]
+     * [IA],[state2],[trans21],[trans22],[trans23]
+     * etc.
+     * </pre>
+     * <p>
+     * [IA] is initial and accepting description of the state. It is denoted by:
+     * <pre>
+     * initial - >
+     * accepting - <
+     * initial and accepting - <>
+     * </pre>
+     * <p>
+     * If there are multiple states in [transxx], enclose whole [transxx] in "" and separate them by commas
+     * <br>
+     */
+    public static Automaton importFromCSV(File fileToLoad, char separator) {
         if (fileToLoad == null) {
             LOGGER.warning("Cannot import from CSV file which is null!");
             return null;
@@ -798,12 +839,19 @@ public abstract class Automaton {
             ArrayList<String> sigma = new ArrayList<>();
             ArrayList<String> Q = new ArrayList<>();
             Pair<Integer, String> ret;
-            ret = Utilities.getNextToken(line, 0, ',');
-            ret = Utilities.getNextToken(line, ret.getKey(), ',');
+            ret = Utilities.getNextToken(line, 0, separator);
+            String c = ret.getValue();
+            if (c.length() == 0) {
+                c = "";
+            } else if (c.charAt(0) == '\"') {
+                c = c.substring(1, c.length() - 1);
+            }
+
+            ret = Utilities.getNextToken(line, ret.getKey(), separator);
             int curr = ret.getKey();
 
             while (curr >= 0) {
-                ret = Utilities.getNextToken(line, curr, ',');
+                ret = Utilities.getNextToken(line, curr, separator);
                 curr = ret.getKey();
                 String t = ret.getValue();
                 t = t.trim();
@@ -820,11 +868,12 @@ public abstract class Automaton {
             int counter = 0;
             while (r.ready()) {
                 line = r.readLine();
+                line = line.trim();
                 curr = 0;
-                ret = Utilities.getNextToken(line, curr, ',');
+                ret = Utilities.getNextToken(line, curr, separator);
                 curr = ret.getKey();
-
-                switch (ret.getValue()) {
+                String value = ret.getValue();
+                switch (value) {
                     case "<>":
                         initials.add(counter);
                     case "<":
@@ -837,11 +886,11 @@ public abstract class Automaton {
                     case " ":
                         break;
                     default:
-                        LOGGER.warning("Invalid CSV format, expected <>");
+                        LOGGER.warning("Invalid CSV format, expected <>, instead got: " +value);
                         return null;
                 }
 
-                ret = Utilities.getNextToken(line, curr, ',');
+                ret = Utilities.getNextToken(line, curr, separator);
                 curr = ret.getKey();
                 String state = ret.getValue();
                 Q.add(state);
@@ -853,7 +902,7 @@ public abstract class Automaton {
                         continue;
                     }
 
-                    ret = Utilities.getNextToken(line, curr, ',');
+                    ret = Utilities.getNextToken(line, curr, separator);
                     curr = ret.getKey();
 
                     String t = ret.getValue();
@@ -886,12 +935,15 @@ public abstract class Automaton {
                 LOGGER.warning("Invalid CSV file");
             }
 
-            return new ENFAAutomaton(
+            ENFAAutomaton enfaAutomaton = new ENFAAutomaton(
                     Q.toArray(new String[0]),
                     sigma.toArray(new String[0]),
                     transitions,
                     initialString,
                     acceptingString);
+            enfaAutomaton.setDescription(c);
+
+            return enfaAutomaton;
         } catch (IOException e) {
             e.printStackTrace();
             LOGGER.warning(e.getLocalizedMessage());
@@ -966,10 +1018,10 @@ public abstract class Automaton {
     /**
      * This function will return automaton that accepts L*
      */
-    public Automaton getKleeny() {
+    public Automaton getKleene() {
         //FIXME: This might cause some performance issues, consider caching the result
         UnaryOperators operators = new UnaryOperators(this);
-        return operators.getKleeny();
+        return operators.getKleene();
     }
 
     /**
@@ -977,11 +1029,23 @@ public abstract class Automaton {
      *
      * @param a Automaton accepting language L1
      * @param b Automaton accepting language L2
-     * @return Automaton accepting language L1+L2
+     * @return Automaton accepting language that is intersection of L1 and L2
      */
-    public static Automaton cartMult(Automaton a, Automaton b) {
+    public static Automaton getCartMult(Automaton a, Automaton b) {
         //TODO: IMPLEMENT
 
+        return null;
+    }
+
+    /**
+     * This function will return automaton that accepts union of languages accepted by a and b
+     *
+     * @param a Automaton accepting language L1
+     * @param b Automaton accepting language L2
+     * @return Automaton accepting language L3 = (L1+L2)
+     */
+    public static Automaton getUnion(Automaton a, Automaton b) {
+        //TODO: IMPLEMENT
 
         return null;
     }

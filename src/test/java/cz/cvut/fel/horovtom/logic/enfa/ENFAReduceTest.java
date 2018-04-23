@@ -15,7 +15,7 @@ public class ENFAReduceTest {
 
     @Test
     public void testSimpleENFA() {
-        Automaton automaton = Automaton.importFromCSV(new File(Objects.requireNonNull(this.getClass().getClassLoader().getResource("enfa_(01*+101)*0*1.csv")).getFile()));
+        Automaton automaton = Automaton.importFromCSV(new File(Objects.requireNonNull(this.getClass().getClassLoader().getResource("enfa_01_regex.csv")).getFile()));
         assertTrue("Automaton did not import correctly", automaton != null && automaton instanceof ENFAAutomaton);
         automaton = automaton.getReduced();
         assertTrue("Automaton did not reduce", automaton != null);

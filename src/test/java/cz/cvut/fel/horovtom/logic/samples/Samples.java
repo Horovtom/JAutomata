@@ -580,7 +580,7 @@ public class Samples {
      * </pre>
      */
     public static ENFAAutomaton getENFA2() {
-        File f = new File(Objects.requireNonNull(Samples.class.getClassLoader().getResource("enfa_(a+b*)a.csv")).getFile());
+        File f = new File(Objects.requireNonNull(Samples.class.getClassLoader().getResource("enfa_ab_regex.csv")).getFile());
         return (ENFAAutomaton) Automaton.importFromCSV(f);
     }
 
@@ -746,5 +746,10 @@ public class Samples {
         transitions.put("7", current);
 
         return new DFAAutomaton(Q, sigma, transitions, "0", new String[]{"7"});
+    }
+
+    public static Automaton getNFA_troy() {
+        return Automaton.importFromCSV(
+                new File(Objects.requireNonNull(Samples.class.getClassLoader().getResource("nfa_troy.csv")).getFile()));
     }
 }

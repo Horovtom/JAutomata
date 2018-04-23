@@ -12,6 +12,7 @@ import java.util.HashMap;
 import java.util.Objects;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 public class ImportExportTest {
@@ -43,6 +44,16 @@ public class ImportExportTest {
                         " >B A     C   \n" +
                         "  C A     B,A "
                 , automaton.getAutomatonTablePlainText());
+
+    }
+
+    @Test
+    public void testImportCSV2() {
+        Automaton troy = Samples.getNFA_troy();
+        assertEquals("Description did not import correctly", "This automaton accepts words that contain substring: 'troy'", troy.getDescription());
+        assertFalse(troy.acceptsWord(new String[]{"t", "t", "t", "t", "r", "o", "t", "r", "t", "r", "t", "o", "y"}));
+        assertTrue(troy.acceptsWord(new String[]{"t", "r", "o", "y"}));
+        assertTrue(troy.acceptsWord(new String[]{"t", "r", "o", "t", "r", "o", "y", "t", "t", "r", "o", "t"}));
 
     }
 

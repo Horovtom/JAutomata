@@ -213,8 +213,8 @@ public class Main {
         System.out.println("1: Check if a word is in L");
         System.out.println("2: Get automaton in string");
         System.out.println("3: Reduce");
-        System.out.println("4: Rename state");
-        System.out.println("5: Rename letter");
+        System.out.println("4: Renaming");
+        System.out.println("5: Operations");
         System.out.println("6: Export to CSV");
         System.out.println("7: Delete this automaton");
         System.out.println("8: Exit");
@@ -233,17 +233,28 @@ public class Main {
                 reduceIt();
                 break;
             case 4:
-                System.out.println("Input original and new name separated by spaces: ");
-                String original = sc.next(), newName = sc.next();
-                current.renameState(original, newName);
+                System.out.println("1: State");
+                System.out.println("2: Letter");
+                choice = sc.nextInt();
+                String original, newName;
+                if (choice == 1) {
+                    System.out.println("Input original and new name separated by spaces: ");
+                    original = sc.next();
+                    newName = sc.next();
+                    current.renameState(original, newName);
+                } else if (choice == 2) {
+                    System.out.println("Input original and new name separated by spaces: ");
+                    original = sc.next();
+                    newName = sc.next();
+                    current.renameLetter(original, newName);
+                } else {
+                    System.err.println("Invalid choice!");
+                }
+
                 displayMenu();
                 break;
             case 5:
-                System.out.println("Input original and new name separated by spaces: ");
-                original = sc.next();
-                newName = sc.next();
-                current.renameLetter(original, newName);
-                displayMenu();
+                displayMenuOperations();
                 break;
             case 6:
                 saveAutomaton();
@@ -266,6 +277,18 @@ public class Main {
                 displayMenuLoaded();
                 return;
         }
+    }
+
+    private static void displayMenuOperations() {
+        System.out.println("--");
+        System.out.println("1: Kleene star");
+
+        Scanner sc = new Scanner(System.in);
+        int choice = sc.nextInt();
+        if (choice == 1) {
+            current = current.getKleene();
+        }
+        displayMenu();
     }
 
     private static void saveAutomaton() {

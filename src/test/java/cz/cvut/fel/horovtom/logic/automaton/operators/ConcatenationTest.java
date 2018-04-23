@@ -78,6 +78,7 @@ public class ConcatenationTest {
         assertTrue(dfa2.getQ() != Q);
 
         Automaton concatenation = Automaton.getConcatenation(dfa1, dfa2);
+
         assertTrue(concatenation != null);
 
         assertTrue("Concatenated automaton should accept 'abbbbbabbbb'", concatenation.acceptsWord(new String[]{
@@ -150,6 +151,7 @@ public class ConcatenationTest {
             }
         }
 
+
         assertFalse("Automaton should not accept word that has invalid characters", concatenation.acceptsWord(new String[]{"a", "b", "b", "a", "c"}));
     }
 
@@ -188,6 +190,7 @@ public class ConcatenationTest {
                 }
             }
         }
+
     }
 
     @Test
@@ -230,38 +233,42 @@ public class ConcatenationTest {
             }
             boolean acceptable = true;
             int j = 0;
-            if (word.get(j).equals("a")) {
-                //A start:
-                if (word.get(++j).equals("a")) {
-                    if (word.size() == j + 1
-                            //It was the a case from L2 and it is ok...
-                            ||
-                            //It is the aa case from L2 and it is ok...
-                            (word.get(++j).equals("a") && word.size() == j + 1)
-                            ||
-                            //It is the (a + b*)a part, we have L2 left
-                            testL2(word, j)) {
-                        assertTrue("Automaton should accept word: " + sb.toString(), concatenation.acceptsWord(word.toArray(new String[]{})));
-                        continue;
-                    } else {
-                        acceptable = false;
-                    }
-                } else {
-                    //We got to L2 prematurely
-                    j--;
-                }
-            } else if (word.get(j).equals("b")) {
-                j++;
-                while (word.get(j).equals("b")) {
-                    j++;
-                    if (word.size() <= j) {
-                        if (concatenation.acceptsWord(word.toArray(new String[]{}))) {
-                            assertFalse("Automaton should not accept word: " + sb.toString(), true);
+            if (count == 0) {
+                acceptable = false;
+            } else {
+                if (word.get(j).equals("a")) {
+                    //A start:
+                    if (word.get(++j).equals("a")) {
+                        if (word.size() == j + 1
+                                //It was the a case from L2 and it is ok...
+                                ||
+                                //It is the aa case from L2 and it is ok...
+                                (word.get(++j).equals("a") && word.size() == j + 1)
+                                ||
+                                //It is the (a + b*)a part, we have L2 left
+                                testL2(word, j)) {
+                            assertTrue("Automaton should accept word: " + sb.toString(), concatenation.acceptsWord(word.toArray(new String[]{})));
+                            continue;
+                        } else {
+                            acceptable = false;
                         }
-                        continue outer;
+                    } else {
+                        //We got to L2 prematurely
+                        j--;
                     }
+                } else if (word.get(j).equals("b")) {
+                    j++;
+                    while (word.get(j).equals("b")) {
+                        j++;
+                        if (word.size() <= j) {
+                            if (concatenation.acceptsWord(word.toArray(new String[]{}))) {
+                                assertFalse("Automaton should not accept word: " + sb.toString(), true);
+                            }
+                            continue outer;
+                        }
+                    }
+                    if (!word.get(j++).equals("a")) acceptable = false;
                 }
-                if (!word.get(j++).equals("a")) acceptable = false;
             }
 
             if (acceptable && testL2(word, j)) {
@@ -271,6 +278,19 @@ public class ConcatenationTest {
             }
 
         }
+        Automaton reduced = concatenation.getReduced();
+        System.out.println(reduced);
+    }
+
+    @Test
+    public void test1() {
+        DFAAutomaton dfa1 = Samples.getDFA1();
+        DFAAutomaton dfa2 = Samples.getDFA2();
+        Automaton concatenation = Automaton.getConcatenation(dfa1, dfa2);
+        System.out.println(concatenation.getQSize());
+        Automaton reduced = concatenation.getReduced();
+        System.out.println(reduced.getQSize());
+        System.out.println(reduced.getKleene().getReduced());
     }
 
     private static boolean testL2(ArrayList<String> s, int currIndex) {

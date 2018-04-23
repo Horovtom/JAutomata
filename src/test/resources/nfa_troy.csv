@@ -1,0 +1,6 @@
+"This automaton accepts words that contain substring: 'troy'", ,t    ,r    ,o    ,y
+>                                                            ,0,"0,1",0    ,0    ,0
+                                                             ,1,"0,1","0,2",0    ,0
+                                                             ,2,"0,1",0    ,"0,3",0
+	                                                            ,3,"0,1",0    ,0    ,4
+<                                                            ,4,4    ,4    ,4    ,4

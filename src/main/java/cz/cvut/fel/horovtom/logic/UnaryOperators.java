@@ -10,9 +10,9 @@ public class UnaryOperators {
     private final Automaton a;
     private final int aEps;
 
-    private Automaton kleeny;
+    private Automaton kleene;
 
-    public UnaryOperators(Automaton a) {
+    UnaryOperators(Automaton a) {
         this.a = a;
         int foundEps = -1;
 
@@ -33,7 +33,7 @@ public class UnaryOperators {
 
     }
 
-    private void createKleeny() {
+    private void createKleene() {
         HashMap<Integer, HashMap<Integer, int[]>> transitions = a.getTransitions();
         String[] q = a.getQ();
         String[] sigma = a.getSigma();
@@ -80,15 +80,15 @@ public class UnaryOperators {
             transitions.get(acceptingState).put(eps, newTargsArr);
         }
 
-        kleeny = new ENFAAutomaton(q, sigma, transitions, initialStates, acceptingStates);
+        kleene = new ENFAAutomaton(q, sigma, transitions, initialStates, acceptingStates);
     }
 
-    public Automaton getKleeny() {
-        if (kleeny == null) {
-            LOGGER.fine("Creating kleeny automaton for " + a);
-            createKleeny();
+    public Automaton getKleene() {
+        if (kleene == null) {
+            LOGGER.fine("Creating kleene automaton for " + a);
+            createKleene();
         }
-        return kleeny.copy();
+        return kleene.copy();
     }
 
 
