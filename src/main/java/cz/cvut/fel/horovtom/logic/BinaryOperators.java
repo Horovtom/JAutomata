@@ -7,7 +7,14 @@ import java.util.HashMap;
 public class BinaryOperators {
     private final Automaton a, b;
     private int aEps, bEps;
-    private String[] commonQ, commonSigma;
+    private final HashMap<Integer, HashMap<Integer, int[]>> aTransitions;
+    private final HashMap<Integer, HashMap<Integer, int[]>> bTransitions;
+
+    private String[] commonQ;
+    /**
+     * Common sigma has united epsilon transition even if neither one has it
+     */
+    private String[] commonSigma;
     private HashMap<String, Integer> commonSigmaMap;
     /**
      * Keys: Indices in commonSigma
@@ -15,15 +22,16 @@ public class BinaryOperators {
      */
     private HashMap<Integer, Integer> bSigmaMap, aSigmaMap;
     private Automaton L1L2;
+    private Automaton union;
 
     BinaryOperators(Automaton a, Automaton b) {
         this.a = a;
         this.b = b;
 
+        aTransitions = a.getTransitions();
+        bTransitions = b.getTransitions();
+
         createCommon();
-
-
-        //TODO: IMPLEMENT OTHER OPERATORS
     }
 
     private void createCommon() {
@@ -116,8 +124,6 @@ public class BinaryOperators {
 
     private void createL1L2() {
         HashMap<Integer, HashMap<Integer, int[]>> transitions = new HashMap<>(this.commonQ.length);
-        HashMap<Integer, HashMap<Integer, int[]>> aTransitions = a.getTransitions();
-        HashMap<Integer, HashMap<Integer, int[]>> bTransitions = b.getTransitions();
         int[] aAccepting = a.getAcceptingStates();
         int[] bInitial = b.getInitialStates();
 
@@ -129,8 +135,8 @@ public class BinaryOperators {
                 //It is an 'A' state
                 boolean acceptingState = false;
                 //Is it accepting state?
-                for (int i = 0; i < aAccepting.length; i++) {
-                    if (aAccepting[i] == state) {
+                for (int anAccepting : aAccepting) {
+                    if (anAccepting == state) {
                         acceptingState = true;
                         break;
                     }
@@ -179,18 +185,6 @@ public class BinaryOperators {
                     }
                 }
             }
-//            //FIXME: DEBUG PRINT
-//            System.out.print("Row: ");
-//            for (int i = 0; i < this.commonSigma.length; i++) {
-//
-//                int[] ints = currRow.get(i);
-//                for (int anInt : ints) {
-//                    System.out.print(anInt + ",");
-//                }
-//                System.out.print(" ; ");
-//            }
-//            System.out.println("");
-
 
             transitions.put(state, currRow);
         }
@@ -202,5 +196,73 @@ public class BinaryOperators {
         }
 
         this.L1L2 = new ENFAAutomaton(this.commonQ, this.commonSigma, transitions, initials, acceptingStates);
+    }
+
+    public Automaton getUnion() {
+        if (union == null) createUnion();
+        return union.copy();
+    }
+
+    private void createUnion() {
+        String[] sigma = Arrays.copyOf(commonSigma, commonSigma.length);
+        String[] Q = new String[a.getQSize() + b.getQSize() + 1];
+        Q[0] = "START";
+        int currToWrite = 1;
+        String[] aQ = a.getQ();
+        for (String s : aQ) {
+            Q[currToWrite++] = s;
+        }
+        int bStart = currToWrite;
+        String[] bQ = b.getQ();
+        for (String s : bQ) {
+            Q[currToWrite++] = s;
+        }
+
+        HashMap<Integer, HashMap<Integer, int[]>> transitions = new HashMap<>();
+        HashMap<Integer, int[]> currRow = new HashMap<>();
+        currRow.put(0, new int[]{1, bStart});
+        transitions.put(0, currRow);
+        //a states
+        for (int state = 1; state < Q.length; state++) {
+            currRow = new HashMap<>();
+            //letters
+            for (int letter = 0; letter < sigma.length; letter++) {
+                if (state < bStart && aSigmaMap.containsKey(letter)) {
+                    Integer aLetter = aSigmaMap.get(letter);
+                    int[] ints = aTransitions.get(state - 1).get(aLetter);
+                    currRow.put(letter, Arrays.copyOf(ints, ints.length));
+                } else if (state >= bStart && bSigmaMap.containsKey(letter)) {
+                    Integer bLetter = bSigmaMap.get(letter);
+                    int[] ints = bTransitions.get(state - bStart).get(bLetter);
+                    currRow.put(letter, Arrays.copyOf(ints, ints.length));
+                } else {
+                    currRow.put(letter, new int[0]);
+                }
+            }
+
+            //FIXME: DEBUG PRINT
+            System.out.print("Row: ");
+            for (int i = 0; i < sigma.length; i++) {
+
+                int[] ints = currRow.get(i);
+                for (int anInt : ints) {
+                    System.out.print(anInt + ",");
+                }
+                System.out.print(" ; ");
+            }
+            System.out.println("");
+
+            transitions.put(state, currRow);
+        }
+
+        int[] initials = new int[]{0};
+        int[] aAcc = a.getAcceptingStates();
+        int[] bAcc = b.getAcceptingStates();
+        int[] accepting = new int[aAcc.length + bAcc.length];
+        System.arraycopy(aAcc, 0, accepting, 0, aAcc.length);
+        System.arraycopy(bAcc, 0, accepting, aAcc.length, bAcc.length);
+
+
+        this.union = new ENFAAutomaton(Q, sigma, transitions, initials, accepting);
     }
 }

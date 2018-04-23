@@ -292,7 +292,7 @@ public abstract class Automaton {
 
     @Override
     public String toString() {
-        return "Automaton:\n" + this.description + "\n" + getAutomatonTablePlainText();
+        return "Automaton:\n" + (this.description != null ? (this.description + "\n") : "") + getAutomatonTablePlainText();
     }
 
     /**
@@ -1077,9 +1077,9 @@ public abstract class Automaton {
      * @return Automaton accepting language L3 = (L1+L2)
      */
     public static Automaton getUnion(Automaton a, Automaton b) {
-        //TODO: IMPLEMENT
+        BinaryOperators bo = new BinaryOperators(a, b);
 
-        return null;
+        return bo.getUnion();
     }
 
     /**

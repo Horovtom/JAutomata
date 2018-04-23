@@ -112,7 +112,7 @@ public class ConcatenationTest {
         String[] Q = concatenation.getQ();
         assertEquals("Concatenated states size should be the sum of the two sizes!", 9, Q.length);
 
-        Random random = new Random();
+        Random random = new Random(System.currentTimeMillis());
         for (int i = 0; i < 100; i++) {
             boolean valid = true;
             int length1 = random.nextInt(130) + 2;
@@ -168,7 +168,7 @@ public class ConcatenationTest {
         assertTrue("Automaton should accept 'bb'", concatenation.acceptsWord(new String[]{"b", "b"}));
 
         ArrayList<String> word;
-        Random random = new Random();
+        Random random = new Random(System.currentTimeMillis());
         for (int i = 0; i < 1000; i++) {
             int letters = random.nextInt(50) + 1;
             if (letters != 2) {
@@ -212,7 +212,7 @@ public class ConcatenationTest {
         assertTrue(concatenation.acceptsWord(new String[]{"a", "c"}));
         assertFalse(concatenation.acceptsWord(new String[]{"c"}));
 
-        Random random = new Random();
+        Random random = new Random(System.currentTimeMillis());
         outer:
         for (int i = 0; i < 1000; i++) {
             StringBuilder sb = new StringBuilder();

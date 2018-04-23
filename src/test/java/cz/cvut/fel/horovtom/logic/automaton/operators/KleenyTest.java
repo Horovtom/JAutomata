@@ -23,7 +23,7 @@ public class KleenyTest {
 
         //Original accepted {a, b}, kleeny accepts {a, b}+
         assertFalse("Automaton should not accept empty word ", kleeny.acceptsWord(new String[0]));
-        Random random = new Random();
+        Random random = new Random(System.currentTimeMillis());
         for (int i = 0; i < 1000; i++) {
             StringBuilder sb = new StringBuilder();
             int length = random.nextInt(1000) + 1;
@@ -48,7 +48,7 @@ public class KleenyTest {
         assertFalse(kleeny.acceptsWord(new String[]{"a", "b", "a"}));
         assertFalse(kleeny.acceptsWord(new String[]{"a", "a", "b", "a"}));
 
-        Random random = new Random();
+        Random random = new Random(System.currentTimeMillis());
         for (int i = 0; i < 1000; i++) {
             StringBuilder sb = new StringBuilder();
             ArrayList<String> word = new ArrayList<>();
