@@ -233,7 +233,7 @@ public class ConcatenationTest {
             }
             boolean acceptable = true;
             int j = 0;
-            if (count == 0) {
+            if (count < 2) {
                 acceptable = false;
             } else {
                 if (word.get(j).equals("a")) {
@@ -258,16 +258,20 @@ public class ConcatenationTest {
                     }
                 } else if (word.get(j).equals("b")) {
                     j++;
-                    while (word.get(j).equals("b")) {
-                        j++;
-                        if (word.size() <= j) {
-                            if (concatenation.acceptsWord(word.toArray(new String[]{}))) {
-                                assertFalse("Automaton should not accept word: " + sb.toString(), true);
+                    if (word.size() <= j) {
+                        acceptable = false;
+                    } else {
+                        while (word.get(j).equals("b")) {
+                            j++;
+                            if (word.size() <= j) {
+                                if (concatenation.acceptsWord(word.toArray(new String[]{}))) {
+                                    assertFalse("Automaton should not accept word: " + sb.toString(), true);
+                                }
+                                continue outer;
                             }
-                            continue outer;
                         }
+                        if (!word.get(j++).equals("a")) acceptable = false;
                     }
-                    if (!word.get(j++).equals("a")) acceptable = false;
                 }
             }
 

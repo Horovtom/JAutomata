@@ -48,13 +48,32 @@ public class ImportExportTest {
     }
 
     @Test
+    public void testExportCSV2() {
+        Automaton automaton = Samples.getNFA_troy();
+        try {
+            File file = File.createTempFile("enfa", "csv");
+            automaton.exportToCSV(file);
+            BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream(file)));
+            assertEquals("CSV was incorrect", "\"This automaton accepts words that contain substring: 'troy'\",,\"t\",\"r\",\"o\",\"y\"", br.readLine());
+            assertEquals("CSV was incorrect", ">,\"0\",\"0,1\",\"0\",\"0\",\"0\"", br.readLine());
+            assertEquals("CSV was incorrect", ",\"1\",\"0,1\",\"0,2\",\"0\",\"0\"", br.readLine());
+            assertEquals("CSV was incorrect", ",\"2\",\"0,1\",\"0\",\"0,3\",\"0\"", br.readLine());
+            assertEquals("CSV was incorrect", ",\"3\",\"0,1\",\"0\",\"0\",\"4\"", br.readLine());
+            assertEquals("CSV was incorrect", "<,\"4\",\"4\",\"4\",\"4\",\"4\"", br.readLine());
+            assertEquals("CSV was incorrect", null, br.readLine());
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Test
     public void testImportCSV2() {
         Automaton troy = Samples.getNFA_troy();
         assertEquals("Description did not import correctly", "This automaton accepts words that contain substring: 'troy'", troy.getDescription());
         assertFalse(troy.acceptsWord(new String[]{"t", "t", "t", "t", "r", "o", "t", "r", "t", "r", "t", "o", "y"}));
         assertTrue(troy.acceptsWord(new String[]{"t", "r", "o", "y"}));
         assertTrue(troy.acceptsWord(new String[]{"t", "r", "o", "t", "r", "o", "y", "t", "t", "r", "o", "t"}));
-
     }
 
     @Test
@@ -95,7 +114,7 @@ public class ImportExportTest {
         Automaton automaton = new DFAAutomaton(states, letters, map, initial, accepting);
         try {
             File file = File.createTempFile("dfa", "csv");
-            automaton.exportCSV(file);
+            automaton.exportToCSV(file);
             BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream(file)));
             assertEquals("CSV was incorrect", ",,\"a\",\"b\"", br.readLine());
             assertEquals("CSV was incorrect", ">,\"S\",\"A\",\"S\"", br.readLine());
@@ -130,7 +149,7 @@ public class ImportExportTest {
         NFAAutomaton automaton = new NFAAutomaton(states, letters, initials, accepting, map);
         try {
             File file = File.createTempFile("nfa", "csv");
-            automaton.exportCSV(file);
+            automaton.exportToCSV(file);
             BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream(file)));
             assertEquals("CSV was incorrect", ",,\"a\",\"b\"", br.readLine());
             assertEquals("CSV was incorrect", ">,\"S\",,\"S,A\"", br.readLine());
@@ -147,7 +166,7 @@ public class ImportExportTest {
         NFAAutomaton automaton = Samples.getNFA3();
         try {
             File file = File.createTempFile("nfa2", "csv");
-            automaton.exportCSV(file);
+            automaton.exportToCSV(file);
             BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream(file)));
             assertEquals("CSV was incorrect", ",,\"a\",\"b\",\"c\"", br.readLine());
             assertEquals("CSV was incorrect", ">,\"0\",\"4\",\"1\",\"3\"", br.readLine());
@@ -168,7 +187,7 @@ public class ImportExportTest {
                 Samples.getENFA1();
         try {
             File file = File.createTempFile("enfa1", "csv");
-            automaton.exportCSV(file);
+            automaton.exportToCSV(file);
             BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream(file)));
             assertEquals("CSV was incorrect", ",,\"ε\",\"a\",\"b\"", br.readLine());
             assertEquals("CSV was incorrect", ">,\"0\",\"1\",\"2\",", br.readLine());

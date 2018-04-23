@@ -318,7 +318,7 @@ public class Main {
                 fileToSave = new File(fileToSave.getAbsolutePath() + ".csv");
             }
             System.out.println("Attempting to save to: " + fileToSave.getAbsolutePath());
-            current.exportCSV(fileToSave);
+            current.exportToCSV(fileToSave);
         } else if (returnVal == JFileChooser.ERROR_OPTION) {
             System.err.println("Unexpected error ocurred, while opening the save dialog!");
         }

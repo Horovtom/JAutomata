@@ -292,7 +292,7 @@ public abstract class Automaton {
 
     @Override
     public String toString() {
-        return "Automaton:\n" + getAutomatonTablePlainText();
+        return "Automaton:\n" + this.description + "\n" + getAutomatonTablePlainText();
     }
 
     /**
@@ -758,13 +758,38 @@ public abstract class Automaton {
         LOGGER.fine("Caches invalidated");
     }
 
-    public void exportCSV(File file) {
+    /**
+     * This function exports automaton to CSV file with a specified separator.
+     * This will export CSV file in this format:
+     * E.G.:
+     * <pre>
+     * [Description],,[letter1],[letter2],[letter3]
+     * [IA],[state1],[trans11],[trans12],[trans13]
+     * [IA],[state2],[trans21],[trans22],[trans23]
+     * etc.
+     * </pre>
+     * Commas will be replaced by specified separator.
+     * <p>
+     * [IA] is initial and accepting description of the state. It is denoted by:
+     * <pre>
+     * initial - >
+     * accepting - <
+     * initial and accepting - <>
+     * </pre>
+     * <p>
+     * If there are multiple states in [transxx], whole [transxx] will be encapsulated in "" and states will be separated by commas.
+     */
+    public void exportToCSV(File file, char separator) {
         try {
             Writer writer = new OutputStreamWriter(new FileOutputStream(file), "UTF-8");
-            StringBuilder sb = new StringBuilder(",");
+            StringBuilder sb = new StringBuilder();
+            if (description != null && description.length() != 0) {
+                sb.append("\"").append(this.description).append("\"");
+            }
+            sb.append(separator);
 
             for (String s : sigma) {
-                sb.append(",\"").append(s).append("\"");
+                sb.append(separator).append("\"").append(s).append("\"");
             }
             sb.append("\n");
 
@@ -775,18 +800,18 @@ public abstract class Automaton {
                 if (isInitialState(i)) {
                     sb.append(">");
                 }
-                sb.append(",\"").append(Q[i]).append("\"");
+                sb.append(separator).append("\"").append(Q[i]).append("\"");
 
                 int[] curr;
                 for (int letter = 0; letter < sigma.length; letter++) {
                     curr = transitions.get(i).get(letter);
                     if (curr.length > 0) {
-                        sb.append(",\"").append(Q[curr[0]]);
+                        sb.append(separator).append("\"").append(Q[curr[0]]);
                         for (int c = 1; c < curr.length; c++) {
                             sb.append(",").append(Q[curr[c]]);
                         }
                         sb.append("\"");
-                    } else sb.append(",");
+                    } else sb.append(separator);
                 }
                 sb.append("\n");
             }
@@ -799,6 +824,14 @@ public abstract class Automaton {
     }
 
     /**
+     * Calls {@link #exportToCSV(File, char)}
+     * and uses default separator: ','
+     */
+    public void exportToCSV(File file) {
+        exportToCSV(file, ',');
+    }
+
+    /**
      * Calls {@link #importFromCSV(File, char)}
      * and uses default separator: ','
      */
@@ -807,7 +840,7 @@ public abstract class Automaton {
     }
 
     /**
-     * This function imports automaton from CSV file specified with a specified separator.
+     * This function imports automaton from CSV file with a specified separator.
      * This requires CSV file to be in this format:
      * E.G.:
      * <pre>
@@ -824,7 +857,7 @@ public abstract class Automaton {
      * initial and accepting - <>
      * </pre>
      * <p>
-     * If there are multiple states in [transxx], enclose whole [transxx] in "" and separate them by commas
+     * If there are multiple states in [transxx], encapsulate whole [transxx] in "" and separate them by commas
      * <br>
      */
     public static Automaton importFromCSV(File fileToLoad, char separator) {
@@ -872,7 +905,7 @@ public abstract class Automaton {
                 curr = 0;
                 ret = Utilities.getNextToken(line, curr, separator);
                 curr = ret.getKey();
-                String value = ret.getValue();
+                String value = ret.getValue().trim();
                 switch (value) {
                     case "<>":
                         initials.add(counter);
@@ -892,7 +925,7 @@ public abstract class Automaton {
 
                 ret = Utilities.getNextToken(line, curr, separator);
                 curr = ret.getKey();
-                String state = ret.getValue();
+                String state = ret.getValue().trim();
                 Q.add(state);
                 HashMap<String, String> row = new HashMap<>();
                 transitions.put(state, row);
@@ -905,8 +938,7 @@ public abstract class Automaton {
                     ret = Utilities.getNextToken(line, curr, separator);
                     curr = ret.getKey();
 
-                    String t = ret.getValue();
-                    t = t.trim();
+                    String t = ret.getValue().trim();
                     if (t.length() == 0) {
                         row.put(letter, "");
                     } else {
