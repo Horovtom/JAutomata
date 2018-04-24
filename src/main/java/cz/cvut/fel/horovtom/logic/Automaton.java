@@ -73,6 +73,8 @@ public abstract class Automaton {
      * This variable holds the cache for column lengths, used mainly by {@link #getAutomatonTablePlainText()}
      */
     protected int[] savedColumnLengths;
+
+    protected AutomatonAcceptor acceptor = null;
     //endregion
 
     //region CONSTRUCTORS
@@ -398,7 +400,14 @@ public abstract class Automaton {
         return savedToString[HTML];
     }
 
-    @Deprecated
+    /**
+     * This function parses string to individual characters as letters,
+     * then calls {@link #acceptsWord(String[])}
+     * <p>
+     * Warning: Does not work on automatons with multiple character letters.k
+     *
+     * @return Whether this automaton accepts word represented by this string
+     */
     public boolean acceptsWord(String word) {
         int a = word.length();
         String[] wordAr = new String[a];
@@ -406,7 +415,6 @@ public abstract class Automaton {
             wordAr[w] = String.valueOf(word.charAt(w));
         }
         return acceptsWord(wordAr);
-        //TODO: TEMPORARY METHOD
     }
 
     /**
@@ -519,8 +527,18 @@ public abstract class Automaton {
 
                     res.append("node {$");
                     ArrayList<Integer> current = edgesFromState.get(target);
-                    if (current.size() != 0)
-                        res.append(this.sigma[current.get(0)]);
+                    if (current.size() != 0) {
+                        boolean found = false;
+                        for (String epsilonName : epsilonNames) {
+                            if (this.sigma[current.get(0)].equals(epsilonName)) {
+                                res.append("\\varepsilon");
+                                found = true;
+                                break;
+                            }
+                        }
+                        if (!found)
+                            res.append(this.sigma[current.get(0)]);
+                    }
                     for (int letter = 1; letter < current.size(); letter++) {
                         res.append(",").append(this.sigma[current.get(letter)]);
                     }
