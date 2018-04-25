@@ -23,6 +23,7 @@ public class BinaryOperators {
     private HashMap<Integer, Integer> bSigmaMap, aSigmaMap;
     private Automaton L1L2;
     private Automaton union;
+    private Automaton intersection;
 
     BinaryOperators(Automaton a, Automaton b) {
         this.a = a;
@@ -267,5 +268,16 @@ public class BinaryOperators {
         System.arraycopy(bAcc, 0, accepting, aAcc.length, bAcc.length);
 
         this.union = new ENFAAutomaton(Q, sigma, transitions, initials, accepting);
+    }
+
+    public Automaton getIntersection() {
+        if (intersection == null) {
+            createIntersection();
+        }
+        return intersection.copy();
+    }
+
+    private void createIntersection() {
+        //TODO: COMPLETE
     }
 }

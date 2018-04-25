@@ -28,7 +28,7 @@ public class ImportExportTest {
                         "< submarine GHETTO   submarine   ERTEPLE \n" +
                         "  ERTEPLE   ERTEPLE  submarine   GHETTO  \n" +
                         "< GHETTO    ERTEPLE  GHETTO      GHETTO  "
-                , automaton.getAutomatonTablePlainText());
+                , automaton.exportToString().getPlainText());
 
     }
 
@@ -43,7 +43,7 @@ public class ImportExportTest {
                         "<>A A,B,C     \n" +
                         " >B A     C   \n" +
                         "  C A     B,A "
-                , automaton.getAutomatonTablePlainText());
+                , automaton.exportToString().getPlainText());
 
     }
 
@@ -87,7 +87,7 @@ public class ImportExportTest {
                         "<>A C A,B,C     \n" +
                         " >B   A     C   \n" +
                         "  C   A     B,A "
-                , automaton.getAutomatonTablePlainText());
+                , automaton.exportToString().getPlainText());
 
     }
 

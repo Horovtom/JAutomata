@@ -756,6 +756,44 @@ public class Samples {
         return new DFAAutomaton(Q, sigma, transitions, "0", new String[]{"7"});
     }
 
+    /**
+     * Image cz/cvut/fel/horovtom/logic/samples/nfa_troy.png
+     * <p>
+     * This automaton accepts this language: <br>
+     * <b> &Sigma; = {t,r,o,y}, L = {w | w &isin;&Sigma;<sup>*</sup>, w contains "troy  " as a substring}</b>
+     * <hr>
+     * <table>
+     * <tr><th colspan="2"></th><th>t</th><th>r</th><th>o</th><th>y</th></tr>
+     * <tr><td>&rarr;</td><td>0</td><td>0,1</td><td>0</td><td>0</td><td>0</td></tr>
+     * <tr><td></td><td>1</td><td>&empty;</td><td>2</td><td>&empty;</td><td>&empty;</td></tr>
+     * <tr><td></td><td>2</td><td>&empty;</td><td>&empty;</td><td>3</td><td>&empty;</td></tr>
+     * <tr><td></td><td>3</td><td>&empty;</td><td>&empty;</td><td>&empty;</td><td>4</td></tr>
+     * <tr><td>&larr;</td><td>4</td><td>4</td><td>4</td><td>4</td><td>4</td></tr>
+     * </table>
+     * </div>
+     * <hr>
+     * <pre>
+     * +-------+------+-------+---+-----------------+ <br>
+     * | Q     | l    | o     | i | p               | <br>
+     * +-------+------+-------+---+-----------------+ <br>
+     * | → | 0 | 1    | 0     | 0 | 0               | <br>
+     * +---+---+------+-------+---+-----------------+ <br>
+     * |   | 1 | 1    | 2     | 0 | 0               | <br>
+     * +---+---+------+-------+---+-----------------+ <br>
+     * |   | 2 | 3    | 0     | 0 | 0               | <br>
+     * +---+---+------+-------+---+-----------------+ <br>
+     * |   | 3 | 1    | 0     | 4 | 0               | <br>
+     * +---+---+------+-------+---+-----------------+ <br>
+     * |   | 4 | 1    | 0     | 0 | 5               | <br>
+     * +---+---+------+-------+---+-----------------+ <br>
+     * |   | 5 | 1    | 6     | 0 | 0               | <br>
+     * +---+---+------+-------+---+-----------------+ <br>
+     * |   | 6 | 1    | 0     | 0 | 7               | <br>
+     * +---+---+------+-------+---+-----------------+ <br>
+     * | ← | 7 | 7    | 7     | 7 | 7               | <br>
+     * +---+---+------+-------+---+-----------------+
+     * </pre>
+     */
     public static Automaton getNFA_troy() {
         return Automaton.importFromCSV(
                 new File(Objects.requireNonNull(Samples.class.getClassLoader().getResource("nfa_troy.csv")).getFile()));

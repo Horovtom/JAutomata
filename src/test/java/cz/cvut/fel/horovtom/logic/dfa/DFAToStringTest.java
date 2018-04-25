@@ -20,7 +20,7 @@ public class DFAToStringTest {
                         " >5 2 4 \n" +
                         "< 6 6 3 \n" +
                         "  7 7 4 ",
-                dfa.getAutomatonTablePlainText());
+                dfa.exportToString().getPlainText());
     }
 
     @Test
@@ -35,19 +35,26 @@ public class DFAToStringTest {
                         " >5 2 4 \n" +
                         "< 6 6 3 \n" +
                         "  7 7 4 ",
-                dfa.getAutomatonTablePlainText());
+                dfa.exportToString().getPlainText());
         assertEquals("DFA1 did not output HTML code properly!",
-                "<table>\n" +
-                        "\t<tr><td></td><td></td><td>a</td><td>b</td></tr>\n" +
-                        "\t<tr><td></td><td>1</td><td>2</td><td>1</td></tr>\n" +
-                        "\t<tr><td>&larr;</td><td>2</td><td>2</td><td>1</td></tr>\n" +
-                        "\t<tr><td></td><td>3</td><td>7</td><td>5</td></tr>\n" +
-                        "\t<tr><td>&larr;</td><td>4</td><td>7</td><td>4</td></tr>\n" +
-                        "\t<tr><td>&rarr;</td><td>5</td><td>2</td><td>4</td></tr>\n" +
-                        "\t<tr><td>&larr;</td><td>6</td><td>6</td><td>3</td></tr>\n" +
-                        "\t<tr><td></td><td>7</td><td>7</td><td>4</td></tr>\n" +
-                        "</table>",
-                dfa.getAutomatonTableHTML());
+                "<div id=\"scoped-content\">\n" +
+                        "    <style type=\"text/css\" scoped>\n" +
+                        "    \ttable {border-collapse: collapse;}\n" +
+                        "\t\ttable, td, th {border: 1px solid black;}\n" +
+                        "    </style>\n" +
+                        "    \n" +
+                        "    <table>\n" +
+                        "        <tr><th colspan=\"2\"></th><th>a</th><th>b</th></tr>\n" +
+                        "\t\t<tr><td></td><td>1</td><td>2</td><td>1</td></tr>\n" +
+                        "\t\t<tr><td>&larr;</td><td>2</td><td>2</td><td>1</td></tr>\n" +
+                        "\t\t<tr><td></td><td>3</td><td>7</td><td>5</td></tr>\n" +
+                        "\t\t<tr><td>&larr;</td><td>4</td><td>7</td><td>4</td></tr>\n" +
+                        "\t\t<tr><td>&rarr;</td><td>5</td><td>2</td><td>4</td></tr>\n" +
+                        "\t\t<tr><td>&larr;</td><td>6</td><td>6</td><td>3</td></tr>\n" +
+                        "\t\t<tr><td></td><td>7</td><td>7</td><td>4</td></tr>\n" +
+                        "\t</table>\n" +
+                        "</div>",
+                dfa.exportToString().getHTML());
         assertEquals("DFA1 did not output TEX code properly!",
                 "\\begin{tabular}{cc|c|c}\n" +
                         "\t & & $a$ & $b$ \\\\\\hline\n" +
@@ -59,7 +66,7 @@ public class DFAToStringTest {
                         "\t$\\leftarrow$ & $6$ & $6$ & $3$ \\\\\n" +
                         "\t & $7$ & $7$ & $4$ \n" +
                         "\\end{tabular}",
-                dfa.getAutomatonTableTEX());
+                dfa.exportToString().getTEX());
         assertEquals("DFA1 did not output TIKZ code properly!",
                 "\\begin{tikzpicture}[->,>=stealth',shorten >=1pt,auto,node distance=2.8cm,semithick]\n" +
                         "\t\\node[state] (0) {$1$};\n" +
@@ -92,7 +99,7 @@ public class DFAToStringTest {
                         "\t\t\tedge [bend left] node {$b$} (3)\n" +
                         "\t\t\tedge [loop above] node {$a$} (6);\n" +
                         "\\end{tikzpicture}",
-                dfa.getAutomatonTIKZ());
+                dfa.exportToString().getTIKZ());
         dfa.renameLetter("a", "ba");
         assertEquals("DFA1 did not create plain text output correctly after renaming!",
                 "    ba b \n" +
@@ -103,19 +110,26 @@ public class DFAToStringTest {
                         " >5 2  4 \n" +
                         "< 6 6  3 \n" +
                         "  7 7  4 ",
-                dfa.getAutomatonTablePlainText());
+                dfa.exportToString().getPlainText());
         assertEquals("DFA1 did not output HTML code properly!",
-                "<table>\n" +
-                        "\t<tr><td></td><td></td><td>ba</td><td>b</td></tr>\n" +
-                        "\t<tr><td></td><td>1</td><td>2</td><td>1</td></tr>\n" +
-                        "\t<tr><td>&larr;</td><td>2</td><td>2</td><td>1</td></tr>\n" +
-                        "\t<tr><td></td><td>3</td><td>7</td><td>5</td></tr>\n" +
-                        "\t<tr><td>&larr;</td><td>4</td><td>7</td><td>4</td></tr>\n" +
-                        "\t<tr><td>&rarr;</td><td>5</td><td>2</td><td>4</td></tr>\n" +
-                        "\t<tr><td>&larr;</td><td>6</td><td>6</td><td>3</td></tr>\n" +
-                        "\t<tr><td></td><td>7</td><td>7</td><td>4</td></tr>\n" +
-                        "</table>",
-                dfa.getAutomatonTableHTML());
+                "<div id=\"scoped-content\">\n" +
+                        "    <style type=\"text/css\" scoped>\n" +
+                        "    \ttable {border-collapse: collapse;}\n" +
+                        "\t\ttable, td, th {border: 1px solid black;}\n" +
+                        "    </style>\n" +
+                        "    \n" +
+                        "    <table>\n" +
+                        "        <tr><th colspan=\"2\"></th><th>ba</th><th>b</th></tr>\n" +
+                        "\t\t<tr><td></td><td>1</td><td>2</td><td>1</td></tr>\n" +
+                        "\t\t<tr><td>&larr;</td><td>2</td><td>2</td><td>1</td></tr>\n" +
+                        "\t\t<tr><td></td><td>3</td><td>7</td><td>5</td></tr>\n" +
+                        "\t\t<tr><td>&larr;</td><td>4</td><td>7</td><td>4</td></tr>\n" +
+                        "\t\t<tr><td>&rarr;</td><td>5</td><td>2</td><td>4</td></tr>\n" +
+                        "\t\t<tr><td>&larr;</td><td>6</td><td>6</td><td>3</td></tr>\n" +
+                        "\t\t<tr><td></td><td>7</td><td>7</td><td>4</td></tr>\n" +
+                        "\t</table>\n" +
+                        "</div>",
+                dfa.exportToString().getHTML());
         assertEquals("DFA1 did not output TEX code properly!",
                 "\\begin{tabular}{cc|c|c}\n" +
                         "\t & & $ba$ & $b$ \\\\\\hline\n" +
@@ -127,7 +141,7 @@ public class DFAToStringTest {
                         "\t$\\leftarrow$ & $6$ & $6$ & $3$ \\\\\n" +
                         "\t & $7$ & $7$ & $4$ \n" +
                         "\\end{tabular}",
-                dfa.getAutomatonTableTEX());
+                dfa.exportToString().getTEX());
         assertEquals("DFA1 did not output TIKZ code properly!",
                 "\\begin{tikzpicture}[->,>=stealth',shorten >=1pt,auto,node distance=2.8cm,semithick]\n" +
                         "\t\\node[state] (0) {$1$};\n" +
@@ -160,7 +174,7 @@ public class DFAToStringTest {
                         "\t\t\tedge [bend left] node {$b$} (3)\n" +
                         "\t\t\tedge [loop above] node {$ba$} (6);\n" +
                         "\\end{tikzpicture}",
-                dfa.getAutomatonTIKZ());
+                dfa.exportToString().getTIKZ());
         dfa.renameState("3", "S");
         assertEquals("DFA1 did not create plain text output correctly after renaming!",
                 "    ba b \n" +
@@ -171,19 +185,26 @@ public class DFAToStringTest {
                         " >5 2  4 \n" +
                         "< 6 6  S \n" +
                         "  7 7  4 ",
-                dfa.getAutomatonTablePlainText());
+                dfa.exportToString().getPlainText());
         assertEquals("DFA1 did not output HTML code properly!",
-                "<table>\n" +
-                        "\t<tr><td></td><td></td><td>ba</td><td>b</td></tr>\n" +
-                        "\t<tr><td></td><td>1</td><td>2</td><td>1</td></tr>\n" +
-                        "\t<tr><td>&larr;</td><td>2</td><td>2</td><td>1</td></tr>\n" +
-                        "\t<tr><td></td><td>S</td><td>7</td><td>5</td></tr>\n" +
-                        "\t<tr><td>&larr;</td><td>4</td><td>7</td><td>4</td></tr>\n" +
-                        "\t<tr><td>&rarr;</td><td>5</td><td>2</td><td>4</td></tr>\n" +
-                        "\t<tr><td>&larr;</td><td>6</td><td>6</td><td>S</td></tr>\n" +
-                        "\t<tr><td></td><td>7</td><td>7</td><td>4</td></tr>\n" +
-                        "</table>",
-                dfa.getAutomatonTableHTML());
+                "<div id=\"scoped-content\">\n" +
+                        "    <style type=\"text/css\" scoped>\n" +
+                        "    \ttable {border-collapse: collapse;}\n" +
+                        "\t\ttable, td, th {border: 1px solid black;}\n" +
+                        "    </style>\n" +
+                        "    \n" +
+                        "    <table>\n" +
+                        "        <tr><th colspan=\"2\"></th><th>ba</th><th>b</th></tr>\n" +
+                        "\t\t<tr><td></td><td>1</td><td>2</td><td>1</td></tr>\n" +
+                        "\t\t<tr><td>&larr;</td><td>2</td><td>2</td><td>1</td></tr>\n" +
+                        "\t\t<tr><td></td><td>S</td><td>7</td><td>5</td></tr>\n" +
+                        "\t\t<tr><td>&larr;</td><td>4</td><td>7</td><td>4</td></tr>\n" +
+                        "\t\t<tr><td>&rarr;</td><td>5</td><td>2</td><td>4</td></tr>\n" +
+                        "\t\t<tr><td>&larr;</td><td>6</td><td>6</td><td>S</td></tr>\n" +
+                        "\t\t<tr><td></td><td>7</td><td>7</td><td>4</td></tr>\n" +
+                        "\t</table>\n" +
+                        "</div>",
+                dfa.exportToString().getHTML());
         assertEquals("DFA1 did not output TEX code properly!",
                 "\\begin{tabular}{cc|c|c}\n" +
                         "\t & & $ba$ & $b$ \\\\\\hline\n" +
@@ -195,7 +216,7 @@ public class DFAToStringTest {
                         "\t$\\leftarrow$ & $6$ & $6$ & $S$ \\\\\n" +
                         "\t & $7$ & $7$ & $4$ \n" +
                         "\\end{tabular}",
-                dfa.getAutomatonTableTEX());
+                dfa.exportToString().getTEX());
         assertEquals("DFA1 did not output TIKZ code properly!",
                 "\\begin{tikzpicture}[->,>=stealth',shorten >=1pt,auto,node distance=2.8cm,semithick]\n" +
                         "\t\\node[state] (0) {$1$};\n" +
@@ -228,7 +249,7 @@ public class DFAToStringTest {
                         "\t\t\tedge [bend left] node {$b$} (3)\n" +
                         "\t\t\tedge [loop above] node {$ba$} (6);\n" +
                         "\\end{tikzpicture}",
-                dfa.getAutomatonTIKZ());
+                dfa.exportToString().getTIKZ());
     }
 
     @Test
@@ -244,7 +265,7 @@ public class DFAToStringTest {
                         "  5 0    6     0 0       \n" +
                         "  6 0    0     0 7       \n" +
                         "< 7 7    7     7 7       ",
-                dfa.getAutomatonTablePlainText());
+                dfa.exportToString().getPlainText());
     }
 
     @Test
@@ -254,24 +275,31 @@ public class DFAToStringTest {
                 "    \\alpha \\beta \n" +
                         "<>0 0      1     \n" +
                         "  1 1      1     ",
-                dfa.getAutomatonTablePlainText());
+                dfa.exportToString().getPlainText());
     }
 
     @Test
     public void testHTML1() {
         DFAAutomaton dfa = Samples.getDFA1();
         assertEquals("DFA1 did not output HTML code properly!",
-                "<table>\n" +
-                        "\t<tr><td></td><td></td><td>a</td><td>b</td></tr>\n" +
-                        "\t<tr><td></td><td>1</td><td>2</td><td>1</td></tr>\n" +
-                        "\t<tr><td>&larr;</td><td>2</td><td>2</td><td>1</td></tr>\n" +
-                        "\t<tr><td></td><td>3</td><td>7</td><td>5</td></tr>\n" +
-                        "\t<tr><td>&larr;</td><td>4</td><td>7</td><td>4</td></tr>\n" +
-                        "\t<tr><td>&rarr;</td><td>5</td><td>2</td><td>4</td></tr>\n" +
-                        "\t<tr><td>&larr;</td><td>6</td><td>6</td><td>3</td></tr>\n" +
-                        "\t<tr><td></td><td>7</td><td>7</td><td>4</td></tr>\n" +
-                        "</table>",
-                dfa.getAutomatonTableHTML());
+                "<div id=\"scoped-content\">\n" +
+                        "    <style type=\"text/css\" scoped>\n" +
+                        "    \ttable {border-collapse: collapse;}\n" +
+                        "\t\ttable, td, th {border: 1px solid black;}\n" +
+                        "    </style>\n" +
+                        "    \n" +
+                        "    <table>\n" +
+                        "        <tr><th colspan=\"2\"></th><th>a</th><th>b</th></tr>\n" +
+                        "\t\t<tr><td></td><td>1</td><td>2</td><td>1</td></tr>\n" +
+                        "\t\t<tr><td>&larr;</td><td>2</td><td>2</td><td>1</td></tr>\n" +
+                        "\t\t<tr><td></td><td>3</td><td>7</td><td>5</td></tr>\n" +
+                        "\t\t<tr><td>&larr;</td><td>4</td><td>7</td><td>4</td></tr>\n" +
+                        "\t\t<tr><td>&rarr;</td><td>5</td><td>2</td><td>4</td></tr>\n" +
+                        "\t\t<tr><td>&larr;</td><td>6</td><td>6</td><td>3</td></tr>\n" +
+                        "\t\t<tr><td></td><td>7</td><td>7</td><td>4</td></tr>\n" +
+                        "\t</table>\n" +
+                        "</div>",
+                dfa.exportToString().getHTML());
 
     }
 
@@ -279,30 +307,44 @@ public class DFAToStringTest {
     public void testHTML2() {
         DFAAutomaton dfa = Samples.getDFA2();
         assertEquals("DFA2 did not output HTML code properly!",
-                "<table>\n" +
-                        "\t<tr><td></td><td></td><td>0.12</td><td>-6.38</td><td>0</td><td>213.002</td></tr>\n" +
-                        "\t<tr><td>&rarr;</td><td>0</td><td>1</td><td>0</td><td>0</td><td>0</td></tr>\n" +
-                        "\t<tr><td></td><td>1</td><td>0</td><td>2</td><td>0</td><td>0</td></tr>\n" +
-                        "\t<tr><td></td><td>2</td><td>3</td><td>0</td><td>0</td><td>0</td></tr>\n" +
-                        "\t<tr><td></td><td>3</td><td>0</td><td>0</td><td>4</td><td>0</td></tr>\n" +
-                        "\t<tr><td></td><td>4</td><td>0</td><td>0</td><td>0</td><td>5</td></tr>\n" +
-                        "\t<tr><td></td><td>5</td><td>0</td><td>6</td><td>0</td><td>0</td></tr>\n" +
-                        "\t<tr><td></td><td>6</td><td>0</td><td>0</td><td>0</td><td>7</td></tr>\n" +
-                        "\t<tr><td>&larr;</td><td>7</td><td>7</td><td>7</td><td>7</td><td>7</td></tr>\n" +
-                        "</table>",
-                dfa.getAutomatonTableHTML());
+                "<div id=\"scoped-content\">\n" +
+                        "    <style type=\"text/css\" scoped>\n" +
+                        "    \ttable {border-collapse: collapse;}\n" +
+                        "\t\ttable, td, th {border: 1px solid black;}\n" +
+                        "    </style>\n" +
+                        "    \n" +
+                        "    <table>\n" +
+                        "        <tr><th colspan=\"2\"></th><th>0.12</th><th>-6.38</th><th>0</th><th>213.002</th></tr>\n" +
+                        "\t\t<tr><td>&rarr;</td><td>0</td><td>1</td><td>0</td><td>0</td><td>0</td></tr>\n" +
+                        "\t\t<tr><td></td><td>1</td><td>0</td><td>2</td><td>0</td><td>0</td></tr>\n" +
+                        "\t\t<tr><td></td><td>2</td><td>3</td><td>0</td><td>0</td><td>0</td></tr>\n" +
+                        "\t\t<tr><td></td><td>3</td><td>0</td><td>0</td><td>4</td><td>0</td></tr>\n" +
+                        "\t\t<tr><td></td><td>4</td><td>0</td><td>0</td><td>0</td><td>5</td></tr>\n" +
+                        "\t\t<tr><td></td><td>5</td><td>0</td><td>6</td><td>0</td><td>0</td></tr>\n" +
+                        "\t\t<tr><td></td><td>6</td><td>0</td><td>0</td><td>0</td><td>7</td></tr>\n" +
+                        "\t\t<tr><td>&larr;</td><td>7</td><td>7</td><td>7</td><td>7</td><td>7</td></tr>\n" +
+                        "\t</table>\n" +
+                        "</div>",
+                dfa.exportToString().getHTML());
     }
 
     @Test
     public void testHTML3() {
         DFAAutomaton dfa = Samples.getDFA3();
         assertEquals("DFA3 did not output HTML code properly!",
-                "<table>\n" +
-                        "\t<tr><td></td><td></td><td>\\alpha</td><td>\\beta</td></tr>\n" +
-                        "\t<tr><td>&harr;</td><td>0</td><td>0</td><td>1</td></tr>\n" +
-                        "\t<tr><td></td><td>1</td><td>1</td><td>1</td></tr>\n" +
-                        "</table>",
-                dfa.getAutomatonTableHTML());
+                "<div id=\"scoped-content\">\n" +
+                        "    <style type=\"text/css\" scoped>\n" +
+                        "    \ttable {border-collapse: collapse;}\n" +
+                        "\t\ttable, td, th {border: 1px solid black;}\n" +
+                        "    </style>\n" +
+                        "    \n" +
+                        "    <table>\n" +
+                        "        <tr><th colspan=\"2\"></th><th>\\alpha</th><th>\\beta</th></tr>\n" +
+                        "\t\t<tr><td>&harr;</td><td>0</td><td>0</td><td>1</td></tr>\n" +
+                        "\t\t<tr><td></td><td>1</td><td>1</td><td>1</td></tr>\n" +
+                        "\t</table>\n" +
+                        "</div>",
+                dfa.exportToString().getHTML());
     }
 
     @Test
@@ -319,7 +361,7 @@ public class DFAToStringTest {
                         "\t$\\leftarrow$ & $6$ & $6$ & $3$ \\\\\n" +
                         "\t & $7$ & $7$ & $4$ \n" +
                         "\\end{tabular}",
-                dfa.getAutomatonTableTEX());
+                dfa.exportToString().getTEX());
     }
 
     @Test
@@ -337,7 +379,7 @@ public class DFAToStringTest {
                         "\t & $6$ & $0$ & $0$ & $0$ & $7$ \\\\\n" +
                         "\t$\\leftarrow$ & $7$ & $7$ & $7$ & $7$ & $7$ \n" +
                         "\\end{tabular}",
-                dfa.getAutomatonTableTEX());
+                dfa.exportToString().getTEX());
     }
 
     @Test
@@ -348,7 +390,7 @@ public class DFAToStringTest {
                         "\t$\\leftrightarrow$ & $0$ & $0$ & $1$ \\\\\n" +
                         "\t & $1$ & $1$ & $1$ \n" +
                         "\\end{tabular}",
-                Samples.getDFA3().getAutomatonTableTEX());
+                Samples.getDFA3().exportToString().getTEX());
     }
 
     @Test
@@ -385,7 +427,7 @@ public class DFAToStringTest {
                         "\t\t\tedge [bend left] node {$b$} (3)\n" +
                         "\t\t\tedge [loop above] node {$a$} (6);\n" +
                         "\\end{tikzpicture}",
-                Samples.getDFA1().getAutomatonTIKZ());
+                Samples.getDFA1().exportToString().getTIKZ());
     }
 
     @Test
@@ -425,7 +467,7 @@ public class DFAToStringTest {
                         "\t\t(7)\n" +
                         "\t\t\tedge [loop above] node {$0.12,-6.38,0,213.002$} (7);\n" +
                         "\\end{tikzpicture}",
-                Samples.getDFA2().getAutomatonTIKZ());
+                Samples.getDFA2().exportToString().getTIKZ());
     }
 
     @Test
@@ -441,6 +483,6 @@ public class DFAToStringTest {
                         "\t\t(1)\n" +
                         "\t\t\tedge [loop above] node {$\\alpha,\\beta$} (1);\n" +
                         "\\end{tikzpicture}",
-                Samples.getDFA3().getAutomatonTIKZ());
+                Samples.getDFA3().exportToString().getTIKZ());
     }
 }

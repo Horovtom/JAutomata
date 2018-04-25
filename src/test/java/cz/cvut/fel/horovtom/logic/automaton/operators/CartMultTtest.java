@@ -19,7 +19,7 @@ public class CartMultTtest {
         assertFalse(a.acceptsWord("1025"));
         assertTrue(b.acceptsWord("5208"));
         assertFalse(b.acceptsWord("5209"));
-        Automaton c = Automaton.getCartMult(a, b);
+        Automaton c = Automaton.getIntersection(a, b);
         assertTrue(c != null);
         Random r = new Random();
         for (int i = 0; i < 1000; i++) {
@@ -36,7 +36,7 @@ public class CartMultTtest {
     public void testDivisibilityAutomata2() {
         Automaton a = FunctionalCreator.getDivisibilityAutomaton(12, 16);
         Automaton b = FunctionalCreator.getDivisibilityAutomaton(13, 16);
-        Automaton c = Automaton.getCartMult(a, b);
+        Automaton c = Automaton.getIntersection(a, b);
         assertTrue(c != null);
         Random r = new Random();
         for (int i = 0; i < 1000; i++) {

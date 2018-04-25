@@ -78,26 +78,40 @@ public class RenamingTest {
         Q = automaton.getQ();
         assertEquals("Changing state name did not actually change the name!", "a", Q[1]);
         assertEquals("Changing state name changed the automaton table in an unpredictable way!",
-                "<table>\n" +
-                        "\t<tr><td></td><td></td><td>a</td><td>b</td></tr>\n" +
-                        "\t<tr><td>&harr;</td><td>0</td><td>a</td><td>a</td></tr>\n" +
-                        "\t<tr><td></td><td>a</td><td>2</td><td></td></tr>\n" +
-                        "\t<tr><td></td><td>2</td><td>2</td><td>2,3</td></tr>\n" +
-                        "\t<tr><td></td><td>3</td><td>4</td><td>4</td></tr>\n" +
-                        "\t<tr><td>&larr;</td><td>4</td><td></td><td></td></tr>\n" +
-                        "</table>",
-                automaton.getAutomatonTableHTML());
+                "<div id=\"scoped-content\">\n" +
+                        "    <style type=\"text/css\" scoped>\n" +
+                        "    \ttable {border-collapse: collapse;}\n" +
+                        "\t\ttable, td, th {border: 1px solid black;}\n" +
+                        "    </style>\n" +
+                        "    \n" +
+                        "    <table>\n" +
+                        "        <tr><th colspan=\"2\"></th><th>a</th><th>b</th></tr>\n" +
+                        "\t\t<tr><td>&harr;</td><td>0</td><td>a</td><td>a</td></tr>\n" +
+                        "\t\t<tr><td></td><td>a</td><td>2</td><td>&empty;</td></tr>\n" +
+                        "\t\t<tr><td></td><td>2</td><td>2</td><td>2,3</td></tr>\n" +
+                        "\t\t<tr><td></td><td>3</td><td>4</td><td>4</td></tr>\n" +
+                        "\t\t<tr><td>&larr;</td><td>4</td><td>&empty;</td><td>&empty;</td></tr>\n" +
+                        "\t</table>\n" +
+                        "</div>",
+                automaton.exportToString().getHTML());
         assertTrue(automaton.renameLetter("a", "c"));
         assertEquals("Changing letter name changed the automaton table in an unpredictable way!",
-                "<table>\n" +
-                        "\t<tr><td></td><td></td><td>c</td><td>b</td></tr>\n" +
-                        "\t<tr><td>&harr;</td><td>0</td><td>a</td><td>a</td></tr>\n" +
-                        "\t<tr><td></td><td>a</td><td>2</td><td></td></tr>\n" +
-                        "\t<tr><td></td><td>2</td><td>2</td><td>2,3</td></tr>\n" +
-                        "\t<tr><td></td><td>3</td><td>4</td><td>4</td></tr>\n" +
-                        "\t<tr><td>&larr;</td><td>4</td><td></td><td></td></tr>\n" +
-                        "</table>",
-                automaton.getAutomatonTableHTML());
+                "<div id=\"scoped-content\">\n" +
+                        "    <style type=\"text/css\" scoped>\n" +
+                        "    \ttable {border-collapse: collapse;}\n" +
+                        "\t\ttable, td, th {border: 1px solid black;}\n" +
+                        "    </style>\n" +
+                        "    \n" +
+                        "    <table>\n" +
+                        "        <tr><th colspan=\"2\"></th><th>c</th><th>b</th></tr>\n" +
+                        "\t\t<tr><td>&harr;</td><td>0</td><td>a</td><td>a</td></tr>\n" +
+                        "\t\t<tr><td></td><td>a</td><td>2</td><td>&empty;</td></tr>\n" +
+                        "\t\t<tr><td></td><td>2</td><td>2</td><td>2,3</td></tr>\n" +
+                        "\t\t<tr><td></td><td>3</td><td>4</td><td>4</td></tr>\n" +
+                        "\t\t<tr><td>&larr;</td><td>4</td><td>&empty;</td><td>&empty;</td></tr>\n" +
+                        "\t</table>\n" +
+                        "</div>",
+                automaton.exportToString().getHTML());
     }
 
     @Test

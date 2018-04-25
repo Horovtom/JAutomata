@@ -10,7 +10,7 @@ public class UnaryOperators {
     private final Automaton a;
     private final int aEps;
 
-    private Automaton kleene;
+    private Automaton kleene, complement;
 
     UnaryOperators(Automaton a) {
         this.a = a;
@@ -91,5 +91,32 @@ public class UnaryOperators {
         return kleene.copy();
     }
 
+    public Automaton getComplement() {
+        if (complement == null) {
+            createComplement();
+        }
 
+        return complement.copy();
+    }
+
+    private void createComplement() {
+        Automaton a = this.a.getReduced();
+        String[] Q = a.getQ();
+        String[] sigma = a.getSigma();
+        HashMap<Integer, HashMap<Integer, int[]>> transitions = a.getTransitions();
+        int[] initialStates = a.getInitialStates();
+        int[] acceptingStates = a.getAcceptingStates();
+
+        int[] newAccepting = new int[Q.length - acceptingStates.length];
+        int current = 0;
+        outer:
+        for (int i = 0; i < Q.length; i++) {
+            for (int i1 = 0; i1 < acceptingStates.length; i1++) {
+                if (acceptingStates[i1] == i) continue outer;
+            }
+            newAccepting[current++] = i;
+        }
+
+        this.complement = new ENFAAutomaton(Q, sigma, transitions, initialStates, newAccepting);
+    }
 }

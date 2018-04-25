@@ -208,7 +208,7 @@ public class Main {
 
     static void displayMenuLoaded() {
         System.out.println("Automaton loaded: ");
-        System.out.println(current.getAutomatonTablePlainText());
+        System.out.println(current.exportToString().getPlainText());
         System.out.println("What do you want to do:");
         System.out.println("1: Check if a word is in L");
         System.out.println("2: Get automaton in string");
@@ -344,16 +344,16 @@ public class Main {
         choice = sc.nextInt();
         switch (choice) {
             case 1:
-                System.out.println(current.getAutomatonTablePlainText());
+                System.out.println(current.exportToString().getPlainText());
                 break;
             case 2:
-                System.out.println(current.getAutomatonTableHTML());
+                System.out.println(current.exportToString().getHTML());
                 break;
             case 3:
-                System.out.println(current.getAutomatonTableTEX());
+                System.out.println(current.exportToString().getTEX());
                 break;
             case 4:
-                System.out.println(current.getAutomatonTIKZ());
+                System.out.println(current.exportToString().getTIKZ());
                 break;
             case 5:
                 break;

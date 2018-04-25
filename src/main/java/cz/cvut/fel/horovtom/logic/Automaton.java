@@ -2,13 +2,15 @@ package cz.cvut.fel.horovtom.logic;
 
 import cz.cvut.fel.horovtom.tools.Pair;
 import cz.cvut.fel.horovtom.tools.Utilities;
+
 import java.io.*;
 import java.util.*;
 import java.util.logging.Logger;
 
 public abstract class Automaton {
-    private final static Logger LOGGER = Logger.getLogger(Automaton.class.getName());
+    //region BASIC VARIABLES
 
+    private final static Logger LOGGER = Logger.getLogger(Automaton.class.getName());
     /**
      * This holds the automaton description, language accepted and so on
      */
@@ -44,7 +46,11 @@ public abstract class Automaton {
      */
     protected HashMap<Integer, HashMap<Integer, int[]>> transitions;
 
+    //endregion
+
     //region CACHES
+    protected ToStringConverter toStringConverter;
+
     /**
      * This contains the reduced automaton, has it been calculated yet. Else it contains null.
      */
@@ -54,27 +60,12 @@ public abstract class Automaton {
      */
     private HashMap<String, Integer> sigmaMapping = null, stateMapping = null;
     /**
-     * Constants to be used as indices for {@link #savedToString}
-     */
-    protected final int PLAIN_TEXT = 0, HTML = 1, TEX = 2, TIKZ = 3;
-    /**
      * Array of names that are evaluated as epsilon letters
      */
     public static final String[] epsilonNames = new String[]{
             "\\epsilon", "ε", "eps"
     };
 
-    /**
-     * This variable holds the cache for string formats of this automaton
-     * <p>E.G.: {@link #getAutomatonTableHTML()} or {@link #getAutomatonTIKZ()}</p>
-     */
-    protected final String[] savedToString = new String[4];
-    /**
-     * This variable holds the cache for column lengths, used mainly by {@link #getAutomatonTablePlainText()}
-     */
-    protected int[] savedColumnLengths;
-
-    protected AutomatonAcceptor acceptor = null;
     //endregion
 
     //region CONSTRUCTORS
@@ -98,6 +89,7 @@ public abstract class Automaton {
         initializeQSigma(Q, sigma);
         initializeTransitions(transitions);
         initializeInitAcc(initials, accepting);
+        refactorTransitions();
     }
 
     /**
@@ -232,7 +224,35 @@ public abstract class Automaton {
         this.transitions = trans;
     }
 
+    /**
+     * Attempts to refactor transitions so that every state has filled rows
+     */
+    protected void refactorTransitions() {
+        HashMap<Integer, HashMap<Integer, int[]>> newTransitions = new HashMap<>();
+
+        for (int state = 0; state < this.Q.length; state++) {
+            HashMap<Integer, int[]> curr = new HashMap<>();
+            newTransitions.put(state, curr);
+            for (int letter = 0; letter < this.sigma.length; letter++) {
+                int[] orig;
+                if (this.transitions.containsKey(state)) {
+                    if (this.transitions.get(state).containsKey(letter)) {
+                        orig = this.transitions.get(state).get(letter);
+                    } else {
+                        orig = new int[0];
+                    }
+                } else {
+                    orig = new int[0];
+                }
+                curr.put(letter, Arrays.copyOf(orig, orig.length));
+            }
+        }
+        this.transitions = newTransitions;
+    }
+
     //endregion
+
+    //region GETTERS
 
     public int getQSize() {
         return Q.length;
@@ -276,10 +296,9 @@ public abstract class Automaton {
         return Arrays.copyOf(Q, Q.length);
     }
 
-    public void setDescription(String description) {
-        this.description = description;
-    }
-
+    /**
+     * @return String containing description of the automaton set by the user
+     */
     public String getDescription() {
         return this.description;
     }
@@ -293,54 +312,13 @@ public abstract class Automaton {
 
     @Override
     public String toString() {
-        return "Automaton:\n" + (this.description != null ? (this.description + "\n") : "") + getAutomatonTablePlainText();
+        return "Automaton:\n" + (this.description != null ? (this.description + "\n") : "") + exportToString().getPlainText();
     }
 
     /**
-     * @return String containing formatted table as plain text
+     * @return whether the automaton has any epsilon transitions
      */
-    public String getAutomatonTablePlainText() {
-        if (savedToString[PLAIN_TEXT] == null) {
-            StringBuilder result = new StringBuilder();
-            int[] columnLengths = this.getColumnLengths();
-
-            //HEADER
-            result.append(String.format("%1$-" + (columnLengths[0] + 1) + "s", ""));
-            result.append(String.format("%1$-" + (columnLengths[1] + 1) + "s", this.sigma[0].equals("\\epsilon") ? "ε" : this.sigma[0]));
-            for (int i = 1; i < this.sigma.length; i++) {
-                result.append(String.format("%1$-" + (columnLengths[i + 1] + 1) + "s", this.sigma[i]));
-            }
-            result.append("\n");
-
-            //BODY
-            for (int state = 0; state < this.Q.length; state++) {
-                if (state != 0)
-                    result.append("\n");
-                //States column
-                result.append(String.format("%1$-" + (columnLengths[0] + 1) + "s",
-                        (this.isAcceptingState(state) ? "<" : " ") +
-                                (this.isInitialState(state) ? ">" : " ") +
-                                this.Q[state]));
-                //Transitions
-                for (int letter = 0; letter < this.sigma.length; letter++) {
-                    StringBuilder cell = new StringBuilder();
-                    int[] transitions = this.transitions.get(state).get(letter);
-                    if (transitions.length == 0) {
-                        LOGGER.fine("There is an empty cell in the table");
-                        result.append(String.format("%1$-" + (columnLengths[letter + 1] + 1) + "s", ""));
-                        continue;
-                    }
-                    cell.append(this.Q[transitions[0]]);
-                    for (int i = 1; i < transitions.length; i++) {
-                        cell.append(",").append(this.Q[transitions[i]]);
-                    }
-                    result.append(String.format("%1$-" + (columnLengths[letter + 1] + 1) + "s", cell.toString()));
-                }
-            }
-            savedToString[PLAIN_TEXT] = result.toString();
-        }
-        return savedToString[PLAIN_TEXT];
-    }
+    public abstract boolean hasEpsilonTransitions();
 
     /**
      * @return true if the specified state belongs to initial states
@@ -350,54 +328,6 @@ public abstract class Automaton {
             if (initialState == state) return true;
         }
         return false;
-    }
-
-    /**
-     * @return String containing formatted table as html
-     */
-    public String getAutomatonTableHTML() {
-        if (savedToString[HTML] == null) {
-            StringBuilder res = new StringBuilder("<table>\n\t<tr><td></td><td></td>");
-            if (this.sigma[0].equals("\\epsilon")) {
-                res.append("<td>ε</td>");
-            } else {
-                res.append("<td>").append(this.sigma[0]).append("</td>");
-            }
-            for (int i = 1; i < this.sigma.length; i++) {
-                res.append("<td>").append(this.sigma[i]).append("</td>");
-            }
-            res.append("</tr>\n");
-            for (int i = 0; i < this.Q.length; i++) {
-                res.append("\t<tr><td>");
-                if (this.isInitialState(i)) {
-                    if (this.isAcceptingState(i)) {
-                        res.append("&harr;");
-                    } else {
-                        res.append("&rarr;");
-                    }
-                } else if (this.isAcceptingState(i)) {
-                    res.append("&larr;");
-                }
-                res.append("</td><td>").append(this.Q[i]).append("</td>");
-                for (int letter = 0; letter < this.sigma.length; letter++) {
-                    res.append("<td>");
-                    int[] cell = this.transitions.get(i).get(letter);
-                    StringBuilder cellString = new StringBuilder();
-                    if (cell.length != 0)
-                        cellString.append(this.Q[cell[0]]);
-
-                    for (int item = 1; item < cell.length; item++) {
-                        cellString.append(",").append(this.Q[cell[item]]);
-                    }
-                    res.append(cellString.toString()).append("</td>");
-                }
-                res.append("</tr>\n");
-            }
-            res.append("</table>");
-            savedToString[HTML] = res.toString();
-        }
-
-        return savedToString[HTML];
     }
 
     /**
@@ -418,175 +348,6 @@ public abstract class Automaton {
     }
 
     /**
-     * @return String containing formatted table as tex code
-     */
-    public String getAutomatonTableTEX() {
-        if (savedToString[TEX] == null) {
-            StringBuilder res = new StringBuilder("\\begin{tabular}{cc");
-            for (String ignored : this.sigma) {
-                res.append("|c");
-            }
-            res.append("}\n\t & ");
-
-            outer:
-            for (String s : this.sigma) {
-                for (String epsilonName : epsilonNames) {
-                    if (s.equals(epsilonName)) {
-                        res.append("& $\\varepsilon$ ");
-                        continue outer;
-                    }
-                }
-                res.append("& $").append(s).append("$ ");
-            }
-            res.append("\\\\\\hline\n");
-
-            for (int state = 0; state < this.Q.length; state++) {
-                res.append("\t");
-                if (this.isInitialState(state)) {
-                    if (this.isAcceptingState(state)) {
-                        res.append("$\\leftrightarrow$");
-                    } else {
-                        res.append("$\\rightarrow$");
-                    }
-                } else if (this.isAcceptingState(state)) {
-                    res.append("$\\leftarrow$");
-                }
-
-                //StateName
-                res.append(" & $").append(this.Q[state]).append("$ ");
-                //Transitions
-                for (int letter = 0; letter < this.sigma.length; letter++) {
-                    res.append("& ");
-                    int[] current = this.transitions.get(state).get(letter);
-                    if (current.length != 0)
-                        res.append("$").append(this.Q[current[0]]);
-                    for (int i = 1; i < current.length; i++) {
-                        res.append(",").append(this.Q[current[i]]);
-                    }
-                    if (current.length != 0)
-                        res.append("$ ");
-                }
-                if (state != this.Q.length - 1)
-                    res.append("\\\\\n");
-                else
-                    res.append("\n");
-            }
-
-            res.append("\\end{tabular}");
-            savedToString[TEX] = res.toString();
-        }
-
-
-        return savedToString[TEX];
-    }
-
-    /**
-     * @return String containing code for TEX package TIKZ. This code draws a diagram of this automaton
-     */
-    public String getAutomatonTIKZ() {
-        if (savedToString[TIKZ] == null) {
-            StringBuilder res = new StringBuilder("\\begin{tikzpicture}[->,>=stealth',shorten >=1pt,auto,node distance=2.8cm,semithick]\n");
-            for (int state = 0; state < this.Q.length; state++) {
-                res.append("\t\\node[");
-                //I/A
-                if (this.isInitialState(state)) {
-                    res.append("initial,");
-                }
-                res.append("state");
-                if (this.isAcceptingState(state)) {
-                    res.append(",accepting");
-                }
-                res.append("] (").append(state).append(") ");
-                //Adjacency
-                if (state != 0) {
-                    res.append("[right of=").append(state - 1).append("] ");
-                }
-                //Name
-                res.append("{$").append(this.Q[state]).append("$};\n");
-            }
-            res.append("\t\\path");
-
-            for (int state = 0; state < this.Q.length; state++) {
-                res.append("\n\t\t(").append(state).append(")");
-
-                // key: target, value: letters
-                HashMap<Integer, ArrayList<Integer>> edgesFromState = this.getEdgesFromState(state);
-
-                for (int target = 0; target < this.Q.length; target++) {
-                    if (!edgesFromState.containsKey(target)) continue;
-
-                    res.append("\n\t\t\tedge ");
-                    //Edge properties
-                    if (state == target) {
-                        //It is a loop
-                        res.append("[loop above] ");
-                    } else if (this.hasEdgeFromTo(target, state)) {
-                        //It is a bend
-                        res.append("[bend left] ");
-                    }
-
-                    res.append("node {$");
-                    ArrayList<Integer> current = edgesFromState.get(target);
-                    if (current.size() != 0) {
-                        boolean found = false;
-                        for (String epsilonName : epsilonNames) {
-                            if (this.sigma[current.get(0)].equals(epsilonName)) {
-                                res.append("\\varepsilon");
-                                found = true;
-                                break;
-                            }
-                        }
-                        if (!found)
-                            res.append(this.sigma[current.get(0)]);
-                    }
-                    for (int letter = 1; letter < current.size(); letter++) {
-                        res.append(",").append(this.sigma[current.get(letter)]);
-                    }
-                    res.append("$} ");
-                    //Target
-                    res.append("(").append(target).append(")");
-                }
-            }
-            res.append(";\n\\end{tikzpicture}");
-            savedToString[TIKZ] = res.toString();
-        }
-        return savedToString[TIKZ];
-    }
-
-    /**
-     * @return true if there is an edge from state to target
-     */
-    private boolean hasEdgeFromTo(int state, int target) {
-        HashMap<Integer, int[]> states = this.transitions.get(state);
-        for (int letter = 0; letter < this.sigma.length; letter++) {
-            for (int i : states.get(letter)) {
-                if (i == target) return true;
-            }
-        }
-        return false;
-    }
-
-    /**
-     * @return HashMap that has target state as key and all letters as values
-     */
-    private HashMap<Integer, ArrayList<Integer>> getEdgesFromState(int state) {
-        // key: target, value: letters
-        HashMap<Integer, ArrayList<Integer>> res = new HashMap<>();
-        // key: letter, value: targets
-        HashMap<Integer, int[]> stateTransitions = this.transitions.get(state);
-        for (int letter = 0; letter < this.sigma.length; letter++) {
-            int[] targs = stateTransitions.get(letter);
-            for (int targ : targs) {
-                if (!res.containsKey(targ)) {
-                    res.put(targ, new ArrayList<>());
-                }
-                res.get(targ).add(letter);
-            }
-        }
-        return res;
-    }
-
-    /**
      * @return reduced version of this automaton
      */
     public DFAAutomaton getReduced() {
@@ -598,11 +359,116 @@ public abstract class Automaton {
     }
 
     /**
+     * Array of states that are accessible from specified state by epsilon transitions.
+     *
+     * @return Null if state doesn't exist
+     */
+    public String[] getEpsilonClosure(String state) {
+        int stateIndex = this.getStateIndex(state);
+        if (stateIndex == -1) {
+            LOGGER.info("Invalid state name passed: " + state);
+            return null;
+        }
+        int[] ret = getEpsilonClosure(stateIndex);
+        String[] returning = new String[ret.length];
+        for (int i = 0; i < ret.length; i++) {
+            returning[i] = this.sigma[ret[i]];
+        }
+        return returning;
+    }
+
+    /**
+     * @return Array of state indices that are accessible from specified state by epsilon transitions
+     */
+    protected int[] getEpsilonClosure(int state) {
+        if (!hasEpsilonTransitions()) {
+            return new int[]{state};
+        }
+
+        LinkedList<Integer> toDo = new LinkedList<>();
+        toDo.add(state);
+        Set<Integer> closure = new HashSet<>();
+        while (!toDo.isEmpty()) {
+            int curr = toDo.poll();
+            if (!closure.contains(curr)) {
+                closure.add(curr);
+                int[] targ = this.transitions.get(curr).get(0);
+                for (int i : targ) {
+                    if (!closure.contains(i)) {
+                        toDo.add(i);
+                    }
+                }
+            }
+        }
+        return closure.stream().mapToInt(a -> a).toArray();
+    }
+
+    public String getRegex() {
+        //TODO: IMPLEMENT
+        return null;
+    }
+
+    /**
+     * @return byval copy of initial states
+     */
+    int[] getInitialStates() {
+        return Arrays.copyOf(this.initialStates, this.initialStates.length);
+    }
+
+    /**
+     * @return byval copy of accepting states
+     */
+    int[] getAcceptingStates() {
+        return Arrays.copyOf(this.acceptingStates, this.acceptingStates.length);
+    }
+
+    /**
+     * @return deep values copy of transitions map
+     */
+    HashMap<Integer, HashMap<Integer, int[]>> getTransitions() {
+        return Utilities.getCopyOfHashMap(this.transitions);
+    }
+
+    //endregion
+
+    //region SETTERS
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+    //endregion
+
+    //region FOR CHILDREN
+
+    /**
      * This method is called if the automaton was not already reduced
      *
      * @return reduced version of this automaton
      */
     protected abstract DFAAutomaton reduce();
+
+    /**
+     * @return true if the specified state belongs to accepting states
+     */
+    protected boolean isAcceptingState(int stateIndex) {
+        for (int acceptingState : acceptingStates) {
+            if (acceptingState == stateIndex) return true;
+        }
+        return false;
+    }
+
+    /**
+     * This function will return an array of all states, that automaton can end up in after
+     * transitioning from specified state by specified letter.
+     * <p>
+     * For DFA this will be array of only one element, for NFA it might be multiple elements
+     */
+    protected abstract int[] getPossibleTransitions(int state, int letter);
+
+    //endregion
+
+    //region FUNCTIONALITY
 
     /**
      * This function does not use the optimized reduced automaton to get answer!
@@ -670,129 +536,90 @@ public abstract class Automaton {
     }
 
     /**
-     * @return true if the specified state belongs to accepting states
+     * This function will return boolean signifying whether this automaton accepts given word.
+     * Word is passed as an ArrayList of strings that contains letters of sigma
+     *
+     * @param input ArrayList of strings that contains letters of sigma
      */
-    protected boolean isAcceptingState(int stateIndex) {
-        for (int acceptingState : acceptingStates) {
-            if (acceptingState == stateIndex) return true;
-        }
-        return false;
+    public boolean acceptsWord(ArrayList<String> input) {
+        return acceptsWord(input.toArray(new String[]{}));
     }
 
-    /**
-     * This function will return an array of all states, that automaton can end up in after
-     * transitioning from specified state by specified letter.
-     * <p>
-     * For DFA this will be array of only one element, for NFA it might be multiple elements
-     */
-    protected abstract int[] getPossibleTransitions(int state, int letter);
+    public void invalidateCaches() {
+        toStringConverter = null;
+        stateMapping = sigmaMapping = null;
+        LOGGER.fine("Caches invalidated");
+    }
 
-    /**
-     * This will work out the maximum string length of cell columns and return them in array
-     *
-     * @return Array in which 0: column of states, 1: column of first letter and so on...
-     */
-    private int[] getColumnLengths() {
-        if (this.savedColumnLengths != null) {
-            return this.savedColumnLengths;
-        } else {
-            int[] ret = new int[this.sigma.length + 1];
-            for (String s : this.Q) {
-                ret[0] = Math.max(ret[0], s.length() + 2);
-            }
+    public abstract Automaton copy();
 
-            for (int letter = 0; letter < this.sigma.length; letter++) {
-                int where = letter + 1;
-                ret[where] = (letter == 0 && this.sigma[0].equals("\\epsilon")) ? 1 : this.sigma[letter].length();
-                for (int state = 0; state < this.Q.length; state++) {
-                    int curr = -1;
-                    for (int i : this.transitions.get(state).get(letter)) {
-                        curr += this.Q[i].length() + 1;
-                    }
-                    if (curr < 0) {
-                        curr = 0;
-                    }
-                    ret[where] = Math.max(ret[where], curr);
+    @Override
+    public boolean equals(Object obj) {
+        if (!(obj instanceof Automaton)) return false;
+        if (super.equals(obj)) return true;
+
+        Automaton other = (Automaton) obj;
+        DFAAutomaton reducedOther = other.reduce();
+        if (this.reduced == null) {
+            this.reduced = this.reduce();
+        }
+
+        DFAAutomaton a = this.reduced;
+        DFAAutomaton b = reducedOther;
+
+        //Has the same number of letters?
+        if (b.getSigmaSize() != a.getSigmaSize()) return false;
+        //Has the same number of states?
+        if (b.getQSize() != this.reduced.getQSize()) return false;
+        //Has the same number of accepting states?
+        if (b.acceptingStates.length != this.reduced.acceptingStates.length) return false;
+
+        //Can sigma be equal?
+
+
+        // Array, denoting reducedOther indices in relation to this.reduced
+        int[] sigmaMapping = new int[this.reduced.getSigmaSize()];
+        outer:
+        for (int i = 0; i < this.reduced.sigma.length; i++) {
+            for (int o = 0; o < b.sigma.length; o++) {
+                if (this.reduced.sigma[i].equals(b.sigma[o])) {
+                    sigmaMapping[i] = o;
+                    continue outer;
                 }
             }
-
-            this.savedColumnLengths = ret;
-            return ret;
-        }
-    }
-
-    //region renaming
-
-    /**
-     * Renames originalName state to newName state. It does not rename if newName is already a state
-     *
-     * @return Whether the renaming was successful
-     */
-    public boolean renameState(String originalName, String newName) {
-        if (newName.isEmpty()) {
-            LOGGER.warning("Trying to rename state to empty string!");
-            return false;
-        }
-        LOGGER.fine("Trying to rename state " + originalName + " to " + newName);
-        int test = getStateIndex(newName);
-        if (test != -1) {
-
-            LOGGER.warning("Cannot rename state " + originalName + " to " + newName + " because state with that name already exists");
+            LOGGER.fine("Automaton is not equal, because it's alphabets are incompatible");
             return false;
         }
 
-        //Invalidating caches
-        invalidateCaches();
-        int index = this.getStateIndex(originalName);
-        if (index == -1) {
-            LOGGER.info("Renaming failed, because state " + originalName + " does not exist");
-            return false;
-        }
-        Q[index] = newName;
-        return true;
-    }
-
-    /**
-     * Renames originalName letter to newName letter. It does not rename if newName is already a letter
-     *
-     * @return Whether the renaming was successful
-     */
-    public boolean renameLetter(String originalName, String newName) {
-        if (newName.isEmpty()) {
-            LOGGER.warning("Trying to rename letter to empty string!");
-            return false;
-        }
-        LOGGER.fine("Trying to rename letter " + originalName + " to " + newName);
-        int test = getLetterIndex(newName);
-        if (test != -1) {
-
-            LOGGER.warning("Cannot rename letter " + originalName + " to " + newName + " because letter with that name already exists");
-            return false;
-
+        int[] stateMapping = new int[this.reduced.getQSize()];
+        Arrays.setAll(stateMapping, val -> -1);
+        //We start with initial state:
+        stateMapping[a.initialStates[0]] = b.initialStates[0];
+        Queue<Integer> queue = new PriorityQueue<>();
+        queue.add(a.initialStates[0]);
+        while (!queue.isEmpty()) {
+            int current = queue.poll();
+            for (int i = 0; i < a.sigma.length; i++) {
+                int currATarg = a.transitions.get(current).get(i)[0];
+                int currBTarg = b.transitions.get(stateMapping[current]).get(sigmaMapping[i])[0];
+                if (stateMapping[currATarg] == -1) {
+                    stateMapping[currATarg] = currBTarg;
+                    queue.add(currATarg);
+                } else if (stateMapping[currATarg] != currBTarg) return false;
+            }
         }
 
-        invalidateCaches();
-        LOGGER.fine("Saved toString caches invalidated");
-        int index = this.getLetterIndex(originalName);
-        if (index == -1) {
-            LOGGER.info("Renaming failed, because letter " + originalName + " does not exist");
-            return false;
-        } else if (index == 0 && hasEpsilonTransitions()) {
-            LOGGER.warning("Cannot rename epsilon state!");
-            return false;
+        for (int i = 0; i < stateMapping.length; i++) {
+            if (stateMapping[i] == -1) return false;
+            if (a.isAcceptingState(i) != b.isAcceptingState(stateMapping[i])) return false;
         }
-        sigma[index] = newName;
+
         return true;
     }
 
     //endregion
 
-    public void invalidateCaches() {
-        savedToString[0] = savedToString[1] = savedToString[2] = savedToString[3] = null;
-        savedColumnLengths = null;
-        stateMapping = sigmaMapping = null;
-        LOGGER.fine("Caches invalidated");
-    }
+    //region EXPORT
 
     /**
      * This function exports automaton to CSV file with a specified separator.
@@ -866,6 +693,18 @@ public abstract class Automaton {
     public void exportToCSV(File file) {
         exportToCSV(file, ',');
     }
+
+    /**
+     * This function will return an object containing all string representations of this automaton
+     */
+    public ToStringConverter exportToString() {
+        if (toStringConverter == null) toStringConverter = new ToStringConverter(this);
+        return toStringConverter;
+    }
+
+    //endregion
+
+    //region IMPORT
 
     /**
      * Calls {@link #importFromCSV(File, char)}
@@ -955,7 +794,7 @@ public abstract class Automaton {
                     case " ":
                         break;
                     default:
-                        LOGGER.warning("Invalid CSV format, expected <>, instead got: " +value);
+                        LOGGER.warning("Invalid CSV format, expected <>, instead got: " + value);
                         return null;
                 }
 
@@ -1019,57 +858,75 @@ public abstract class Automaton {
         }
     }
 
-    public abstract Automaton copy();
+    //endregion
+
+    //region renaming
 
     /**
-     * @return whether the automaton has any epsilon transitions
-     */
-    public abstract boolean hasEpsilonTransitions();
-
-    /**
-     * Array of states that are accessible from specified state by epsilon transitions.
+     * Renames originalName state to newName state. It does not rename if newName is already a state
      *
-     * @return Null if state doesn't exist
+     * @return Whether the renaming was successful
      */
-    public String[] getEpsilonClosure(String state) {
-        int stateIndex = this.getStateIndex(state);
-        if (stateIndex == -1) {
-            LOGGER.info("Invalid state name passed: " + state);
-            return null;
+    public boolean renameState(String originalName, String newName) {
+        if (newName.isEmpty()) {
+            LOGGER.warning("Trying to rename state to empty string!");
+            return false;
         }
-        int[] ret = getEpsilonClosure(stateIndex);
-        String[] returning = new String[ret.length];
-        for (int i = 0; i < ret.length; i++) {
-            returning[i] = this.sigma[ret[i]];
+        LOGGER.fine("Trying to rename state " + originalName + " to " + newName);
+        int test = getStateIndex(newName);
+        if (test != -1) {
+
+            LOGGER.warning("Cannot rename state " + originalName + " to " + newName + " because state with that name already exists");
+            return false;
         }
-        return returning;
+
+        //Invalidating caches
+        invalidateCaches();
+        int index = this.getStateIndex(originalName);
+        if (index == -1) {
+            LOGGER.info("Renaming failed, because state " + originalName + " does not exist");
+            return false;
+        }
+        Q[index] = newName;
+        return true;
     }
 
     /**
-     * @return Array of state indices that are accessible from specified state by epsilon transitions
+     * Renames originalName letter to newName letter. It does not rename if newName is already a letter
+     *
+     * @return Whether the renaming was successful
      */
-    protected int[] getEpsilonClosure(int state) {
-        if (!hasEpsilonTransitions()) {
-            return new int[]{state};
+    public boolean renameLetter(String originalName, String newName) {
+        if (newName.isEmpty()) {
+            LOGGER.warning("Trying to rename letter to empty string!");
+            return false;
+        }
+        LOGGER.fine("Trying to rename letter " + originalName + " to " + newName);
+        int test = getLetterIndex(newName);
+        if (test != -1) {
+
+            LOGGER.warning("Cannot rename letter " + originalName + " to " + newName + " because letter with that name already exists");
+            return false;
+
         }
 
-        LinkedList<Integer> toDo = new LinkedList<>();
-        toDo.add(state);
-        Set<Integer> closure = new HashSet<>();
-        while (!toDo.isEmpty()) {
-            int curr = toDo.poll();
-            if (!closure.contains(curr)) {
-                closure.add(curr);
-                int[] targ = this.transitions.get(curr).get(0);
-                for (int i : targ) {
-                    if (!closure.contains(i)) {
-                        toDo.add(i);
-                    }
-                }
-            }
+        invalidateCaches();
+        LOGGER.fine("Saved toString caches invalidated");
+        int index = this.getLetterIndex(originalName);
+        if (index == -1) {
+            LOGGER.info("Renaming failed, because letter " + originalName + " does not exist");
+            return false;
+        } else if (index == 0 && hasEpsilonTransitions()) {
+            LOGGER.warning("Cannot rename epsilon state!");
+            return false;
         }
-        return closure.stream().mapToInt(a -> a).toArray();
+        sigma[index] = newName;
+        return true;
     }
+
+    //endregion
+
+    //region OPERATORS
 
     /**
      * This function will return automaton that accepts language L3 = L1L2
@@ -1099,7 +956,7 @@ public abstract class Automaton {
      * @param b Automaton accepting language L2
      * @return Automaton accepting language that is intersection of L1 and L2
      */
-    public static Automaton getCartMult(Automaton a, Automaton b) {
+    public static Automaton getIntersection(Automaton a, Automaton b) {
         //TODO: IMPLEMENT
 
         return null;
@@ -1119,132 +976,14 @@ public abstract class Automaton {
     }
 
     /**
-     * Attempts to refactor transitions so that every state has filled rows
-     */
-    protected void refactorTransitions() {
-        HashMap<Integer, HashMap<Integer, int[]>> newTransitions = new HashMap<>();
-
-        for (int state = 0; state < this.Q.length; state++) {
-            HashMap<Integer, int[]> curr = new HashMap<>();
-            newTransitions.put(state, curr);
-            for (int letter = 0; letter < this.sigma.length; letter++) {
-                int[] orig;
-                if (this.transitions.containsKey(state)) {
-                    if (this.transitions.get(state).containsKey(letter)) {
-                        orig = this.transitions.get(state).get(letter);
-                    } else {
-                        orig = new int[0];
-                    }
-                } else {
-                    orig = new int[0];
-                }
-                curr.put(letter, Arrays.copyOf(orig, orig.length));
-            }
-        }
-        this.transitions = newTransitions;
-    }
-
-    /**
-     * Converts automaton to regular expression
+     * This function returns an automaton that accepts complement of the language accepted by this automaton.
      *
-     * @return regular expression describing the language accepted by this automaton
+     * @return automaton M, such that <b>L(M) = &Sigma;* &#8726; L(M1)</b>, where M1 is this automaton instance
      */
-    public String toRegex() {
-        //TODO: IMPLEMENT
-        return "";
+    public Automaton getComplement() {
+        UnaryOperators uop = new UnaryOperators(this);
+        return uop.getComplement();
     }
 
-    public boolean acceptsWord(ArrayList<String> input) {
-        return acceptsWord(input.toArray(new String[]{}));
-    }
-
-    /**
-     * Generates automaton accepting the same language as regular expression
-     *
-     * @param regex String containing the regular expression
-     * @return Automaton that accepts the same language
-     */
-    public static ENFAAutomaton fromRegex(String regex) {
-        //TODO: IMPLEMENT
-        return null;
-    }
-
-    @Override
-    public boolean equals(Object obj) {
-        if (!(obj instanceof Automaton)) return false;
-        if (super.equals(obj)) return true;
-
-        Automaton other = (Automaton) obj;
-        DFAAutomaton reducedOther = other.reduce();
-        if (this.reduced == null) {
-            this.reduced = this.reduce();
-        }
-
-        DFAAutomaton a = this.reduced;
-        DFAAutomaton b = reducedOther;
-
-        //Has the same number of letters?
-        if (b.getSigmaSize() != a.getSigmaSize()) return false;
-        //Has the same number of states?
-        if (b.getQSize() != this.reduced.getQSize()) return false;
-        //Has the same number of accepting states?
-        if (b.acceptingStates.length != this.reduced.acceptingStates.length) return false;
-
-        //Can sigma be equal?
-
-
-        // Array, denoting reducedOther indices in relation to this.reduced
-        int[] sigmaMapping = new int[this.reduced.getSigmaSize()];
-        outer:
-        for (int i = 0; i < this.reduced.sigma.length; i++) {
-            for (int o = 0; o < b.sigma.length; o++) {
-                if (this.reduced.sigma[i].equals(b.sigma[o])) {
-                    sigmaMapping[i] = o;
-                    continue outer;
-                }
-            }
-            LOGGER.fine("Automaton is not equal, because it's alphabets are incompatible");
-            return false;
-        }
-
-        int[] stateMapping = new int[this.reduced.getQSize()];
-        Arrays.setAll(stateMapping, val -> -1);
-        //We start with initial state:
-        stateMapping[a.initialStates[0]] = b.initialStates[0];
-        Queue<Integer> queue = new PriorityQueue<>();
-        queue.add(a.initialStates[0]);
-        while (!queue.isEmpty()) {
-            int current = queue.poll();
-            for (int i = 0; i < a.sigma.length; i++) {
-                int currATarg = a.transitions.get(current).get(i)[0];
-                int currBTarg = b.transitions.get(stateMapping[current]).get(sigmaMapping[i])[0];
-                if (stateMapping[currATarg] == -1) {
-                    stateMapping[currATarg] = currBTarg;
-                    queue.add(currATarg);
-                } else if (stateMapping[currATarg] != currBTarg) return false;
-            }
-        }
-
-        for (int i = 0; i < stateMapping.length; i++) {
-            if (stateMapping[i] == -1) return false;
-            if (a.isAcceptingState(i) != b.isAcceptingState(stateMapping[i])) return false;
-        }
-
-        return true;
-    }
-
-    /**
-     * @return deep values copy of transitions map
-     */
-    HashMap<Integer, HashMap<Integer, int[]>> getTransitions() {
-        return Utilities.getCopyOfHashMap(this.transitions);
-    }
-
-    int[] getInitialStates() {
-        return Arrays.copyOf(this.initialStates, this.initialStates.length);
-    }
-
-    int[] getAcceptingStates() {
-        return Arrays.copyOf(this.acceptingStates, this.acceptingStates.length);
-    }
+    //endregion
 }
