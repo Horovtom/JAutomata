@@ -493,10 +493,9 @@ public class Samples {
         transitions.put("0", curr);
         curr = new HashMap<>();
         curr.put("\\alpha", "1");
-        curr.put("\\epsilon", "1");
         transitions.put("1", curr);
-        String[] initial = new String[]{"\\alpha"};
-        String[] accepting = new String[]{"\\alpha"};
+        String[] initial = new String[]{"0"};
+        String[] accepting = new String[]{"0"};
         return new NFAAutomaton(states, letters, transitions, initial, accepting);
     }
 

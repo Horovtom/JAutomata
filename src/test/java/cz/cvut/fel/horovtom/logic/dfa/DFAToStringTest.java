@@ -485,4 +485,9 @@ public class DFAToStringTest {
                         "\\end{tikzpicture}",
                 Samples.getDFA3().exportToString().getTIKZ());
     }
+
+    public static void main(String[] args) {
+        System.out.println(Samples.getNFA4().exportToString().getPlainText());
+        System.out.println(Samples.getNFA4().exportToString().getBorderedPlainText());
+    }
 }

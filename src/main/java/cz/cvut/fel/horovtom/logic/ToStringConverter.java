@@ -1,7 +1,6 @@
 package cz.cvut.fel.horovtom.logic;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 
 //FIXME: TEST THIS
@@ -45,7 +44,16 @@ public class ToStringConverter {
 
         for (int letter = 0; letter < this.sigma.length; letter++) {
             int where = letter + 1;
-            ret[where] = (letter == 0 && this.sigma[0].equals("\\epsilon")) ? 1 : this.sigma[letter].length();
+            boolean epsFound = false;
+            if (letter == 0) {
+                for (String epsilonName : Automaton.epsilonNames) {
+                    if (this.sigma[0].equals(epsilonName)) {
+                        epsFound = true;
+                        break;
+                    }
+                }
+            }
+            ret[where] = epsFound ? 1 : this.sigma[letter].length();
             for (int state = 0; state < this.Q.length; state++) {
                 int curr = -1;
                 for (int i : this.transitions.get(state).get(letter)) {
@@ -100,8 +108,11 @@ public class ToStringConverter {
             sb.append("-");
         }
         sb.append("+");
-        for (int savedColumnLength : columnLengths) {
-            for (int i = 0; i < savedColumnLength + 2; i++) {
+        for (int i1 = 0; i1 < columnLengths.length; i1++) {
+
+            int savedColumnLength = columnLengths[i1];
+            if (i1 != 0) savedColumnLength += 2;
+            for (int i = 0; i < savedColumnLength; i++) {
                 sb.append("-");
             }
             sb.append("+");
@@ -110,7 +121,6 @@ public class ToStringConverter {
     }
 
     private void createBorderedPlainText() {
-        //FIXME: MIGHT BE UNNECESSARY
         StringBuilder sb = new StringBuilder();
         appendLineSeparator(sb);
         //Header
@@ -119,15 +129,24 @@ public class ToStringConverter {
         for (int i = 0; i < this.ioColumn; i++) {
             sb.append(" ");
         }
-        sb.append(" | ");
+        sb.append(" |");
         for (int i = 0; i < columnLengths[0]; i++) {
             sb.append(" ");
         }
-        sb.append(" |");
+        sb.append("|");
         //Letter names
         for (int i = 0; i < sigma.length; i++) {
+            boolean epsFound = false;
+            if (i == 0) {
+                for (String epsilonName : Automaton.epsilonNames) {
+                    if (sigma[i].equals(epsilonName)) {
+                        epsFound = true;
+                        break;
+                    }
+                }
+            }
             sb.append(" ");
-            sb.append(String.format("%1$-" + (columnLengths[i + 1]) + "s", sigma[i]));
+            sb.append(String.format("%1$-" + (columnLengths[i + 1]) + "s", epsFound ? "ε" : sigma[i]));
             sb.append(" |");
         }
         sb.append("\n");
@@ -160,10 +179,21 @@ public class ToStringConverter {
                 }
             }
             //IO
-            sb.append("| ").append(io).append(" | ").append(String.format("%1$-" + (columnLengths[0]) + "s", Q[state])).append(" |");
+            sb.append("| ").append(io).append(" |").append(String.format("%1$-" + (columnLengths[0]) + "s", Q[state])).append("|");
             //Letters
             for (int letter = 0; letter < sigma.length; letter++) {
-                sb.append(" ").append(String.format("%1$-" + (columnLengths[letter + 1]) + "s", sigma[letter])).append(" |");
+                int[] ints = transitions.get(state).get(letter);
+                sb.append(" ");
+                StringBuilder a = new StringBuilder();
+                if (ints.length > 0) {
+                    a.append(Q[ints[0]]);
+                } else {
+                    a.append("∅");
+                }
+                for (int i = 1; i < ints.length; i++) {
+                    a.append(",").append(Q[ints[i]]);
+                }
+                sb.append(String.format("%1$-" + (columnLengths[letter + 1]) + "s", a.toString())).append(" |");
             }
             sb.append("\n");
             appendLineSeparator(sb);
@@ -449,10 +479,16 @@ public class ToStringConverter {
     }
 
     private boolean isAccepting(int state) {
-        return Arrays.stream(accepting).anyMatch(t -> t == state);
+        for (int i : accepting) {
+            if (state == i) return true;
+        }
+        return false;
     }
 
     private boolean isInitial(int state) {
-        return Arrays.stream(initials).anyMatch(t -> t == state);
+        for (int initial : initials) {
+            if (state == initial) return true;
+        }
+        return false;
     }
 }
