@@ -1,4 +1,4 @@
-package cz.cvut.fel.horovtom.logic.dfa;
+package cz.cvut.fel.horovtom.logic.toString;
 
 import cz.cvut.fel.horovtom.logic.DFAAutomaton;
 import cz.cvut.fel.horovtom.logic.samples.Samples;
