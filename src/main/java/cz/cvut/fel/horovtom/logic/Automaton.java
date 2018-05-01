@@ -957,9 +957,9 @@ public abstract class Automaton {
      * @return Automaton accepting language that is intersection of L1 and L2
      */
     public static Automaton getIntersection(Automaton a, Automaton b) {
-        //TODO: IMPLEMENT
+        BinaryOperators bo = new BinaryOperators(a, b);
 
-        return null;
+        return bo.getIntersection();
     }
 
     /**

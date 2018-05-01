@@ -1,10 +1,10 @@
 package cz.cvut.fel.horovtom.logic;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
+import java.util.*;
+import java.util.logging.Logger;
 
 public class BinaryOperators {
+    private static final Logger LOGGER = Logger.getLogger(BinaryOperators.class.getName());
     private final Automaton a, b;
     private int aEps, bEps;
     private final HashMap<Integer, HashMap<Integer, int[]>> aTransitions;
@@ -277,7 +277,138 @@ public class BinaryOperators {
         return intersection.copy();
     }
 
+    private Automaton getEmptyAutomaton() {
+        String[] Q = {"0"};
+        String[] sigma = new String[0];
+        HashMap<Integer, HashMap<Integer, int[]>> transitions = new HashMap<>();
+        int[] initial = {0};
+        int[] accepting = new int[0];
+        return new ENFAAutomaton(Q, sigma, transitions, initial, accepting);
+    }
+
+    /**
+     * Concatenates the two strings in the right way to create new composite state name
+     *
+     * @param a nullable string
+     * @param b nullable string
+     */
+    private String getCompositeName(String a, String b) {
+        if (a == null) {
+            if (b == null) {
+                return "∅";
+            } else {
+                return "∅," + b;
+            }
+        } else {
+            if (b == null) {
+                return a + ",∅";
+            } else {
+                return a + "," + b;
+            }
+        }
+    }
+
     private void createIntersection() {
-        //TODO: COMPLETE
+        DFAAutomaton a = this.a.getReduced();
+        DFAAutomaton b = this.b.getReduced();
+        HashMap<Integer, HashMap<Integer, int[]>> aTransitions = a.getTransitions();
+        HashMap<Integer, HashMap<Integer, int[]>> bTransitions = b.getTransitions();
+        String[] aSigma = a.getSigma();
+        String[] bSigma = b.getSigma();
+        String[] aQ = a.getQ();
+        String[] bQ = b.getQ();
+
+        //They can have different sigmas, but there has to be at least one letter that is the same,
+        // otherwise it will be empty automaton
+
+        //Create common sigma:
+        //These maps hold indices of real letters in automatons a and b from commonSigma indices
+        ArrayList<Integer> aSigmaMap = new ArrayList<>();
+        ArrayList<Integer> bSigmaMap = new ArrayList<>();
+        ArrayList<String> commonSigma = new ArrayList<>();
+
+        for (int i = 0; i < bSigma.length; i++) {
+            for (int i1 = 0; i1 < aSigma.length; i1++) {
+                if (aSigma[i1].equals(bSigma[i])) {
+                    commonSigma.add(aSigma[i1]);
+                    aSigmaMap.add(i1);
+                    bSigmaMap.add(i);
+                    break;
+                }
+            }
+        }
+
+        if (commonSigma.size() == 0) {
+            intersection = getEmptyAutomaton();
+            return;
+        } else if (commonSigma.size() != aSigma.length || aSigma.length != bSigma.length) {
+            LOGGER.warning("Automata had different sigma's. Creating their intersection from common letters");
+        }
+
+        /*
+          Array that holds indices of the new stateName + 1
+         */
+        int[][] statesIndices = new int[a.getQSize()][b.getQSize()];
+        ArrayList<Integer> stateMapA = new ArrayList<>();
+        ArrayList<Integer> stateMapB = new ArrayList<>();
+        ArrayList<String> stateNames = new ArrayList<>();
+        HashMap<Integer, HashMap<Integer, Integer>> transitions = new HashMap<>();
+
+        Queue<Integer> toComplete = new LinkedList<>();
+
+        //Initial state
+        int initialA = a.getInitialStates()[0];
+        int initialB = b.getInitialStates()[0];
+        stateNames.add(getCompositeName(aQ[initialA], bQ[initialB]));
+        stateMapA.add(initialA);
+        stateMapB.add(initialB);
+        statesIndices[initialA][initialB] = 1;
+        toComplete.offer(0);
+
+        //States
+        while (!toComplete.isEmpty()) {
+            int toDo = toComplete.poll();
+            int aInd = stateMapA.get(toDo);
+            int bInd = stateMapB.get(toDo);
+            HashMap<Integer, Integer> curr = new HashMap<>();
+            transitions.put(toDo, curr);
+
+            for (int letter = 0; letter < commonSigma.size(); letter++) {
+                int aLetInd = aSigmaMap.get(letter);
+                int bLetInd = bSigmaMap.get(letter);
+                int aTarg = -1, bTarg = -1;
+                if (aInd != -1) {
+                    aTarg = aTransitions.get(aInd).get(aLetInd)[0];
+                }
+                if (bInd != -1) {
+                    bTarg = bTransitions.get(bInd).get(bLetInd)[0];
+                }
+                if (statesIndices[aTarg][bTarg] == 0) {
+                    //Create new state
+                    toComplete.offer(stateNames.size());
+                    stateNames.add(getCompositeName(aQ[aTarg], bQ[bTarg]));
+                    stateMapA.add(aTarg);
+                    stateMapB.add(bTarg);
+                    statesIndices[aTarg][bTarg] = stateNames.size();
+                    curr.put(letter, statesIndices[aTarg][bTarg] - 1);
+                } else {
+                    //It already exists
+                    curr.put(letter, statesIndices[aTarg][bTarg] - 1);
+                }
+
+            }
+        }
+
+        ArrayList<Integer> acceptingStates = new ArrayList<>();
+        int[] aAcc = a.getAcceptingStates();
+        int[] bAcc = b.getAcceptingStates();
+        for (int aC : aAcc) {
+            for (int bC : bAcc) {
+                if (statesIndices[aC][bC] != 0) acceptingStates.add(statesIndices[aC][bC] - 1);
+            }
+        }
+
+        intersection = new DFAAutomaton(stateNames.toArray(new String[]{}), commonSigma.toArray(new String[]{}), transitions, 0, acceptingStates.stream().mapToInt(c -> c).toArray());
+        LOGGER.fine("Intersection created: \n" + intersection.toString());
     }
 }

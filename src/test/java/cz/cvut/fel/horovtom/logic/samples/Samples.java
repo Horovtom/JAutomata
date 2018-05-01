@@ -5,9 +5,12 @@ import cz.cvut.fel.horovtom.logic.DFAAutomaton;
 import cz.cvut.fel.horovtom.logic.ENFAAutomaton;
 import cz.cvut.fel.horovtom.logic.NFAAutomaton;
 
+import java.io.ByteArrayInputStream;
 import java.io.File;
+import java.nio.charset.Charset;
 import java.util.HashMap;
 import java.util.Objects;
+import java.util.Scanner;
 
 public class Samples {
     /**
@@ -466,11 +469,11 @@ public class Samples {
     /**
      * Image: cz/cvut/fel/horovtom/logic/samples/nfa_4.png
      * This automaton is actually a reduced DFA automaton which accepts language: <br>
-     *     <b>L = {w | w &isin; {\alpha, \epsilon}<sup>*</sup>, w contains only '\alpha'}</b>
+     * <b>L = {w | w &isin; {\alpha, \epsilon}<sup>*</sup>, w contains only '\alpha'}</b>
      * <p>
-     *     <hr>
-     *         <table><tr><th><br></th><th></th><th>\alpha</th><th>\epsilon<br></th></tr><tr><td>↔</td><td>0<br></td><td>0<br></td><td>1</td></tr><tr><td><br></td><td>1</td><td>1<br></td><td>Error</td></tr></table>
-     *     <hr>
+     * <hr>
+     * <table><tr><th><br></th><th></th><th>\alpha</th><th>\epsilon<br></th></tr><tr><td>↔</td><td>0<br></td><td>0<br></td><td>1</td></tr><tr><td><br></td><td>1</td><td>1<br></td><td>Error</td></tr></table>
+     * <hr>
      * <pre>
      * +---+---+--------+----------+
      * |   |   | \alpha | \epsilon |
@@ -790,5 +793,115 @@ public class Samples {
     public static Automaton getNFA_troy() {
         return Automaton.importFromCSV(
                 new File(Objects.requireNonNull(Samples.class.getClassLoader().getResource("nfa_troy.csv")).getFile()));
+    }
+
+    /**
+     * Image: cz/cvut/fel/horovtom/logic/samples/dfa_01_regex.png
+     * <p>
+     * Accepts regex: (a*b)+(b*a)<hr>
+     * <p>
+     * <table>
+     * <tr><th colspan="2"></th><th>a</th><th>b</th></tr>
+     * <tr><td>&rarr;</td><td>0</td><td>1</td><td>2</td></tr>
+     * <tr><td>&larr;</td><td>1</td><td>3</td><td>4</td></tr>
+     * <tr><td>&larr;</td><td>2</td><td>4</td><td>5</td></tr>
+     * <tr><td></td><td>3</td><td>3</td><td>4</td></tr>
+     * <tr><td>&larr;</td><td>4</td><td>6</td><td>6</td></tr>
+     * <tr><td></td><td>5</td><td>4</td><td>5</td></tr>
+     * <tr><td></td><td>6</td><td>6</td><td>6</td></tr>
+     * </table>
+     * </div><hr>
+     * <pre>
+     * +---+---+---+---+
+     * |   |   | a | b |
+     * +---+---+---+---+
+     * | > |0  | 1 | 2 |
+     * +---+---+---+---+
+     * | < |1  | 3 | 4 |
+     * +---+---+---+---+
+     * | < |2  | 4 | 5 |
+     * +---+---+---+---+
+     * |   |3  | 3 | 4 |
+     * +---+---+---+---+
+     * | < |4  | 6 | 6 |
+     * +---+---+---+---+
+     * |   |5  | 4 | 5 |
+     * +---+---+---+---+
+     * |   |6  | 6 | 6 |
+     * +---+---+---+---+
+     * </pre>
+     */
+    public static Automaton getDFA_01_regex() {
+        return Automaton.importFromCSV(
+                new File(Objects.requireNonNull(Samples.class.getClassLoader().getResource("dfa_01_regex.csv")).getFile()));
+    }
+
+    /**
+     * Image: cz/cvut/fel/horovtom/logic/samples/dfa_02_regex.png
+     * <p>
+     * Accepts regex: a*b*<hr>
+     * <p>
+     * <table>
+     * <tr><th colspan="2"></th><th>b</th><th>a</th></tr>
+     * <tr><td>&harr;</td><td>0</td><td>1</td><td>0</td></tr>
+     * <tr><td>&larr;</td><td>1</td><td>1</td><td>2</td></tr>
+     * <tr><td></td><td>2</td><td>2</td><td>2</td></tr>
+     * </table>
+     * </div><hr>
+     * <pre>
+     * +----+---+---+---+
+     * |    |   | b | a |
+     * +----+---+---+---+
+     * | <> |0  | 1 | 0 |
+     * +----+---+---+---+
+     * | <  |1  | 1 | 2 |
+     * +----+---+---+---+
+     * |    |2  | 2 | 2 |
+     * +----+---+---+---+
+     * </pre>
+     */
+    public static Automaton getDFA_02_regex() {
+        return Automaton.importFromCSV(
+                new File(Objects.requireNonNull(Samples.class.getClassLoader()
+                        .getResource("dfa_02_regex.csv")).getFile()));
+    }
+
+    /**
+     * Used for generating javadoc
+     */
+    private static void printFormatted(StringBuilder sb) {
+        Scanner sc = new Scanner(new ByteArrayInputStream(sb.toString().getBytes(Charset.defaultCharset())));
+        System.out.println("    /**");
+        boolean skip = false;
+        while (sc.hasNext()) {
+            String line = sc.nextLine();
+            if (!skip && line.contains("div id=\"scoped-content\"")) {
+                skip = true;
+            }
+            if (skip && line.contains("</style>")) {
+                skip = false;
+                continue;
+            }
+            if (skip) continue;
+            System.out.print("     * ");
+            System.out.print(line + "\n");
+        }
+        System.out.println("     */");
+    }
+
+    public static void main(String[] args) {
+        Automaton a = getDFA_01_regex();
+        StringBuilder sb = new StringBuilder();
+        sb.append("Image: cz/cvut/fel/horovtom/logic/samples/dfa_01_regex.png\n");
+        sb.append("<p>\n");
+        sb.append(a.getDescription());
+        sb.append("<hr>\n");
+        sb.append(a.exportToString().getHTML());
+        sb.append("<hr>\n<pre>\n");
+        sb.append(a.exportToString().getBorderedPlainText());
+        sb.append("</pre>");
+        printFormatted(sb);
+        System.out.println("\n\n\n");
+        System.out.println(a.exportToString().getTIKZ());
     }
 }
