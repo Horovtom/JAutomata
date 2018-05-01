@@ -15,7 +15,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
-public class ImportExportTest {
+public class CSVTest {
     @Test
     public void testImportCSVDFA() {
         Automaton automaton = Automaton.importFromCSV(new File(Objects.requireNonNull(this.getClass().getClassLoader().getResource("dfa.csv")).getFile()));
