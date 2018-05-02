@@ -2,10 +2,12 @@ package cz.cvut.fel.horovtom.logic.automaton.operators;
 
 import cz.cvut.fel.horovtom.logic.Automaton;
 import cz.cvut.fel.horovtom.logic.DFAAutomaton;
+import cz.cvut.fel.horovtom.logic.ENFAAutomaton;
 import cz.cvut.fel.horovtom.logic.samples.Samples;
 import org.junit.Test;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Random;
 
 import static org.junit.Assert.assertFalse;
@@ -52,6 +54,25 @@ public class ComplementTest {
                 assertFalse("Troy automaton should not accept this string: " + sb.toString(), troy.acceptsWord(word));
                 assertTrue("Troy complement automaton should accept this string: " + sb.toString(), troyComplement.acceptsWord(word));
             }
+        }
+    }
+
+    @Test
+    public void testEmpty() {
+        String[] Q = {"0"};
+        String[] sigma = {"a"};
+        HashMap<Integer, HashMap<Integer, int[]>> transitions = new HashMap<>();
+        ENFAAutomaton a = new ENFAAutomaton(Q, sigma, transitions, new int[]{0}, new int[]{0});
+        assertTrue(a != null);
+        assertTrue(a.acceptsWord(""));
+        for (int i = 1; i < 1000; i++) {
+            assertFalse(a.acceptsWord(new String(new char[i]).replace("\0", "a")));
+        }
+        Automaton b = a.getComplement();
+        assertFalse(b.acceptsWord(""));
+        for (int i = 1; i < 1000; i++) {
+            String word = new String(new char[i]).replace("\0", "a");
+            assertTrue("Word should be accepted: " + word, b.acceptsWord(word));
         }
     }
 

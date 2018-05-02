@@ -41,9 +41,9 @@ public class ENFAAutomaton extends Automaton {
     }
 
     /**
-     * Used for copy constructor
+     * This constructor is used for initialization by indices in Q and Sigma
      */
-    ENFAAutomaton(String[] q, String[] sigma, HashMap<Integer, HashMap<Integer, int[]>> transitions, int[] initialStates, int[] acceptingStates) {
+    public ENFAAutomaton(String[] q, String[] sigma, HashMap<Integer, HashMap<Integer, int[]>> transitions, int[] initialStates, int[] acceptingStates) {
         this.Q = Arrays.copyOf(q, q.length);
         this.sigma = Arrays.copyOf(sigma, sigma.length);
         this.initialStates = Arrays.copyOf(initialStates, initialStates.length);

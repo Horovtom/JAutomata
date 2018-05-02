@@ -867,6 +867,36 @@ public class Samples {
     }
 
     /**
+     * Image: cz/cvut/fel/horovtom/logic/samples/nfa_01_regex.png
+     * <p>
+     * Automaton accepts: ab*+ba*<hr>
+     * <p>
+     * <table>
+     * <tr><th colspan="2"></th><th>a</th><th>b</th></tr>
+     * <tr><td>&rarr;</td><td>0</td><td>1</td><td>2</td></tr>
+     * <tr><td>&larr;</td><td>1</td><td>&empty;</td><td>1</td></tr>
+     * <tr><td>&larr;</td><td>2</td><td>2</td><td>&empty;</td></tr>
+     * </table>
+     * </div><hr>
+     * <pre>
+     * +---+---+---+---+
+     * |   |   | a | b |
+     * +---+---+---+---+
+     * | > |0  | 1 | 2 |
+     * +---+---+---+---+
+     * | < |1  | ∅ | 1 |
+     * +---+---+---+---+
+     * | < |2  | 2 | ∅ |
+     * +---+---+---+---+
+     * </pre>
+     */
+    public static Automaton getNFA_01_regex() {
+        return Automaton.importFromCSV(
+                new File(Objects.requireNonNull(Samples.class.getClassLoader()
+                        .getResource("nfa_01_regex.csv")).getFile()));
+    }
+
+    /**
      * Used for generating javadoc
      */
     private static void printFormatted(StringBuilder sb) {
@@ -890,9 +920,9 @@ public class Samples {
     }
 
     public static void main(String[] args) {
-        Automaton a = getDFA_01_regex();
+        Automaton a = getNFA_01_regex();
         StringBuilder sb = new StringBuilder();
-        sb.append("Image: cz/cvut/fel/horovtom/logic/samples/dfa_01_regex.png\n");
+        sb.append("Image: cz/cvut/fel/horovtom/logic/samples/nfa_01_regex.png\n");
         sb.append("<p>\n");
         sb.append(a.getDescription());
         sb.append("<hr>\n");
