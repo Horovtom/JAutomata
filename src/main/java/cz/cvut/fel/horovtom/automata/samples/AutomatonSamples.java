@@ -1,9 +1,6 @@
 package cz.cvut.fel.horovtom.automata.samples;
 
-import cz.cvut.fel.horovtom.automata.logic.Automaton;
-import cz.cvut.fel.horovtom.automata.logic.DFAAutomaton;
-import cz.cvut.fel.horovtom.automata.logic.ENFAAutomaton;
-import cz.cvut.fel.horovtom.automata.logic.NFAAutomaton;
+import cz.cvut.fel.horovtom.automata.logic.*;
 
 import java.io.ByteArrayInputStream;
 import java.io.File;
@@ -836,7 +833,7 @@ public class AutomatonSamples {
          * </pre>
          */
         public static ENFAAutomaton regex1() {
-            File f = new File(Objects.requireNonNull(AutomatonSamples.class.getClassLoader().getResource("samples/csv/enfa_ab_regex.csv")).getFile());
+            File f = new File(Objects.requireNonNull(AutomatonSamples.class.getClassLoader().getResource("samples/csv/enfaRegex1.csv")).getFile());
             return (ENFAAutomaton) Automaton.importFromCSV(f);
         }
 
@@ -867,7 +864,7 @@ public class AutomatonSamples {
          */
         public static ENFAAutomaton aa_c_a() {
             return (ENFAAutomaton) Automaton.importFromCSV(
-                    new File(Objects.requireNonNull(AutomatonSamples.class.getClassLoader().getResource("samples/csv/enfa_aa,c,a.csv")).getFile()));
+                    new File(Objects.requireNonNull(AutomatonSamples.class.getClassLoader().getResource("samples/csv/aa_c_a.csv")).getFile()));
         }
 
         /**

@@ -4,12 +4,14 @@ import cz.cvut.fel.horovtom.automata.logic.Automaton;
 import cz.cvut.fel.horovtom.automata.logic.DFAAutomaton;
 import cz.cvut.fel.horovtom.automata.logic.ENFAAutomaton;
 import cz.cvut.fel.horovtom.automata.logic.NFAAutomaton;
+import cz.cvut.fel.horovtom.automata.samples.AutomatonSamples;
 
 import javax.swing.*;
 import javax.swing.filechooser.FileFilter;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.lang.reflect.Method;
 import java.util.Objects;
 import java.util.Scanner;
 import java.util.StringTokenizer;
@@ -21,6 +23,8 @@ public class Main {
     private static Automaton current;
 
     public static void main(String[] args) throws IOException {
+        loadPredefinedAutomaton();
+
         Handler fh = new FileHandler("LOG.log");
         Logger logger = Logger.getLogger("");
         for (Handler handler : logger.getHandlers()) {
@@ -106,6 +110,57 @@ public class Main {
     }
 
     static void loadPredefinedAutomaton() {
+        Class dfaClass = AutomatonSamples.DFASamples.class;
+        Method[] dfa = dfaClass.getDeclaredMethods();
+        Class nfaClass = AutomatonSamples.NFASamples.class;
+        Method[] nfa = nfaClass.getDeclaredMethods();
+        Class enfaClass = AutomatonSamples.ENFASamples.class;
+        Method[] enfa = enfaClass.getDeclaredMethods();
+
+        int currentI = 0;
+        System.out.println("DFA: ");
+        int current = 0, max = dfa.length;
+        while (current < max) {
+            System.out.println("--> " + currentI++ + ": " + dfa[current++].getName());
+        }
+        System.out.println("NFA: ");
+        max = nfa.length;
+        current = 0;
+        while (current < max) {
+            System.out.println("--> " + currentI++ + ": " + nfa[current++].getName());
+        }
+        System.out.println("ENFA: ");
+        max = enfa.length;
+        current = 0;
+        while (current < max) {
+            System.out.println("--> " + currentI++ + ": " + enfa[current++].getName());
+        }
+
+        System.out.println("Input your choice: ");
+        Scanner sc = new Scanner(System.in);
+        int i = sc.nextInt();
+        if (i < 0 || i >= currentI) {
+            System.err.println("Invalid choice! Try again!");
+            loadPredefinedAutomaton();
+            return;
+        }
+        try {
+            if (i < dfa.length) {
+                Main.current = (Automaton) dfa[i].invoke(null);
+            } else if (i < nfa.length) {
+                i -= dfa.length;
+                Main.current = (Automaton) nfa[i].invoke(null);
+            } else {
+                i -= dfa.length + nfa.length;
+                Main.current = (Automaton) enfa[i].invoke(null);
+            }
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+    }
+
+    @Deprecated
+    static void loadPredefinedAutomatonOld() {
         System.out.println("Which predefined automaton do you want to create?");
         System.out.println("1: DFA1 - w starts and ends with the same character\n" +
                 "2: DFA2 - w contains \"0.12 -6.38 0.12 0 213.002 -6.38 213.002\" as a substring\n" +
