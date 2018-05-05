@@ -303,8 +303,10 @@ public class ENFAAutomaton extends Automaton {
 
     @Override
     public boolean hasEpsilonTransitions() {
-        for (String epsilonName : epsilonNames) {
-            if (this.sigma[0].equals(epsilonName)) return true;
+        if (this.sigma.length > 0) {
+            for (String epsilonName : epsilonNames) {
+                if (this.sigma[0].equals(epsilonName)) return true;
+            }
         }
         return false;
     }

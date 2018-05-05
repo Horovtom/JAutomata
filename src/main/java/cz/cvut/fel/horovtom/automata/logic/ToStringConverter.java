@@ -207,15 +207,18 @@ public class ToStringConverter {
         //HEADER
         result.append(String.format("%1$-" + (columnLengths[0] + 1) + "s", ""));
         boolean isEps = false;
-        for (String epsilonName : Automaton.epsilonNames) {
-            if (this.sigma[0].equals(epsilonName)) {
-                isEps = true;
-                break;
+        if (this.sigma.length > 0) {
+            for (String epsilonName : Automaton.epsilonNames) {
+                if (this.sigma[0].equals(epsilonName)) {
+                    isEps = true;
+                    break;
+                }
             }
-        }
-        result.append(String.format("%1$-" + (columnLengths[1] + 1) + "s", isEps ? "ε" : this.sigma[0]));
-        for (int i = 1; i < this.sigma.length; i++) {
-            result.append(String.format("%1$-" + (columnLengths[i + 1] + 1) + "s", this.sigma[i]));
+
+            result.append(String.format("%1$-" + (columnLengths[1] + 1) + "s", isEps ? "ε" : this.sigma[0]));
+            for (int i = 1; i < this.sigma.length; i++) {
+                result.append(String.format("%1$-" + (columnLengths[i + 1] + 1) + "s", this.sigma[i]));
+            }
         }
         result.append("\n");
 

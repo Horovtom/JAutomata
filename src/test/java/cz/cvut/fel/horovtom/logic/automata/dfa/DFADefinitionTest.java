@@ -2,6 +2,7 @@ package cz.cvut.fel.horovtom.logic.automata.dfa;
 
 import cz.cvut.fel.horovtom.automata.logic.DFAAutomaton;
 import cz.cvut.fel.horovtom.automata.logic.Automaton;
+import cz.cvut.fel.horovtom.automata.samples.AutomatonSamples;
 import cz.cvut.fel.horovtom.automata.tools.Utilities;
 import org.junit.Test;
 
@@ -172,6 +173,17 @@ public class DFADefinitionTest {
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    @Test
+    public void testEmptyAutomaton() {
+        Automaton automaton = AutomatonSamples.DFASamples.emptyAutomaton();
+        assertTrue(automaton.acceptsWord(""));
+        assertFalse(automaton.acceptsWord("a"));
+        assertFalse(automaton.acceptsWord("b"));
+        assertFalse(automaton.acceptsWord("asdddsagtjwwe2r"));
+        Automaton complement = automaton.getComplement();
+        assertFalse(complement.acceptsWord(""));
     }
 
 }

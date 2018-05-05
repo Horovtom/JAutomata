@@ -207,7 +207,7 @@ public class NFAAutomaton extends Automaton {
     /**
      * Constructor used to initialize by reducers
      */
-    NFAAutomaton(String[] q, String[] sigma, HashMap<Integer, HashMap<Integer, int[]>> transitions, int[] initialStates, int[] acceptingStates) {
+    public NFAAutomaton(String[] q, String[] sigma, HashMap<Integer, HashMap<Integer, int[]>> transitions, int[] initialStates, int[] acceptingStates) {
         this.Q = Arrays.copyOf(q, q.length);
         this.sigma = Arrays.copyOf(sigma, sigma.length);
         //Copy transitions

@@ -1,6 +1,7 @@
 package cz.cvut.fel.horovtom.logic.automata.automaton.regex;
 
 import cz.cvut.fel.horovtom.automata.logic.Automaton;
+import cz.cvut.fel.horovtom.automata.logic.NFAAutomaton;
 import cz.cvut.fel.horovtom.automata.logic.converters.FromRegexConverter;
 import cz.cvut.fel.horovtom.automata.samples.AutomatonSamples;
 import org.junit.Test;
@@ -14,6 +15,7 @@ public class FromRegexTest {
         String r = "ab*+ba*";
 
         Automaton a = FromRegexConverter.getAutomaton(r);
+        System.out.println(a);
         assertTrue(a != null);
         for (int i = 0; i < 100; i++) {
             assertTrue(a.acceptsWord("a" + new String(new char[i]).replace("\0", "b")));
@@ -31,9 +33,9 @@ public class FromRegexTest {
         Automaton a = FromRegexConverter.getAutomaton(r);
         assertTrue(a != null);
         assertTrue(a.acceptsWord(""));
-        for (int i = 1; i < 1000; i++) {
+        for (int i = 1; i < 100; i++) {
             String word = new String(new char[i]).replace("\0", "a");
-            assertTrue("Word should be accepted: " + word, a.acceptsWord(word));
+            assertFalse("Word should not be accepted: " + word, a.acceptsWord(word));
         }
     }
 
@@ -56,5 +58,32 @@ public class FromRegexTest {
         assertFalse(a.acceptsWord("ababababababab"));
         assertFalse(a.acceptsWord("aaaaaaa"));
         assertFalse(a.acceptsWord(""));
+    }
+
+    @Test
+    public void test4() {
+        String r = "a";
+
+        Automaton a = FromRegexConverter.getAutomaton(r);
+        assertTrue(a != null);
+        assertTrue(a.acceptsWord("a"));
+        for (int i = 2; i < 100; i++) {
+            String word = new String(new char[i]).replace("\0", "a");
+            assertFalse("Word should not be accepted: " + word, a.acceptsWord(word));
+        }
+    }
+
+    @Test
+    public void test5() {
+        String r = "(ba)*c*a(bc)*";
+
+        Automaton a = FromRegexConverter.getAutomaton(r);
+        assertTrue(a != null);
+        assertTrue(a.acceptsWord("bababaccca"));
+        assertFalse(a.acceptsWord("babababababa"));
+        assertFalse(a.acceptsWord("bb"));
+        assertFalse(a.acceptsWord("ab"));
+        NFAAutomaton nfaAutomaton = AutomatonSamples.NFASamples.regex1();
+        assertTrue(a.equals(nfaAutomaton));
     }
 }

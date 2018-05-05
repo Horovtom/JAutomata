@@ -1,25 +1,61 @@
 package cz.cvut.fel.horovtom.automata.logic.converters;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashSet;
 import java.util.logging.Logger;
 
 public class Regex {
     private static final Logger LOGGER = Logger.getLogger(Regex.class.getName());
 
     private final String regex;
+    private final char[] sigma;
     private Node root;
 
     public Regex(String s) throws IllegalArgumentException {
-        regex = normalizeString(s);
+        regex = normalizeString(s.trim());
         if (regex == null) {
             LOGGER.severe("String: " + s + " is not a valid regular expression!");
             throw new IllegalArgumentException("String " + s + " is not valid regular expression");
         }
-        root = Node.compile(s);
+
+
+        root = Node.compile(regex);
+        HashSet<Character> tmp = new HashSet<>();
+        for (char c : root.getLetterIndices()) {
+            tmp.add(c);
+        }
+        sigma = new char[tmp.size()];
+        int curr = 0;
+        for (Character character : tmp) {
+            sigma[curr++] = character;
+        }
+    }
+
+    public char[] getLetterIndices() {
+        return root.getLetterIndices();
+    }
+
+    public int[] getStartingIndices() {
+        return root.getStartingIndices();
+    }
+
+    public int[] getEndingIndices() {
+        return root.getEndingIndices();
+    }
+
+    public ArrayList<int[]> getFollowers() {
+        return root.getFollowers();
+    }
+
+    public char[] getSigma() {
+        return Arrays.copyOf(sigma, sigma.length);
     }
 
     public Node getTree() {
         return root.copy();
     }
+
 
     public String getRegex() {
         return regex;

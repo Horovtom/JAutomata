@@ -110,6 +110,16 @@ public abstract class Automaton {
     }
 
     /**
+     * Returns whether a specified string is considered as a mark for epsilon transition
+     */
+    public static boolean isEpsilonName(String s) {
+        for (String epsilonName : epsilonNames) {
+            if (s.equals(epsilonName)) return true;
+        }
+        return false;
+    }
+
+    /**
      * Initializes state names and letter names
      */
     protected void initializeQSigma(String[] Q, String[] sigma) {

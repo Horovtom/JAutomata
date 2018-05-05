@@ -400,6 +400,17 @@ public class AutomatonSamples {
                     new File(Objects.requireNonNull(AutomatonSamples.class.getClassLoader()
                             .getResource("samples/csv/dfa_02_regex.csv")).getFile())).getDFA();
         }
+
+        /**
+         * This will return an empty automaton
+         *
+         * @return
+         */
+        public static Automaton emptyAutomaton() {
+            return Automaton.importFromCSV(
+                    new File(Objects.requireNonNull(AutomatonSamples.class.getClassLoader().getResource("samples/csv/empty.csv")).getFile())
+            ).getDFA();
+        }
     }
 
     // ************************
