@@ -229,6 +229,7 @@ public class NFAAutomaton extends Automaton {
     public DFAAutomaton reduce() {
         NFAReducer reducer = new NFAReducer(this.Q, this.sigma, this.transitions, this.initialStates, this.acceptingStates);
         DFAAutomaton dfa = new DFAAutomaton(reducer.getReducedQ(), reducer.getReducedSigma(), reducer.getReducedTransitions(), reducer.getReducedInitial(), reducer.getReducedAccepting());
+        dfa.setDescription(description);
         dfa = dfa.getReduced();
         return dfa;
     }
@@ -255,8 +256,9 @@ public class NFAAutomaton extends Automaton {
         }
         int[] accepting = Arrays.copyOf(this.acceptingStates, this.acceptingStates.length);
         int[] initial = Arrays.copyOf(this.initialStates, this.initialStates.length);
-
-        return new NFAAutomaton(Q, sigma, transitions, initial, accepting);
+        NFAAutomaton nfaAutomaton = new NFAAutomaton(Q, sigma, transitions, initial, accepting);
+        nfaAutomaton.setDescription(description);
+        return nfaAutomaton;
     }
 
     @Override

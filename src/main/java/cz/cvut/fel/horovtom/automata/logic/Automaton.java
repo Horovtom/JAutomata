@@ -1010,7 +1010,7 @@ public abstract class Automaton {
      * @return Automaton accepting language L3 = (L1+L2)
      */
     public static Automaton getUnion(Automaton a, Automaton b) {
-        BinaryOperators bo = new BinaryOperators(a, b);
+        BinaryOperators bo = new BinaryOperators(a.getReduced(), b.getReduced());
 
         return bo.getUnion();
     }

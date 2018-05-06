@@ -274,11 +274,13 @@ public class ENFAAutomaton extends Automaton {
 
         if (!this.hasEpsilonTransitions()) {
             NFAAutomaton nfa = new NFAAutomaton(this.Q, this.sigma, this.transitions, this.initialStates, this.acceptingStates);
+            nfa.setDescription(description);
             return nfa.getReduced();
         }
 
         ENFAReducer reducer = new ENFAReducer(this.Q, this.sigma, this.transitions, this.initialStates, this.acceptingStates, 0);
         NFAAutomaton nfa = new NFAAutomaton(reducer.getQ(), reducer.getSigma(), reducer.getTransitions(), new int[]{reducer.getInitial()}, reducer.getAccepting());
+        nfa.setDescription(description);
         return nfa.getReduced();
     }
 
@@ -298,7 +300,9 @@ public class ENFAAutomaton extends Automaton {
 
     @Override
     public Automaton copy() {
-        return new ENFAAutomaton(this.Q, this.sigma, this.transitions, this.initialStates, this.acceptingStates);
+        ENFAAutomaton enfaAutomaton = new ENFAAutomaton(this.Q, this.sigma, this.transitions, this.initialStates, this.acceptingStates);
+        enfaAutomaton.setDescription(description);
+        return enfaAutomaton;
     }
 
     @Override

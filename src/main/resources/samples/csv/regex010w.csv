@@ -1,0 +1,6 @@
+"This automaton accepts language L = {w : w ∈ {0,1}*, w = 010v, v ∈ {0,1}*}", ,0,1
+>                                                                           ,0,1,E
+                                                                            ,1,E,2
+                                                                            ,2,3,E
+<                                                                           ,3,3,3
+                                                                            ,E,E,E

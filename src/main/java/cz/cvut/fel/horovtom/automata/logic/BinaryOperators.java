@@ -263,9 +263,13 @@ public class BinaryOperators {
         for (int i = 0; i < bAcc.length; i++) {
             bAcc[i] += bStart;
         }
-        int[] accepting = new int[aAcc.length + bAcc.length];
+
+        boolean nullable = a.acceptsWord("") || b.acceptsWord("");
+        int[] accepting = new int[aAcc.length + bAcc.length + (nullable ? 1 : 0)];
         System.arraycopy(aAcc, 0, accepting, 0, aAcc.length);
         System.arraycopy(bAcc, 0, accepting, aAcc.length, bAcc.length);
+        if (nullable)
+            accepting[accepting.length - 1] = 0;
 
         this.union = new ENFAAutomaton(Q, sigma, transitions, initials, accepting);
     }

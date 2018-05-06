@@ -2,6 +2,7 @@ package cz.cvut.fel.horovtom.automata.logic.functionals;
 
 import cz.cvut.fel.horovtom.automata.logic.Automaton;
 import cz.cvut.fel.horovtom.automata.logic.DFAAutomaton;
+import cz.cvut.fel.horovtom.automata.logic.converters.FromRegexConverter;
 
 import java.util.HashMap;
 
@@ -68,6 +69,29 @@ public class FunctionalCreator {
         int[] accepting = new int[]{0};
 
         return new DFAAutomaton(Q, sigma, transition, initial, accepting);
+    }
+
+    /**
+     * This function will output a length divisibility checker automaton M.
+     * This automaton will measure input string length and output if it is divisible by a specified mod.
+     *
+     * @param sigma Letters of Sigma that are accepted by automaton M.
+     * @param mod   The input word has to be divisible by length, in order to be accepted by automaton M
+     */
+    public static Automaton getLengthDivisibilityAutomaton(char[] sigma, int mod) {
+        //FIXME: Maybe rewrite without regex in order to generify even to String type letters
+        StringBuilder sb = new StringBuilder("(");
+        StringBuilder unit = new StringBuilder();
+        unit.append(sigma[0]);
+        for (int i = 1; i < sigma.length; i++) {
+            unit.append("+").append(sigma[i]);
+        }
+
+        for (int i = 0; i < mod; i++) {
+            sb.append("(").append(unit).append(")");
+        }
+        sb.append(")*");
+        return FromRegexConverter.getAutomaton(sb.toString()).getReduced();
     }
 
 }

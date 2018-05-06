@@ -187,6 +187,7 @@ public class DFAAutomaton extends Automaton {
 
         DFAAutomaton dfa = new DFAAutomaton(q, sigma,
                 reducedTransitions, reducedInitial, reducedAccepting);
+        dfa.setDescription(description);
         return dfa;
     }
 
@@ -211,8 +212,9 @@ public class DFAAutomaton extends Automaton {
         }
         int[] accepting = Arrays.copyOf(this.acceptingStates, this.acceptingStates.length);
         int initial = this.initialStates[0];
-
-        return new DFAAutomaton(Q, sigma, transitions, initial, accepting);
+        DFAAutomaton dfaAutomaton = new DFAAutomaton(Q, sigma, transitions, initial, accepting);
+        dfaAutomaton.setDescription(description);
+        return dfaAutomaton;
     }
 
     @Override

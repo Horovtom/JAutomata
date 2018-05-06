@@ -50,6 +50,10 @@ class Node {
         return lastPos.stream().mapToInt(a -> a).toArray();
     }
 
+    public boolean isNullable() {
+        return nullable;
+    }
+
     public ArrayList<int[]> getFollowers() {
         ArrayList<int[]> ret = new ArrayList<>();
         for (HashSet<Integer> follower : followers) {
@@ -134,6 +138,7 @@ class Node {
         letters.add('(');
         letters.add(')');
         letters.add('·');
+        letters.add('ε');
         ArrayList<Character> aList = new ArrayList<>();
         for (int i = 0; i < content.length(); i++) {
             if (!letters.contains(content.charAt(i))) {
@@ -238,9 +243,13 @@ class Node {
                 LOGGER.warning("Source: " + this);
             }
 
-            if (Automaton.isEpsilonName(content)) nullable = true;
-            letterIndex = startIndex;
-            return startIndex + 1;
+            if (Automaton.isEpsilonName(content)) {
+                nullable = true;
+                return startIndex;
+            } else {
+                letterIndex = startIndex;
+                return startIndex + 1;
+            }
         } else if (this.type == NodeType.KLEENE) {
             if (children[0] == null) {
                 LOGGER.warning("There was an error in typing of node in syntax tree! It was marked as kleene, but it had no first child!");

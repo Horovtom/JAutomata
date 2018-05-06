@@ -25,10 +25,10 @@ public class FromRegexConverter {
         int[] accepting = regex.getEndingIndices();
         ArrayList<int[]> followers = regex.getFollowers();
 
-        return convertToAutomaton(sigma, letterIndices, initials, accepting, followers);
+        return convertToAutomaton(sigma, letterIndices, initials, accepting, followers, regex.isNullable());
     }
 
-    private static Automaton convertToAutomaton(char[] sigma, char[] letterIndices, int[] initials, int[] accepting, ArrayList<int[]> followers) {
+    private static Automaton convertToAutomaton(char[] sigma, char[] letterIndices, int[] initials, int[] accepting, ArrayList<int[]> followers, boolean nullable) {
         if (sigma == null || sigma.length == 0) {
             LOGGER.fine("User input empty regular expression.");
             return AutomatonSamples.DFASamples.emptyAutomaton();
@@ -83,6 +83,13 @@ public class FromRegexConverter {
 
         String[] newSigma = new String[sigma.length];
         Arrays.setAll(newSigma, i -> String.valueOf(sigma[i]));
+
+        if (nullable) {
+            int[] newAccepting = new int[accepting.length + 1];
+            System.arraycopy(accepting, 0, newAccepting, 0, accepting.length);
+            newAccepting[accepting.length] = Q.size() - 1;
+            accepting = newAccepting;
+        }
 
         return new NFAAutomaton(Q.toArray(new String[]{}), newSigma, transitions, new int[]{Q.size() - 1}, accepting);
     }

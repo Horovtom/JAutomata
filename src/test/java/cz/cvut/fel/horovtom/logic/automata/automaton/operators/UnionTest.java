@@ -2,6 +2,7 @@ package cz.cvut.fel.horovtom.logic.automata.automaton.operators;
 
 import cz.cvut.fel.horovtom.automata.logic.Automaton;
 import cz.cvut.fel.horovtom.automata.logic.DFAAutomaton;
+import cz.cvut.fel.horovtom.automata.logic.functionals.FunctionalCreator;
 import cz.cvut.fel.horovtom.automata.samples.AutomatonSamples;
 import org.junit.Test;
 
@@ -13,6 +14,39 @@ import static org.junit.Assert.assertTrue;
 
 
 public class UnionTest {
+    @Test
+    public void testLengthDivisibility() {
+        Automaton a = FunctionalCreator.getLengthDivisibilityAutomaton(new char[]{'a', 'b'}, 7);
+        Automaton b = FunctionalCreator.getLengthDivisibilityAutomaton(new char[]{'a', 'b'}, 13);
+        Automaton union = Automaton.getUnion(a, b);
+        assertTrue(union != null);
+        assertTrue(a.acceptsWord(""));
+        assertTrue(b.acceptsWord(""));
+        assertTrue(union.acceptsWord(""));
+        assertFalse(a.acceptsWord("aabaab"));
+        assertFalse(b.acceptsWord("aabaab"));
+        assertFalse(union.acceptsWord("aabaab"));
+
+
+        Random r = new Random();
+        for (int i = 0; i < 1000; i++) {
+            StringBuilder sb = new StringBuilder(i);
+            for (int i1 = 0; i1 < i; i1++) {
+                if (r.nextBoolean())
+                    sb.append('a');
+                else
+                    sb.append('b');
+            }
+
+            if (i % 7 == 0 || i % 13 == 0)
+                assertTrue("Automaton should accept word: " + sb.toString(), union.acceptsWord(sb.toString()));
+            else
+                assertFalse("Automaton should not accept word: " + sb.toString(), union.acceptsWord(sb.toString()));
+        }
+
+
+    }
+
     @Test
     public void test1() {
         DFAAutomaton lolipopAutomaton = AutomatonSamples.DFASamples.lolipop();

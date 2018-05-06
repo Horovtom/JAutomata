@@ -23,13 +23,18 @@ public class Regex {
         root = Node.compile(regex);
         HashSet<Character> tmp = new HashSet<>();
         for (char c : root.getLetterIndices()) {
-            tmp.add(c);
+            if (c != 'ε')
+                tmp.add(c);
         }
         sigma = new char[tmp.size()];
         int curr = 0;
         for (Character character : tmp) {
             sigma[curr++] = character;
         }
+    }
+
+    public boolean isNullable() {
+        return root.isNullable();
     }
 
     public char[] getLetterIndices() {

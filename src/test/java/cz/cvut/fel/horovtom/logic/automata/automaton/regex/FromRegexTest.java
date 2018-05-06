@@ -23,11 +23,12 @@ public class FromRegexTest {
         }
         assertFalse(a.acceptsWord("aba"));
         assertFalse(a.acceptsWord("bab"));
+        assertFalse(a.acceptsWord(""));
         assertTrue(AutomatonSamples.NFASamples.regex2().equals(a));
     }
 
     @Test
-    public void test2() {
+    public void testEmptyString() {
         String r = "";
 
         Automaton a = FromRegexConverter.getAutomaton(r);
@@ -61,12 +62,13 @@ public class FromRegexTest {
     }
 
     @Test
-    public void test4() {
+    public void testSingleLetter() {
         String r = "a";
 
         Automaton a = FromRegexConverter.getAutomaton(r);
         assertTrue(a != null);
         assertTrue(a.acceptsWord("a"));
+        assertFalse(a.acceptsWord(""));
         for (int i = 2; i < 100; i++) {
             String word = new String(new char[i]).replace("\0", "a");
             assertFalse("Word should not be accepted: " + word, a.acceptsWord(word));
@@ -83,7 +85,42 @@ public class FromRegexTest {
         assertFalse(a.acceptsWord("babababababa"));
         assertFalse(a.acceptsWord("bb"));
         assertFalse(a.acceptsWord("ab"));
+        assertFalse(a.acceptsWord(""));
         NFAAutomaton nfaAutomaton = AutomatonSamples.NFASamples.regex1();
         assertTrue(a.equals(nfaAutomaton));
+    }
+
+    @Test
+    public void testEpsilon() {
+        String r = "((ba+ab+ε)b)*";
+
+        Automaton a = FromRegexConverter.getAutomaton(r);
+        assertTrue(a != null);
+        assertTrue(a.acceptsWord(""));
+        assertTrue(a.acceptsWord("bab"));
+        assertTrue(a.acceptsWord("babbab"));
+        assertTrue(a.acceptsWord("abb"));
+        assertTrue(a.acceptsWord("abbabb"));
+        assertTrue(a.acceptsWord("b"));
+        assertTrue(a.acceptsWord("bb"));
+        assertFalse(a.acceptsWord("ba"));
+        assertTrue(a.acceptsWord("babb"));
+        assertFalse(a.acceptsWord("aababbab"));
+    }
+
+    @Test
+    public void test010w() {
+        String r = "010(0+1)*";
+        Automaton a = FromRegexConverter.getAutomaton(r);
+        assertTrue(a != null);
+        assertTrue(a.equals(AutomatonSamples.DFASamples.regex010w()));
+    }
+
+    @Test
+    public void test101w() {
+        String r = "101(0+1)*";
+        Automaton a = FromRegexConverter.getAutomaton(r);
+        assertTrue(a != null);
+        assertTrue(a.equals(AutomatonSamples.DFASamples.regex101w()));
     }
 }

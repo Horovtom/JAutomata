@@ -402,6 +402,78 @@ public class AutomatonSamples {
         }
 
         /**
+         * Image: samples/images/regex010w.png
+         * <p>
+         * This automaton accepts language L = {w : w ∈ {0,1}*, w = 010v, v ∈ {0,1}*}<hr>
+         * <p>
+         * <table>
+         * <tr><th colspan="2"></th><th>0</th><th>1</th></tr>
+         * <tr><td>&rarr;</td><td>0</td><td>1</td><td>E</td></tr>
+         * <tr><td></td><td>1</td><td>E</td><td>2</td></tr>
+         * <tr><td></td><td>E</td><td>E</td><td>E</td></tr>
+         * <tr><td></td><td>2</td><td>3</td><td>E</td></tr>
+         * <tr><td>&larr;</td><td>3</td><td>3</td><td>3</td></tr>
+         * </table>
+         * </div><hr>
+         * <pre>
+         * +---+---+---+---+
+         * |   |   | 0 | 1 |
+         * +---+---+---+---+
+         * | > |0  | 1 | E |
+         * +---+---+---+---+
+         * |   |1  | E | 2 |
+         * +---+---+---+---+
+         * |   |E  | E | E |
+         * +---+---+---+---+
+         * |   |2  | 3 | E |
+         * +---+---+---+---+
+         * | < |3  | 3 | 3 |
+         * +---+---+---+---+
+         * </pre>
+         */
+        public static DFAAutomaton regex010w() {
+            return Automaton.importFromCSV(
+                    new File(Objects.requireNonNull(AutomatonSamples.class.getClassLoader().getResource("samples/csv/regex010w.csv")).getFile())
+            ).getDFA();
+        }
+
+        /**
+         * Image: samples/images/regex101w.png
+         * <p>
+         * This automaton accepts language L = {w : w ∈ {0,1}*, w = 101v, v ∈ {0,1}*}<hr>
+         * <p>
+         * <table>
+         * <tr><th colspan="2"></th><th>0</th><th>1</th></tr>
+         * <tr><td>&rarr;</td><td>0</td><td>E</td><td>1</td></tr>
+         * <tr><td></td><td>E</td><td>E</td><td>E</td></tr>
+         * <tr><td></td><td>1</td><td>2</td><td>E</td></tr>
+         * <tr><td></td><td>2</td><td>E</td><td>3</td></tr>
+         * <tr><td>&larr;</td><td>3</td><td>3</td><td>3</td></tr>
+         * </table>
+         * </div><hr>
+         * <pre>
+         * +---+---+---+---+
+         * |   |   | 0 | 1 |
+         * +---+---+---+---+
+         * | > |0  | E | 1 |
+         * +---+---+---+---+
+         * |   |E  | E | E |
+         * +---+---+---+---+
+         * |   |1  | 2 | E |
+         * +---+---+---+---+
+         * |   |2  | E | 3 |
+         * +---+---+---+---+
+         * | < |3  | 3 | 3 |
+         * +---+---+---+---+
+         * </pre>
+         */
+        public static DFAAutomaton regex101w() {
+            return Automaton.importFromCSV(
+                    new File(Objects.requireNonNull(AutomatonSamples.class.getClassLoader().getResource("samples/csv/regex101w.csv")).getFile())
+            ).getDFA();
+        }
+
+        /**
          * This will return an empty automaton
          *
          * @return
@@ -948,10 +1020,10 @@ public class AutomatonSamples {
 
     public static void main(String[] args) {
         //Fill here!
-        Automaton a = null;
+        Automaton a = DFASamples.regex101w();
         assert (a != null);
         StringBuilder sb = new StringBuilder();
-        sb.append("Image: samples/images/startEndSame.png").append("\n");
+        sb.append("Image: samples/images/regex101w.png").append("\n");
         sb.append("<p>\n");
         sb.append(a.getDescription());
         sb.append("<hr>\n");
