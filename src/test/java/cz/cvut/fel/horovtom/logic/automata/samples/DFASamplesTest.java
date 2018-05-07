@@ -68,4 +68,57 @@ public class DFASamplesTest {
         assertFalse(a.acceptsWord("110"));
         assertFalse(a.acceptsWord("010001"));
     }
+
+    @Test
+    public void testAtLeastThreeAs() {
+        DFAAutomaton a = AutomatonSamples.DFASamples.atLeastThreeAs();
+        assertTrue(a != null);
+        assertFalse(a.acceptsWord(""));
+        Random r = new Random();
+        for (int i = 0; i < 1000; i++) {
+            int i1 = r.nextInt(300) + 1;
+            StringBuilder sb = new StringBuilder(i1);
+            int aCounter = 0;
+            for (int i2 = 0; i2 < i1; i2++) {
+                if (r.nextInt(8) == 1) {
+                    aCounter++;
+                    sb.append('a');
+                } else {
+                    sb.append('b');
+                }
+            }
+            if (aCounter >= 3)
+                assertTrue("Automaton should accept word: " + sb.toString(), a.acceptsWord(sb.toString()));
+            else
+                assertFalse("Automaton should not accept word: " + sb.toString(), a.acceptsWord(sb.toString()));
+
+        }
+    }
+
+    @Test
+    public void testContainsAAA() {
+        DFAAutomaton a = AutomatonSamples.DFASamples.containsAAA();
+        assertTrue(a != null);
+        assertFalse(a.acceptsWord(""));
+        Random r = new Random();
+        for (int i = 0; i < 1000; i++) {
+            int i1 = r.nextInt(300) + 1;
+            StringBuilder sb = new StringBuilder(i1);
+            int aCounter = 0;
+            for (int i2 = 0; i2 < i1; i2++) {
+                if (r.nextBoolean()) {
+                    aCounter++;
+                    sb.append('a');
+                } else {
+                    sb.append('b');
+                    if (aCounter < 3) aCounter = 0;
+                }
+            }
+            if (aCounter >= 3)
+                assertTrue("Automaton should accept word: " + sb.toString(), a.acceptsWord(sb.toString()));
+            else
+                assertFalse("Automaton should not accept word: " + sb.toString(), a.acceptsWord(sb.toString()));
+
+        }
+    }
 }

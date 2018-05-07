@@ -2,6 +2,7 @@ package cz.cvut.fel.horovtom.automata.tools;
 
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.StringTokenizer;
 import java.util.concurrent.ThreadLocalRandom;
 
 public class Utilities {
@@ -34,23 +35,33 @@ public class Utilities {
         int len = line.length();
         if (pos < 0 || pos >= len) return new Pair<>(-1, "");
         int curr = pos;
-        boolean chain = false;
+        boolean chain = false, hadBeenChained = false;
         StringBuilder sb = new StringBuilder();
+
+        //Get next unchained comma:
         while (true) {
             if (curr >= len) {
                 return new Pair<>(-1, sb.toString());
             }
-            char currentChar = line.charAt(curr);
+            char currentChar = line.charAt(curr++);
             if (currentChar == separator && !chain) {
-                return new Pair<>(curr + 1 >= len ? -1 : curr + 1, sb.toString());
+                break;
+            } else if (currentChar == '\"') {
+                chain = !chain;
+                hadBeenChained = true;
+                sb.append(currentChar);
             } else {
-                if (currentChar == '\"') {
-                    chain = !chain;
-                } else {
-                    sb.append(currentChar);
-                }
-                curr++;
+                sb.append(currentChar);
             }
+        }
+
+        int retIndex = curr >= len ? -1 : curr;
+
+        String trim = sb.toString().trim();
+        if (hadBeenChained) {
+            return new Pair<>(retIndex, trim.substring(1, trim.length() - 1));
+        } else {
+            return new Pair<>(retIndex, trim);
         }
     }
 
@@ -66,5 +77,17 @@ public class Utilities {
             copyOfTransitions.put(integer, currentRow);
         }
         return copyOfTransitions;
+    }
+
+    /**
+     * Returns an array of elements, parsed from comma-separated list of elements
+     */
+    public static String[] getArrFromCommaSepList(String list) {
+        StringTokenizer st = new StringTokenizer(list, ",");
+        String[] ret = new String[st.countTokens()];
+        for (int i = 0; i < ret.length; i++) {
+            ret[i] = st.nextToken();
+        }
+        return ret;
     }
 }

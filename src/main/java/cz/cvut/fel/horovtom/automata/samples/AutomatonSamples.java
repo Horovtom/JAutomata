@@ -1,9 +1,15 @@
 package cz.cvut.fel.horovtom.automata.samples;
 
-import cz.cvut.fel.horovtom.automata.logic.*;
+import cz.cvut.fel.horovtom.automata.logic.Automaton;
+import cz.cvut.fel.horovtom.automata.logic.DFAAutomaton;
+import cz.cvut.fel.horovtom.automata.logic.ENFAAutomaton;
+import cz.cvut.fel.horovtom.automata.logic.NFAAutomaton;
+import cz.cvut.fel.horovtom.automata.logic.converters.FromRegexConverter;
 
 import java.io.ByteArrayInputStream;
 import java.io.File;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.nio.charset.Charset;
 import java.util.HashMap;
 import java.util.Objects;
@@ -474,6 +480,39 @@ public class AutomatonSamples {
         }
 
         /**
+         * Image: samples/images/atLeastThreeAs.png
+         * <p>
+         * This accepts language L = {x ∈ {a,b}* | x = b*ab*ab*a(a+b)*}<hr>
+         * <p>
+         * <table>
+         * <tr><th colspan="2"></th><th>a</th><th>b</th></tr>
+         * <tr><td>&rarr;</td><td>0</td><td>1</td><td>0</td></tr>
+         * <tr><td></td><td>1</td><td>2</td><td>1</td></tr>
+         * <tr><td></td><td>2</td><td>3</td><td>2</td></tr>
+         * <tr><td>&larr;</td><td>3</td><td>3</td><td>3</td></tr>
+         * </table>
+         * </div><hr>
+         * <pre>
+         * +---+---+---+---+
+         * |   |   | a | b |
+         * +---+---+---+---+
+         * | > |0  | 1 | 0 |
+         * +---+---+---+---+
+         * |   |1  | 2 | 1 |
+         * +---+---+---+---+
+         * |   |2  | 3 | 2 |
+         * +---+---+---+---+
+         * | < |3  | 3 | 3 |
+         * +---+---+---+---+
+         * </pre>
+         */
+        public static DFAAutomaton atLeastThreeAs() {
+            return Automaton.importFromCSV(
+                    new File(Objects.requireNonNull(AutomatonSamples.class.getClassLoader().getResource("samples/csv/atLeastThreeAs.csv")).getFile())
+            ).getDFA();
+        }
+
+        /**
          * This will return an empty automaton
          *
          * @return
@@ -481,6 +520,39 @@ public class AutomatonSamples {
         public static Automaton emptyAutomaton() {
             return Automaton.importFromCSV(
                     new File(Objects.requireNonNull(AutomatonSamples.class.getClassLoader().getResource("samples/csv/empty.csv")).getFile())
+            ).getDFA();
+        }
+
+        /**
+         * Image: samples/images/containsAAA.png
+         * <p>
+         * This automaton accepts language: L = {x ∈ {a,b}* | x = WaaaY, W,Y ∈ {a,b}*}<hr>
+         *
+         *     <table>
+         *         <tr><th colspan="2"></th><th>a</th><th>b</th></tr>
+         * 		<tr><td>&rarr;</td><td>0</td><td>1</td><td>0</td></tr>
+         * 		<tr><td></td><td>1</td><td>2</td><td>0</td></tr>
+         * 		<tr><td></td><td>2</td><td>3</td><td>0</td></tr>
+         * 		<tr><td>&larr;</td><td>3</td><td>3</td><td>3</td></tr>
+         * 	</table>
+         * </div><hr>
+         * <pre>
+         * +---+---+---+---+
+         * |   |   | a | b |
+         * +---+---+---+---+
+         * | > |0  | 1 | 0 |
+         * +---+---+---+---+
+         * |   |1  | 2 | 0 |
+         * +---+---+---+---+
+         * |   |2  | 3 | 0 |
+         * +---+---+---+---+
+         * | < |3  | 3 | 3 |
+         * +---+---+---+---+
+         * </pre>
+         */
+        public static DFAAutomaton containsAAA() {
+            return Automaton.importFromCSV(
+                    new File(Objects.requireNonNull(AutomatonSamples.class.getClassLoader().getResource("samples/csv/containsAAA.csv")).getFile())
             ).getDFA();
         }
     }
@@ -829,6 +901,115 @@ public class AutomatonSamples {
                     new File(Objects.requireNonNull(AutomatonSamples.class.getClassLoader()
                             .getResource("samples/csv/nfa_01_regex.csv")).getFile())).getNFA();
         }
+
+        /**
+         * Image: samples/images/regex3.png
+         * <p>
+         * null<hr>
+         *
+         *     <table>
+         *         <tr><th colspan="2"></th><th>a</th><th>b</th><th>c</th></tr>
+         * 		<tr><td></td><td>a0</td><td>a0</td><td>b1</td><td>c2</td></tr>
+         * 		<tr><td></td><td>b1</td><td>a0</td><td>b1</td><td>c2</td></tr>
+         * 		<tr><td></td><td>c2</td><td>a3</td><td>b4</td><td>c5</td></tr>
+         * 		<tr><td></td><td>a3</td><td>a3</td><td>b4</td><td>c5</td></tr>
+         * 		<tr><td></td><td>b4</td><td>a3</td><td>b4</td><td>c5</td></tr>
+         * 		<tr><td>&larr;</td><td>c5</td><td>&empty;</td><td>&empty;</td><td>&empty;</td></tr>
+         * 		<tr><td>&rarr;</td><td>I</td><td>a0</td><td>b1</td><td>c2</td></tr>
+         * 	</table>
+         * </div><hr>
+         * <pre>
+         * +---+----+----+----+----+
+         * |   |    | a  | b  | c  |
+         * +---+----+----+----+----+
+         * |   |a0  | a0 | b1 | c2 |
+         * +---+----+----+----+----+
+         * |   |b1  | a0 | b1 | c2 |
+         * +---+----+----+----+----+
+         * |   |c2  | a3 | b4 | c5 |
+         * +---+----+----+----+----+
+         * |   |a3  | a3 | b4 | c5 |
+         * +---+----+----+----+----+
+         * |   |b4  | a3 | b4 | c5 |
+         * +---+----+----+----+----+
+         * | < |c5  | ∅  | ∅  | ∅  |
+         * +---+----+----+----+----+
+         * | > |I   | a0 | b1 | c2 |
+         * +---+----+----+----+----+
+         * </pre>
+         */
+        public static NFAAutomaton regex3() {
+            Automaton a = FromRegexConverter.getAutomaton("(a+b)*c(a+b)*c");
+            a.setDescription("This automaton accepts language L = {w ∈ {a,b,c}* | w = (a+b)*c(a+b)*c = XcYc, X,Y ∈ {a,b}*}");
+            return a.getNFA();
+        }
+
+        /**
+         * Image: samples/images/regex4.png
+         * <p>
+         * This automaton accepts language L = {w ∈ {a,b}* | w = a*ab(b+ε)}<hr>
+         * <p>
+         * <table>
+         * <tr><th colspan="2"></th><th>a</th><th>b</th></tr>
+         * <tr><td></td><td>a0</td><td>a0,a1</td><td>&empty;</td></tr>
+         * <tr><td></td><td>a1</td><td>&empty;</td><td>b2</td></tr>
+         * <tr><td>&larr;</td><td>b2</td><td>&empty;</td><td>b3</td></tr>
+         * <tr><td>&larr;</td><td>b3</td><td>&empty;</td><td>&empty;</td></tr>
+         * <tr><td>&rarr;</td><td>I</td><td>a0,a1</td><td>&empty;</td></tr>
+         * </table>
+         * </div><hr>
+         * <pre>
+         * +---+----+-------+----+
+         * |   |    | a     | b  |
+         * +---+----+-------+----+
+         * |   |a0  | a0,a1 | ∅  |
+         * +---+----+-------+----+
+         * |   |a1  | ∅     | b2 |
+         * +---+----+-------+----+
+         * | < |b2  | ∅     | b3 |
+         * +---+----+-------+----+
+         * | < |b3  | ∅     | ∅  |
+         * +---+----+-------+----+
+         * | > |I   | a0,a1 | ∅  |
+         * +---+----+-------+----+
+         * </pre>
+         */
+        public static NFAAutomaton regex4() {
+            Automaton a = FromRegexConverter.getAutomaton("a*ab(b+ε)");
+            a.setDescription("This automaton accepts language L = {w ∈ {a,b}* | w = a*ab(b+ε)}");
+            return a.getNFA();
+        }
+
+        /**
+         * Image: samples/images/listSyntaxCheck.png
+         * <p>
+         * This automaton accepts language that accepts words as such: 'list id;n;id;id;...;n;n;id#', where every string begins with the word: list and it ends with a symbol: #. In between of these two symbols is a list of identifiers (id) and numbers (n), in which every two elements are divided from each other with a semicolon.<hr>
+         * <p>
+         * <table>
+         * <tr><th colspan="2"></th><th>list </th><th>id</th><th>n</th><th>#</th><th>;</th></tr>
+         * <tr><td>&rarr;</td><td>S</td><td>L</td><td>&empty;</td><td>&empty;</td><td>&empty;</td><td>&empty;</td></tr>
+         * <tr><td></td><td>L</td><td>&empty;</td><td>R</td><td>R</td><td>&empty;</td><td>&empty;</td></tr>
+         * <tr><td></td><td>R</td><td>&empty;</td><td>&empty;</td><td>&empty;</td><td>A</td><td>L</td></tr>
+         * <tr><td>&larr;</td><td>A</td><td>&empty;</td><td>&empty;</td><td>&empty;</td><td>&empty;</td><td>&empty;</td></tr>
+         * </table>
+         * </div><hr>
+         * <pre>
+         * +---+---+-------+----+---+---+---+
+         * |   |   | list  | id | n | # | ; |
+         * +---+---+-------+----+---+---+---+
+         * | > |S  | L     | ∅  | ∅ | ∅ | ∅ |
+         * +---+---+-------+----+---+---+---+
+         * |   |L  | ∅     | R  | R | ∅ | ∅ |
+         * +---+---+-------+----+---+---+---+
+         * |   |R  | ∅     | ∅  | ∅ | A | L |
+         * +---+---+-------+----+---+---+---+
+         * | < |A  | ∅     | ∅  | ∅ | ∅ | ∅ |
+         * +---+---+-------+----+---+---+---+
+         * </pre>
+         */
+        public static NFAAutomaton listSyntaxCheck() {
+            return Automaton.importFromCSV(new File(Objects.requireNonNull(AutomatonSamples.class.getClassLoader().getResource("samples/csv/listSyntax.csv")).getFile())).getNFA();
+        }
     }
 
     // ************************
@@ -921,36 +1102,6 @@ public class AutomatonSamples {
         }
 
         /**
-         * Image: samples/images/aa_c_a.png
-         * This automaton accepts language: <br>
-         * <b>L = {w | w &isin; {aa, c, a} }</b>
-         * <p>
-         * <hr>
-         * <table><tr><th></th><th></th><th>ε</th><th>c</th><th>a</th></tr><tr><td>→</td><td>0</td><td>1</td><td></td><td>2</td></tr><tr><td></td><td>1</td><td>2</td><td>3</td><td></td></tr><tr><td></td><td>2</td><td></td><td></td><td>4</td></tr><tr><td>←</td><td>3</td><td></td><td></td><td></td></tr><tr><td>←</td><td>4</td><td></td><td></td><td></td></tr><tr><td>→</td><td>5</td><td>0</td><td></td><td></td></tr></table>
-         * <hr>
-         * <pre>
-         * +---+---+---+---+---+
-         * |   |   | ε | c | a |
-         * +---+---+---+---+---+
-         * | → | 0 | 1 |   | 2 |
-         * +---+---+---+---+---+
-         * |   | 1 | 2 | 3 |   |
-         * +---+---+---+---+---+
-         * |   | 2 |   |   | 4 |
-         * +---+---+---+---+---+
-         * | ← | 3 |   |   |   |
-         * +---+---+---+---+---+
-         * | ← | 4 |   |   |   |
-         * +---+---+---+---+---+
-         * | → | 5 | 0 |   |   |
-         * +---+---+---+---+---+
-         */
-        public static ENFAAutomaton aa_c_a() {
-            return (ENFAAutomaton) Automaton.importFromCSV(
-                    new File(Objects.requireNonNull(AutomatonSamples.class.getClassLoader().getResource("samples/csv/aa_c_a.csv")).getFile()));
-        }
-
-        /**
          * Image: samples/images/enfaRegex2.png
          * This automaton accepts language: <br>
          * <b> L = {w | w is described by regular expression r = aab(a+b)* }</b>
@@ -993,6 +1144,36 @@ public class AutomatonSamples {
 
             return new ENFAAutomaton(Q, sigma, initials, accepting, transitions);
         }
+
+        /**
+         * Image: samples/images/aa_c_a.png
+         * This automaton accepts language: <br>
+         * <b>L = {w | w &isin; {aa, c, a} }</b>
+         * <p>
+         * <hr>
+         * <table><tr><th></th><th></th><th>ε</th><th>c</th><th>a</th></tr><tr><td>→</td><td>0</td><td>1</td><td></td><td>2</td></tr><tr><td></td><td>1</td><td>2</td><td>3</td><td></td></tr><tr><td></td><td>2</td><td></td><td></td><td>4</td></tr><tr><td>←</td><td>3</td><td></td><td></td><td></td></tr><tr><td>←</td><td>4</td><td></td><td></td><td></td></tr><tr><td>→</td><td>5</td><td>0</td><td></td><td></td></tr></table>
+         * <hr>
+         * <pre>
+         * +---+---+---+---+---+
+         * |   |   | ε | c | a |
+         * +---+---+---+---+---+
+         * | → | 0 | 1 |   | 2 |
+         * +---+---+---+---+---+
+         * |   | 1 | 2 | 3 |   |
+         * +---+---+---+---+---+
+         * |   | 2 |   |   | 4 |
+         * +---+---+---+---+---+
+         * | ← | 3 |   |   |   |
+         * +---+---+---+---+---+
+         * | ← | 4 |   |   |   |
+         * +---+---+---+---+---+
+         * | → | 5 | 0 |   |   |
+         * +---+---+---+---+---+
+         */
+        public static ENFAAutomaton aa_c_a() {
+            return (ENFAAutomaton) Automaton.importFromCSV(
+                    new File(Objects.requireNonNull(AutomatonSamples.class.getClassLoader().getResource("samples/csv/aa_c_a.csv")).getFile()));
+        }
     }
 
     /**
@@ -1018,12 +1199,25 @@ public class AutomatonSamples {
         System.out.println("     */");
     }
 
-    public static void main(String[] args) {
-        //Fill here!
-        Automaton a = DFASamples.regex101w();
+    public static void main(String[] args) throws InvocationTargetException, IllegalAccessException {
+        Method m = null;
+        Method[] declaredMethods = NFASamples.class.getDeclaredMethods();
+        for (Method declaredMethod : declaredMethods) {
+            //Fill here!
+            if (declaredMethod.getName().equals("regex4")) {
+                m = declaredMethod;
+                break;
+            }
+        }
+        if (m == null) {
+            System.err.println("Method not found!");
+            return;
+        }
+
+        Automaton a = (Automaton) m.invoke(null);
         assert (a != null);
         StringBuilder sb = new StringBuilder();
-        sb.append("Image: samples/images/regex101w.png").append("\n");
+        sb.append("Image: samples/images/").append(m.getName()).append(".png\n");
         sb.append("<p>\n");
         sb.append(a.getDescription());
         sb.append("<hr>\n");

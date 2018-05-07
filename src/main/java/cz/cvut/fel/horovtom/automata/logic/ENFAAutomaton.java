@@ -21,6 +21,26 @@ public class ENFAAutomaton extends Automaton {
     }
 
     /**
+     * This constructor will parse Q names, sigma names, initial state names, accepting state names from respective strings
+     *
+     * @param Q           String containing comma-separated list of trimmed state names
+     * @param sigma       String containing comma-separated list of trimmed letter names
+     * @param transitions HashMap (from State_name to (from Letter_name to List_of_targets))
+     * @param initials    String containing comma-separated list of trimmed initial state names
+     * @param acceptings  String containing comma-separated list of trimmed accepting states names
+     */
+    public ENFAAutomaton(String Q, String sigma, HashMap<String, HashMap<String, String>> transitions, String initials, String acceptings) {
+        String[] newQ = Utilities.getArrFromCommaSepList(Q);
+        String[] newSigma = Utilities.getArrFromCommaSepList(sigma);
+        String[] newInitials = Utilities.getArrFromCommaSepList(initials);
+        String[] newAcceptings = Utilities.getArrFromCommaSepList(acceptings);
+
+        initializeQSigma(newQ, newSigma);
+        initializeTransitionsCompact(transitions);
+        initializeInitAcc(newInitials, newAcceptings);
+    }
+
+    /**
      * This constructor has array of states as a value in transitions map.
      *
      * @param states      Array of strings, representing states of the automaton

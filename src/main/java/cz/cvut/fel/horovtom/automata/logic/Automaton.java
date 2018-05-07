@@ -793,7 +793,6 @@ public abstract class Automaton {
                 ret = Utilities.getNextToken(line, curr, separator);
                 curr = ret.getKey();
                 String t = ret.getValue();
-                t = t.trim();
 
                 if (t.charAt(0) == '\"')
                     sigma.add(t.substring(1, t.length() - 1));
