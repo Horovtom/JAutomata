@@ -1,0 +1,5 @@
+"This automaton accepts language: L = {w ∈ {a,b}* | w has b as third symbol from the end}", ,a,b
+>                                                                                         ,1,1,"1,2"
+                                                                                          ,2,3,3
+                                                                                          ,3,4,4
+<                                                                                         ,4

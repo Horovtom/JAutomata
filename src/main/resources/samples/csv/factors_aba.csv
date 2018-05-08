@@ -1,0 +1,5 @@
+"This automaton accepts language: L = {w is a factor of word 'aba'}", ,a,b,eps
+>                                                                   ,0,1, ,"1,2"
+<                                                                   ,1, ,2
+<                                                                   ,2,3
+<                                                                   ,3

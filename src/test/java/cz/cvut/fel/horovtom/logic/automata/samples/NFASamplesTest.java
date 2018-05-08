@@ -26,6 +26,35 @@ public class NFASamplesTest {
     }
 
     @Test
+    public void testbAtEnd() {
+        NFAAutomaton a = AutomatonSamples.NFASamples.bAtEnd();
+        assertTrue(a != null);
+        assertTrue(a.acceptsWord("baa"));
+        assertTrue(a.acceptsWord("bbb"));
+        assertTrue(a.acceptsWord("bab"));
+        assertFalse(a.acceptsWord("aaa"));
+        assertFalse(a.acceptsWord("ba"));
+        assertFalse(a.acceptsWord("bb"));
+        Random r = new Random();
+        for (int i = 0; i < 1000; i++) {
+            StringBuilder sb = new StringBuilder();
+
+            for (int i1 = 0; i1 < 100; i1++) {
+                if (r.nextBoolean()) {
+                    sb.append('a');
+                } else {
+                    sb.append('b');
+                }
+            }
+            if (sb.charAt(sb.length() - 3) == 'b')
+                assertTrue("Automaton should accept: " + sb.toString(), a.acceptsWord(sb.toString()));
+            else
+                assertFalse("Automaton should not accept: " + sb.toString(), a.acceptsWord(sb.toString()));
+
+        }
+    }
+
+    @Test
     public void testRegex3() {
         NFAAutomaton a = AutomatonSamples.NFASamples.regex3();
         assertTrue(a != null);

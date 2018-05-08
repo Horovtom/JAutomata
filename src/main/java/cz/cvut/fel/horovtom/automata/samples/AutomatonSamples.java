@@ -1010,6 +1010,39 @@ public class AutomatonSamples {
         public static NFAAutomaton listSyntaxCheck() {
             return Automaton.importFromCSV(new File(Objects.requireNonNull(AutomatonSamples.class.getClassLoader().getResource("samples/csv/listSyntax.csv")).getFile())).getNFA();
         }
+
+        /**
+         * Image: samples/images/bAtEnd.png
+         * <p>
+         * This automaton accepts language: L = {w ∈ {a,b}* | w has b as third symbol from the end}<hr>
+         * <p>
+         * <table>
+         * <tr><th colspan="2"></th><th>a</th><th>b</th></tr>
+         * <tr><td>&rarr;</td><td>1</td><td>1</td><td>1,2</td></tr>
+         * <tr><td></td><td>2</td><td>3</td><td>3</td></tr>
+         * <tr><td></td><td>3</td><td>4</td><td>4</td></tr>
+         * <tr><td>&larr;</td><td>4</td><td>&empty;</td><td>&empty;</td></tr>
+         * </table>
+         * </div><hr>
+         * <pre>
+         * +---+---+---+-----+
+         * |   |   | a | b   |
+         * +---+---+---+-----+
+         * | > |1  | 1 | 1,2 |
+         * +---+---+---+-----+
+         * |   |2  | 3 | 3   |
+         * +---+---+---+-----+
+         * |   |3  | 4 | 4   |
+         * +---+---+---+-----+
+         * | < |4  | ∅ | ∅   |
+         * +---+---+---+-----+
+         * </pre>
+         */
+        public static NFAAutomaton bAtEnd() {
+            return Automaton.importFromCSV(
+                    new File(Objects.requireNonNull(AutomatonSamples.class.getClassLoader()
+                            .getResource("samples/csv/bAtEnd.csv")).getFile())).getNFA();
+        }
     }
 
     // ************************
@@ -1174,6 +1207,39 @@ public class AutomatonSamples {
             return (ENFAAutomaton) Automaton.importFromCSV(
                     new File(Objects.requireNonNull(AutomatonSamples.class.getClassLoader().getResource("samples/csv/aa_c_a.csv")).getFile()));
         }
+
+        /**
+         * Image: samples/images/factors_aba.png
+         * <p>
+         * This automaton accepts language: L = {w is a factor of word 'aba'}<hr>
+         *
+         *     <table>
+         *         <tr><th colspan="2"></th><th>eps</th><th>a</th><th>b</th></tr>
+         * 		<tr><td>&rarr;</td><td>0</td><td>1,2</td><td>1</td><td>&empty;</td></tr>
+         * 		<tr><td>&larr;</td><td>1</td><td>&empty;</td><td>&empty;</td><td>2</td></tr>
+         * 		<tr><td>&larr;</td><td>2</td><td>&empty;</td><td>3</td><td>&empty;</td></tr>
+         * 		<tr><td>&larr;</td><td>3</td><td>&empty;</td><td>&empty;</td><td>&empty;</td></tr>
+         * 	</table>
+         * </div><hr>
+         * <pre>
+         * +---+---+-----+---+---+
+         * |   |   | ε   | a | b |
+         * +---+---+-----+---+---+
+         * | > |0  | 1,2 | 1 | ∅ |
+         * +---+---+-----+---+---+
+         * | < |1  | ∅   | ∅ | 2 |
+         * +---+---+-----+---+---+
+         * | < |2  | ∅   | 3 | ∅ |
+         * +---+---+-----+---+---+
+         * | < |3  | ∅   | ∅ | ∅ |
+         * +---+---+-----+---+---+
+         * </pre>
+         */
+        public static ENFAAutomaton factors_aba() {
+            return Automaton.importFromCSV(
+                    new File(Objects.requireNonNull(AutomatonSamples.class.getClassLoader()
+                            .getResource("samples/csv/factors_aba.csv")).getFile())).getENFA();
+        }
     }
 
     /**
@@ -1201,10 +1267,10 @@ public class AutomatonSamples {
 
     public static void main(String[] args) throws InvocationTargetException, IllegalAccessException {
         Method m = null;
-        Method[] declaredMethods = NFASamples.class.getDeclaredMethods();
+        Method[] declaredMethods = ENFASamples.class.getDeclaredMethods();
         for (Method declaredMethod : declaredMethods) {
             //Fill here!
-            if (declaredMethod.getName().equals("regex4")) {
+            if (declaredMethod.getName().equals("factors_aba")) {
                 m = declaredMethod;
                 break;
             }
