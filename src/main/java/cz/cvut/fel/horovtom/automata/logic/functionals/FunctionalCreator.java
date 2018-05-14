@@ -91,7 +91,12 @@ public class FunctionalCreator {
             sb.append("(").append(unit).append(")");
         }
         sb.append(")*");
-        return FromRegexConverter.getAutomaton(sb.toString()).getReduced();
+        return FromRegexConverter.getAutomaton(sb.toString());
+    }
+
+    public static void main(String[] args) {
+        Automaton a = getLengthDivisibilityAutomaton(new char[]{'a', 'b', 'c'}, 3);
+        System.out.println(a.acceptsWord("aac"));
     }
 
 }

@@ -123,6 +123,13 @@ public abstract class Automaton {
      * Initializes state names and letter names
      */
     protected void initializeQSigma(String[] Q, String[] sigma) {
+        if (Q == null) {
+            LOGGER.severe("Specified Q was null, could not continue!");
+            System.exit(-1);
+        } else if (sigma == null) {
+            LOGGER.severe("Specified sigma was null, could not continue!");
+            System.exit(-1);
+        }
         String[] newSigma = new String[sigma.length];
 
         int epsilonIndex = -1;
@@ -443,21 +450,21 @@ public abstract class Automaton {
     /**
      * @return byval copy of initial states
      */
-    int[] getInitialStates() {
+    public int[] getInitialStates() {
         return Arrays.copyOf(this.initialStates, this.initialStates.length);
     }
 
     /**
      * @return byval copy of accepting states
      */
-    int[] getAcceptingStates() {
+    public int[] getAcceptingStates() {
         return Arrays.copyOf(this.acceptingStates, this.acceptingStates.length);
     }
 
     /**
      * @return deep values copy of transitions map
      */
-    HashMap<Integer, HashMap<Integer, int[]>> getTransitions() {
+    public HashMap<Integer, HashMap<Integer, int[]>> getTransitions() {
         return Utilities.getCopyOfHashMap(this.transitions);
     }
 

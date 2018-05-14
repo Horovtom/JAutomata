@@ -56,6 +56,7 @@ public class FromRegexTest {
             assertTrue("Automaton should accept word: " + sb.toString(), a.acceptsWord(sb.toString()));
         }
 
+
         assertFalse(a.acceptsWord("ababababababab"));
         assertFalse(a.acceptsWord("aaaaaaa"));
         assertFalse(a.acceptsWord(""));
@@ -86,6 +87,7 @@ public class FromRegexTest {
         assertFalse(a.acceptsWord("bb"));
         assertFalse(a.acceptsWord("ab"));
         assertFalse(a.acceptsWord(""));
+
         NFAAutomaton nfaAutomaton = AutomatonSamples.NFASamples.regex1();
         assertTrue(a.equals(nfaAutomaton));
     }
@@ -122,5 +124,11 @@ public class FromRegexTest {
         Automaton a = FromRegexConverter.getAutomaton(r);
         assertTrue(a != null);
         assertTrue(a.equals(AutomatonSamples.DFASamples.regex101w()));
+
+    }
+
+    public static void main(String[] args) {
+        String a = AutomatonSamples.DFASamples.regex101w().exportToString().getTIKZ();
+        System.out.println(a);
     }
 }

@@ -21,6 +21,54 @@ public class AutomatonSamples {
     // ************************
 
     public static class DFASamples {
+
+        /**
+         * Image: samples/images/not3kPlus1As.png
+         * <p>
+         * This automaton accepts this language: L = {w ∈ {a, b}* | |w|_a != 3k + 1}<hr>
+         * <p>
+         * <table>
+         * <tr><th colspan="2"></th><th>a</th><th>b</th></tr>
+         * <tr><td>&harr;</td><td>0</td><td>1</td><td>0</td></tr>
+         * <tr><td></td><td>1</td><td>2</td><td>1</td></tr>
+         * <tr><td>&larr;</td><td>2</td><td>0</td><td>2</td></tr>
+         * </table>
+         * </div><hr>
+         * <pre>
+         * +----+---+---+---+
+         * |    |   | a | b |
+         * +----+---+---+---+
+         * | <> |0  | 1 | 0 |
+         * +----+---+---+---+
+         * |    |1  | 2 | 1 |
+         * +----+---+---+---+
+         * | <  |2  | 0 | 2 |
+         * +----+---+---+---+
+         * </pre>
+         */
+        public static DFAAutomaton not3kPlus1As() {
+            String[] Q = new String[]{"0", "1", "2"};
+            String[] sigma = new String[]{"a", "b"};
+            String initial = "0";
+            String acceptings = "0,2";
+            HashMap<String, HashMap<String, String>> transitions = new HashMap<>();
+            HashMap<String, String> curr = new HashMap<>();
+            transitions.put("0", curr);
+            curr.put("a", "1");
+            curr.put("b", "0");
+            curr = new HashMap<>();
+            transitions.put("1", curr);
+            curr.put("a", "2");
+            curr.put("b", "1");
+            curr = new HashMap<>();
+            transitions.put("2", curr);
+            curr.put("a", "0");
+            curr.put("b", "2");
+            DFAAutomaton dfa = new DFAAutomaton(Q, sigma, transitions, initial, acceptings);
+            dfa.setDescription("This automaton accepts this language: L = {w ∈ {a, b}* | |w|_a != 3k + 1}");
+            return dfa;
+        }
+
         /**
          * Image is similar to: samples/images/lolipop.png
          * <p>
@@ -1267,10 +1315,10 @@ public class AutomatonSamples {
 
     public static void main(String[] args) throws InvocationTargetException, IllegalAccessException {
         Method m = null;
-        Method[] declaredMethods = ENFASamples.class.getDeclaredMethods();
+        Method[] declaredMethods = DFASamples.class.getDeclaredMethods();
         for (Method declaredMethod : declaredMethods) {
             //Fill here!
-            if (declaredMethod.getName().equals("factors_aba")) {
+            if (declaredMethod.getName().equals("not3kPlus1As")) {
                 m = declaredMethod;
                 break;
             }

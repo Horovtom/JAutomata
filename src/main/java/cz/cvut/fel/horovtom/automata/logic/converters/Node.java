@@ -8,7 +8,7 @@ import java.util.HashSet;
 import java.util.logging.Logger;
 
 /**
- * This class holds the tree for Regular expression {@link Regex}
+ * This class holds the tree for Regular expression {@link RegexTree}
  */
 class Node {
     private static final Logger LOGGER = Logger.getLogger(Node.class.getName());
@@ -495,6 +495,8 @@ class Node {
                         leftBuf.insert(breakingPoint, "·");
                         continue;
                     }
+                } else if (ch == '(') {
+                    inBracket++;
                 } else if (ch == ')') {
                     inBracket--;
                 }

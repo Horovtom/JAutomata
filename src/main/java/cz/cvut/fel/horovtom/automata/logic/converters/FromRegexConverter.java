@@ -1,6 +1,7 @@
 package cz.cvut.fel.horovtom.automata.logic.converters;
 
 import cz.cvut.fel.horovtom.automata.logic.Automaton;
+import cz.cvut.fel.horovtom.automata.logic.DFAAutomaton;
 import cz.cvut.fel.horovtom.automata.logic.NFAAutomaton;
 import cz.cvut.fel.horovtom.automata.samples.AutomatonSamples;
 
@@ -18,7 +19,7 @@ public class FromRegexConverter {
 
     public static Automaton getAutomaton(String r) {
         LOGGER.fine("Trying to convert regex: " + r + " to automaton!");
-        Regex regex = new Regex(r);
+        RegexTree regex = new RegexTree(r);
         char[] sigma = regex.getSigma();
         char[] letterIndices = regex.getLetterIndices();
         int[] initials = regex.getStartingIndices();
@@ -92,5 +93,11 @@ public class FromRegexConverter {
         }
 
         return new NFAAutomaton(Q.toArray(new String[]{}), newSigma, transitions, new int[]{Q.size() - 1}, accepting);
+    }
+
+    public static void main(String[] args) {
+        Automaton a = FromRegexConverter.getAutomaton("ε+(a+b)(a+b)((a+b)(a+b)(a+b))*(a+b)");
+        DFAAutomaton r = a.getReduced();
+        System.out.println(r);
     }
 }

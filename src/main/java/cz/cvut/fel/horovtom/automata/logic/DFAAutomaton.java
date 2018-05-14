@@ -22,6 +22,28 @@ public class DFAAutomaton extends Automaton {
         this(System.in);
     }
 
+    /**
+     * The same as {@link #DFAAutomaton(String[], String[], HashMap, String, String[])}, but it will parse the acceptings string by commans into state names
+     *
+     * @param Q           State names array
+     * @param sigma       Letter names array
+     * @param transitions from name to name by name
+     * @param initial     name of initial state
+     * @param acceptings  names of accepting states separated by commas
+     */
+    public DFAAutomaton(String[] Q, String[] sigma, HashMap<String, HashMap<String, String>> transitions, String initial, String acceptings) {
+        initializeQSigma(Q, sigma);
+        initializeTransitionsCompact(transitions);
+        StringTokenizer st = new StringTokenizer(acceptings, ",");
+
+        ArrayList<String> targs = new ArrayList<>();
+        while (st.hasMoreTokens()) {
+            targs.add(st.nextToken());
+        }
+
+        initializeInitAcc(new String[]{initial}, targs.toArray(new String[]{}));
+    }
+
     @Override
     public ENFAAutomaton getENFA() {
         ENFAAutomaton enfaAutomaton = new ENFAAutomaton(Arrays.copyOf(Q, Q.length), Arrays.copyOf(sigma, sigma.length), getTransitions(), new int[]{initialStates[0]}, Arrays.copyOf(acceptingStates, acceptingStates.length));

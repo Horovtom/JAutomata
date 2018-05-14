@@ -4,6 +4,8 @@ import cz.cvut.fel.horovtom.automata.logic.ENFAAutomaton;
 import cz.cvut.fel.horovtom.automata.samples.AutomatonSamples;
 import org.junit.Test;
 
+import java.util.Scanner;
+
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
@@ -24,5 +26,19 @@ public class ENFASamplesTest {
         assertFalse(a.acceptsWord("abaa"));
         assertFalse(a.acceptsWord("baba"));
         assertFalse(a.acceptsWord("abab"));
+    }
+
+    public static void main(String[] args) {
+        System.out.println("Vlož číslo a: ");
+        Scanner sc = new Scanner(System.in);
+        int a = sc.nextInt();
+        System.out.println("---");
+        int[] pole = new int[a];
+        int suma = 0;
+        for (int i = 0; i < pole.length; i++) {
+            pole[i] = i + 1;
+            suma += pole[i];
+        }
+        System.out.println("Součet prvků pole je: " + suma);
     }
 }

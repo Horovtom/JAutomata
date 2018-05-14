@@ -1,91 +1,114 @@
 package cz.cvut.fel.horovtom.automata.logic.converters;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashSet;
 import java.util.logging.Logger;
 
 public class Regex {
     private static final Logger LOGGER = Logger.getLogger(Regex.class.getName());
 
-    private final String regex;
-    private final char[] sigma;
-    private Node root;
+    private String string;
+    private String toStringCache = null;
 
-    public Regex(String s) throws IllegalArgumentException {
-        regex = normalizeString(s.trim());
-        if (regex == null) {
-            LOGGER.severe("String: " + s + " is not a valid regular expression!");
-            throw new IllegalArgumentException("String " + s + " is not valid regular expression");
+    public Regex(String s) {
+        string = normalizeString(s.trim());
+    }
+
+    public String getString() {
+        return string;
+    }
+
+    public boolean isValid() {
+        return string != null;
+    }
+
+    public void simplify() {
+        string = string.trim();
+        StringBuilder sb = new StringBuilder();
+
+        char lastSymb = 0;
+        for (int i = 0; i < string.length(); i++) {
+            if (string.charAt(i) == '·' && lastSymb == 'ε') {
+                sb.deleteCharAt(sb.length() - 1);
+            } else {
+                sb.append(string.charAt(i));
+            }
+            lastSymb = string.charAt(i);
         }
+        string = sb.toString();
 
+        //TODO: IMPLEMENT
 
-        root = Node.compile(regex);
-        HashSet<Character> tmp = new HashSet<>();
-        for (char c : root.getLetterIndices()) {
-            if (c != 'ε')
-                tmp.add(c);
+    }
+
+    public static Regex concat(Regex a, Regex b) {
+        Regex regex;
+        if (a == null) {
+            regex = new Regex(b.getString());
+        } else if (b == null) {
+            regex = new Regex(a.getString());
+        } else {
+            StringBuilder s = new StringBuilder();
+            if (a.isSingleCharacter() || a.hasTop(true)) {
+                s.append(a.getString());
+            } else {
+                s.append("(").append(a.getString()).append(")");
+            }
+            s.append("·");
+            if (b.isSingleCharacter() || b.hasTop(true)) {
+                s.append(b.getString());
+            } else {
+                s.append("(").append(b.getString()).append(")");
+            }
+            regex = new Regex(s.toString());
         }
-        sigma = new char[tmp.size()];
-        int curr = 0;
-        for (Character character : tmp) {
-            sigma[curr++] = character;
-        }
-    }
-
-    public boolean isNullable() {
-        return root.isNullable();
-    }
-
-    public char[] getLetterIndices() {
-        return root.getLetterIndices();
-    }
-
-    public int[] getStartingIndices() {
-        return root.getStartingIndices();
-    }
-
-    public int[] getEndingIndices() {
-        return root.getEndingIndices();
-    }
-
-    public ArrayList<int[]> getFollowers() {
-        return root.getFollowers();
-    }
-
-    public char[] getSigma() {
-        return Arrays.copyOf(sigma, sigma.length);
-    }
-
-    public Node getTree() {
-        return root.copy();
-    }
-
-
-    public String getRegex() {
+        regex.simplify();
         return regex;
     }
 
-    /**
-     * This method will check string for uneven bracketing.
-     *
-     * @return whether the bracketing is right
-     */
-    @Deprecated
-    private static boolean checkBrackets(String s) {
-        int currLevel = 0;
-        char ch;
-        for (int i = 0; i < s.length(); i++) {
-            ch = s.charAt(i);
-            if (ch == '(') {
-                currLevel++;
-            } else if (ch == ')') {
-                if (currLevel <= 0) return false;
-                currLevel--;
+    private boolean hasTop(boolean concat) {
+        int brackets = 0;
+        int length = string.length();
+        int curr = -1;
+        while (-curr <= length) {
+            if (string.charAt(length + curr) == ')') {
+                brackets++;
+                curr--;
+            } else if (string.charAt(length + curr) == '(') {
+                brackets--;
+                curr--;
+            } else if (brackets == 0 && string.charAt(length + curr) == (concat ? '·' : '+')) {
+                return true;
+            } else if (brackets == 0 && string.charAt(length + curr) == (concat ? '+' : '·')) {
+                return false;
+            } else {
+                curr--;
             }
         }
+        return false;
+    }
 
-        return currLevel == 0;
+    public static Regex or(Regex a, Regex b) {
+        Regex regex;
+        if (a == null) {
+            regex = new Regex(b.getString());
+        } else if (b == null) {
+            regex = new Regex(a.getString());
+        } else {
+            StringBuilder s = new StringBuilder();
+            if (a.isSingleCharacter() || a.hasTop(false)) {
+                s.append(a.getString());
+            } else {
+                s.append("(").append(a.getString()).append(")");
+            }
+            s.append("+");
+            if (b.isSingleCharacter() || b.hasTop(false)) {
+                s.append(b.getString());
+            } else {
+                s.append("(").append(b.getString()).append(")");
+            }
+            regex = new Regex(s.toString());
+        }
+        regex.simplify();
+        return regex;
     }
 
     /**
@@ -136,11 +159,35 @@ public class Regex {
         return sb.toString();
     }
 
-    //FIXME: TESTER
-    public static void main(String[] args) {
-        String s = "b·a(a+b*a*+aab)*a(a)";
-        Regex regex = new Regex(s);
-        Node tree = regex.getTree();
-        System.out.println(tree);
+    public static Regex kleene(Regex regex) {
+        if (regex == null) {
+            return new Regex("ε");
+        }
+        if (regex.isSingleCharacter()) {
+            return new Regex(regex.getString() + "*");
+        }
+        Regex r = new Regex("(" + regex.getString() + ")*");
+        r.simplify();
+        return r;
+    }
+
+    public boolean isSingleCharacter() {
+        return string.length() == 1 || (string.length() == 2 && string.charAt(1) == '*');
+    }
+
+    @Override
+    public String toString() {
+        if (toStringCache == null) {
+            buildToStringCache();
+        }
+        return toStringCache;
+    }
+
+    private void buildToStringCache() {
+        StringBuilder sb = new StringBuilder();
+        for (int i = 0; i < string.length(); i++) {
+            if (string.charAt(i) != '·') sb.append(string.charAt(i));
+        }
+        toStringCache = sb.toString();
     }
 }
