@@ -79,7 +79,6 @@ public class FunctionalCreator {
      * @param mod   The input word has to be divisible by length, in order to be accepted by automaton M
      */
     public static Automaton getLengthDivisibilityAutomaton(char[] sigma, int mod) {
-        //FIXME: Maybe rewrite without regex in order to generify even to String type letters
         StringBuilder sb = new StringBuilder("(");
         StringBuilder unit = new StringBuilder();
         unit.append(sigma[0]);

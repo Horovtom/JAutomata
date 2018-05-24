@@ -1,5 +1,6 @@
 package cz.cvut.fel.horovtom.automata.logic;
 
+import cz.cvut.fel.horovtom.automata.logic.converters.ToRegexConverter;
 import cz.cvut.fel.horovtom.automata.tools.Pair;
 import cz.cvut.fel.horovtom.automata.tools.Utilities;
 
@@ -443,8 +444,7 @@ public abstract class Automaton {
     }
 
     public String getRegex() {
-        //TODO: IMPLEMENT
-        return null;
+        return ToRegexConverter.getRegex(this);
     }
 
     /**
@@ -990,7 +990,6 @@ public abstract class Automaton {
      * This function will return automaton that accepts L*
      */
     public Automaton getKleene() {
-        //FIXME: This might cause some performance issues, consider caching the result
         UnaryOperators operators = new UnaryOperators(this);
         return operators.getKleene();
     }

@@ -3,8 +3,6 @@ package cz.cvut.fel.horovtom.automata.logic;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-//FIXME: TEST THIS
-
 /**
  * This class is used to convert Automaton to wanted string format.
  */
