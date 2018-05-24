@@ -7,19 +7,32 @@ public class Regex {
 
     private String string;
     private String toStringCache = null;
+    private RegexTree tree;
 
     public Regex(String s) {
         string = normalizeString(s.trim());
+        tree = new RegexTree(string);
     }
 
+    /**
+     * This will return this regular expression.
+     * It will return null if it was not a valid regular expression.
+     */
     public String getString() {
         return string;
     }
 
+    /**
+     * @return Whether this regular expression was valid.
+     */
     public boolean isValid() {
         return string != null;
     }
 
+    /**
+     * This will attempt to simplify this regular expression to a shorter (simpler) one,
+     * that describes the same language as the original one.
+     */
     public void simplify() {
         string = string.trim();
         StringBuilder sb = new StringBuilder();
@@ -39,6 +52,10 @@ public class Regex {
 
     }
 
+    /**
+     * Performs concatenation of regular expressions.
+     * Returns (a)·(b)
+     */
     public static Regex concat(Regex a, Regex b) {
         Regex regex;
         if (a == null) {
@@ -47,13 +64,13 @@ public class Regex {
             regex = new Regex(a.getString());
         } else {
             StringBuilder s = new StringBuilder();
-            if (a.isSingleCharacter() || a.hasTop(true)) {
+            if (a.isSingleCharacter() || a.hasTopOperator(true)) {
                 s.append(a.getString());
             } else {
                 s.append("(").append(a.getString()).append(")");
             }
             s.append("·");
-            if (b.isSingleCharacter() || b.hasTop(true)) {
+            if (b.isSingleCharacter() || b.hasTopOperator(true)) {
                 s.append(b.getString());
             } else {
                 s.append("(").append(b.getString()).append(")");
@@ -64,7 +81,14 @@ public class Regex {
         return regex;
     }
 
-    private boolean hasTop(boolean concat) {
+    /**
+     * This function will search the regex for it's most top operator.
+     * If the concat parameter is true, it will return true if the top operator is concatenation.
+     * If the concat parameter is false, it will return true if the top operator is or.
+     *
+     * @param concat Whether we are searching for concatenation operator or 'or' operator.
+     */
+    private boolean hasTopOperator(boolean concat) {
         int brackets = 0;
         int length = string.length();
         int curr = -1;
@@ -94,13 +118,13 @@ public class Regex {
             regex = new Regex(a.getString());
         } else {
             StringBuilder s = new StringBuilder();
-            if (a.isSingleCharacter() || a.hasTop(false)) {
+            if (a.isSingleCharacter() || a.hasTopOperator(false)) {
                 s.append(a.getString());
             } else {
                 s.append("(").append(a.getString()).append(")");
             }
             s.append("+");
-            if (b.isSingleCharacter() || b.hasTop(false)) {
+            if (b.isSingleCharacter() || b.hasTopOperator(false)) {
                 s.append(b.getString());
             } else {
                 s.append("(").append(b.getString()).append(")");
