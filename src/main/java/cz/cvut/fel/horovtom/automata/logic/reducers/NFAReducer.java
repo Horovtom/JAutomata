@@ -1,6 +1,9 @@
 package cz.cvut.fel.horovtom.automata.logic.reducers;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Comparator;
+import java.util.HashMap;
 
 public class NFAReducer {
     private class Save {

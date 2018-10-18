@@ -1,14 +1,14 @@
 package cz.cvut.fel.horovtom.logic.automata.enfa;
 
-import cz.cvut.fel.horovtom.automata.logic.ENFAAutomaton;
 import cz.cvut.fel.horovtom.automata.logic.Automaton;
+import cz.cvut.fel.horovtom.automata.logic.ENFAAutomaton;
 import org.junit.Test;
 
 import java.io.File;
 import java.util.Objects;
 
-import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 
 public class ENFAReduceTest {

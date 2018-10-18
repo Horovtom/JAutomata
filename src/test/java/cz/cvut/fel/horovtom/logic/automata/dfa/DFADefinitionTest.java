@@ -1,7 +1,7 @@
 package cz.cvut.fel.horovtom.logic.automata.dfa;
 
-import cz.cvut.fel.horovtom.automata.logic.DFAAutomaton;
 import cz.cvut.fel.horovtom.automata.logic.Automaton;
+import cz.cvut.fel.horovtom.automata.logic.DFAAutomaton;
 import cz.cvut.fel.horovtom.automata.samples.AutomatonSamples;
 import cz.cvut.fel.horovtom.automata.tools.Utilities;
 import org.junit.Test;
@@ -170,7 +170,7 @@ public class DFADefinitionTest {
             assertTrue(dfa.acceptsWord(new String[]{
                     "bellethorne", "callea", "callea", "callea", "callea", "callea"
             }));
-        } catch (IOException e) {
+        } catch (IOException | NullPointerException e) {
             e.printStackTrace();
         }
     }

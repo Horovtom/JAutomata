@@ -1,9 +1,9 @@
 package cz.cvut.fel.horovtom.logic.automata.automaton;
 
+import cz.cvut.fel.horovtom.automata.logic.Automaton;
 import cz.cvut.fel.horovtom.automata.logic.DFAAutomaton;
 import cz.cvut.fel.horovtom.automata.logic.ENFAAutomaton;
 import cz.cvut.fel.horovtom.automata.logic.NFAAutomaton;
-import cz.cvut.fel.horovtom.automata.logic.Automaton;
 import cz.cvut.fel.horovtom.automata.samples.AutomatonSamples;
 import org.junit.Test;
 
@@ -11,9 +11,7 @@ import java.io.*;
 import java.util.HashMap;
 import java.util.Objects;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 public class CSVTest {
     @Test

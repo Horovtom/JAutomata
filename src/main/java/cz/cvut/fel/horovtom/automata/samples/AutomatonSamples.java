@@ -562,8 +562,6 @@ public class AutomatonSamples {
 
         /**
          * This will return an empty automaton
-         *
-         * @return
          */
         public static Automaton emptyAutomaton() {
             return Automaton.importFromCSV(
@@ -575,14 +573,14 @@ public class AutomatonSamples {
          * Image: samples/images/containsAAA.png
          * <p>
          * This automaton accepts language: L = {x ∈ {a,b}* | x = WaaaY, W,Y ∈ {a,b}*}<hr>
-         *
-         *     <table>
-         *         <tr><th colspan="2"></th><th>a</th><th>b</th></tr>
-         * 		<tr><td>&rarr;</td><td>0</td><td>1</td><td>0</td></tr>
-         * 		<tr><td></td><td>1</td><td>2</td><td>0</td></tr>
-         * 		<tr><td></td><td>2</td><td>3</td><td>0</td></tr>
-         * 		<tr><td>&larr;</td><td>3</td><td>3</td><td>3</td></tr>
-         * 	</table>
+         * <p>
+         * <table>
+         * <tr><th colspan="2"></th><th>a</th><th>b</th></tr>
+         * <tr><td>&rarr;</td><td>0</td><td>1</td><td>0</td></tr>
+         * <tr><td></td><td>1</td><td>2</td><td>0</td></tr>
+         * <tr><td></td><td>2</td><td>3</td><td>0</td></tr>
+         * <tr><td>&larr;</td><td>3</td><td>3</td><td>3</td></tr>
+         * </table>
          * </div><hr>
          * <pre>
          * +---+---+---+---+
@@ -954,17 +952,17 @@ public class AutomatonSamples {
          * Image: samples/images/regex3.png
          * <p>
          * null<hr>
-         *
-         *     <table>
-         *         <tr><th colspan="2"></th><th>a</th><th>b</th><th>c</th></tr>
-         * 		<tr><td></td><td>a0</td><td>a0</td><td>b1</td><td>c2</td></tr>
-         * 		<tr><td></td><td>b1</td><td>a0</td><td>b1</td><td>c2</td></tr>
-         * 		<tr><td></td><td>c2</td><td>a3</td><td>b4</td><td>c5</td></tr>
-         * 		<tr><td></td><td>a3</td><td>a3</td><td>b4</td><td>c5</td></tr>
-         * 		<tr><td></td><td>b4</td><td>a3</td><td>b4</td><td>c5</td></tr>
-         * 		<tr><td>&larr;</td><td>c5</td><td>&empty;</td><td>&empty;</td><td>&empty;</td></tr>
-         * 		<tr><td>&rarr;</td><td>I</td><td>a0</td><td>b1</td><td>c2</td></tr>
-         * 	</table>
+         * <p>
+         * <table>
+         * <tr><th colspan="2"></th><th>a</th><th>b</th><th>c</th></tr>
+         * <tr><td></td><td>a0</td><td>a0</td><td>b1</td><td>c2</td></tr>
+         * <tr><td></td><td>b1</td><td>a0</td><td>b1</td><td>c2</td></tr>
+         * <tr><td></td><td>c2</td><td>a3</td><td>b4</td><td>c5</td></tr>
+         * <tr><td></td><td>a3</td><td>a3</td><td>b4</td><td>c5</td></tr>
+         * <tr><td></td><td>b4</td><td>a3</td><td>b4</td><td>c5</td></tr>
+         * <tr><td>&larr;</td><td>c5</td><td>&empty;</td><td>&empty;</td><td>&empty;</td></tr>
+         * <tr><td>&rarr;</td><td>I</td><td>a0</td><td>b1</td><td>c2</td></tr>
+         * </table>
          * </div><hr>
          * <pre>
          * +---+----+----+----+----+
@@ -1260,14 +1258,14 @@ public class AutomatonSamples {
          * Image: samples/images/factors_aba.png
          * <p>
          * This automaton accepts language: L = {w is a factor of word 'aba'}<hr>
-         *
-         *     <table>
-         *         <tr><th colspan="2"></th><th>eps</th><th>a</th><th>b</th></tr>
-         * 		<tr><td>&rarr;</td><td>0</td><td>1,2</td><td>1</td><td>&empty;</td></tr>
-         * 		<tr><td>&larr;</td><td>1</td><td>&empty;</td><td>&empty;</td><td>2</td></tr>
-         * 		<tr><td>&larr;</td><td>2</td><td>&empty;</td><td>3</td><td>&empty;</td></tr>
-         * 		<tr><td>&larr;</td><td>3</td><td>&empty;</td><td>&empty;</td><td>&empty;</td></tr>
-         * 	</table>
+         * <p>
+         * <table>
+         * <tr><th colspan="2"></th><th>eps</th><th>a</th><th>b</th></tr>
+         * <tr><td>&rarr;</td><td>0</td><td>1,2</td><td>1</td><td>&empty;</td></tr>
+         * <tr><td>&larr;</td><td>1</td><td>&empty;</td><td>&empty;</td><td>2</td></tr>
+         * <tr><td>&larr;</td><td>2</td><td>&empty;</td><td>3</td><td>&empty;</td></tr>
+         * <tr><td>&larr;</td><td>3</td><td>&empty;</td><td>&empty;</td><td>&empty;</td></tr>
+         * </table>
          * </div><hr>
          * <pre>
          * +---+---+-----+---+---+
@@ -1313,6 +1311,8 @@ public class AutomatonSamples {
         System.out.println("     */");
     }
 
+
+    // This is here only for generating tikz code for image generation of new samples
     public static void main(String[] args) throws InvocationTargetException, IllegalAccessException {
         Method m = null;
         Method[] declaredMethods = DFASamples.class.getDeclaredMethods();

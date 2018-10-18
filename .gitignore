@@ -2,7 +2,7 @@
 .idea/
 *.iml
 target/
-*.log
+*.log*
 *.log.1
 *.csv#
 
