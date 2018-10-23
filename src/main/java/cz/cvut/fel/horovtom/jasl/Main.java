@@ -1,7 +1,8 @@
 package cz.cvut.fel.horovtom.jasl;
 
 
-import java.util.logging.Level;
+import cz.cvut.fel.horovtom.jasl.console.ConsoleInterpreter;
+
 import java.util.logging.Logger;
 
 public class Main {

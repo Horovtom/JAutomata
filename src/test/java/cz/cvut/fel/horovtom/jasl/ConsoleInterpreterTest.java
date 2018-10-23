@@ -1,5 +1,6 @@
 package cz.cvut.fel.horovtom.jasl;
 
+import cz.cvut.fel.horovtom.jasl.console.ConsoleInterpreter;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
