@@ -1,9 +1,15 @@
 package cz.cvut.fel.horovtom.jasl;
 
 
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 public class Main {
+    private static Logger LOGGER = Logger.getLogger(Main.class.getName());
     public static void main(String[] args) {
         System.out.println("Welcome to Java Automata Scripting Language (JASL) interpreter");
+
+
         if (args.length > 0) {
             if (args[0].equals("-h")) displayHelp();
             if (args[0].equals("-f")) {
