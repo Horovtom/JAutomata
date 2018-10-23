@@ -62,42 +62,40 @@
             <plugin>
                 <groupId>com.akathist.maven.plugins.launch4j</groupId>
                 <artifactId>launch4j-maven-plugin</artifactId>
-                <version>1.5.2</version>
+                <version>1.7.10</version>
                 <executions>
                     <execution>
-                        <id>l4j-gui</id>
+                        <id>l4j-clui-gui</id>
                         <phase>package</phase>
                         <goals>
                             <goal>launch4j</goal>
                         </goals>
                         <configuration>
-                            <headerType>gui</headerType>
-                            <outfile>target/Project.exe</outfile>
-                            <jar>target/${project.artifactId}-${project.version}.jar</jar>
-                            <!-- if <dontWrapJar>true</dontWrapJar> change to this conf <jar>${project.artifactId}-${project.version}.jar</jar> -->
-                            <dontWrapJar>false</dontWrapJar>
-                            <errTitle>Error in launch4j plugin</errTitle>
+                            <headerType>console</headerType>
+                            <jar>${project.build.directory}/${artifactId}-${version}-shaded.jar</jar>
+                            <stayAlive>true</stayAlive>
+                            <outfile>${project.build.directory}/jasl.exe</outfile>
+                            <downloadUrl>http://java.com/download</downloadUrl>
                             <classPath>
-                                <mainClass>path.Main</mainClass>
+                                <mainClass>cz.cvut.fel.horovtom.jasl.Main</mainClass>
+                                <preCp>${project.artifactId}-${project.version}.jar</preCp>
                             </classPath>
-                            <icon>Project.ico</icon>
+                            <icon>src\main\resources\icon\application.ico</icon>
                             <jre>
-                                <minVersion>1.5.0</minVersion>
-                                <maxVersion>1.6.0</maxVersion>
-                                <initialHeapSize>512</initialHeapSize>
-                                <maxHeapSize>1024</maxHeapSize>
+                                <minVersion>1.8.0</minVersion>
+                                <jdkPreference>preferJre</jdkPreference>
                             </jre>
                             <versionInfo>
                                 <fileVersion>1.0.0.0</fileVersion>
-                                <txtFileVersion>1.0.0.0</txtFileVersion>
-                                <fileDescription>des</fileDescription>
-                                <copyright>Copyright (c) 2014</copyright>
-                                <companyName>comp</companyName>
-                                <productVersion>3.0.0.0</productVersion>
-                                <txtProductVersion>${project.version}</txtProductVersion>
-                                <productName>Project</productName>
-                                <internalName>Project</internalName>
-                                <originalFilename>Project.exe</originalFilename>
+                                <txtFileVersion>${project.version}</txtFileVersion>
+                                <fileDescription>${project.name}</fileDescription>
+                                <copyright>2018 horovtom</copyright>
+                                <productVersion>1.0.0.0</productVersion>
+                                <txtProductVersion>1.0.0.0</txtProductVersion>
+                                <productName>${project.name}</productName>
+                                <companyName>FEL CVUT</companyName>
+                                <internalName>OI</internalName>
+                                <originalFilename>jasl.exe</originalFilename>
                             </versionInfo>
                         </configuration>
                     </execution>
@@ -105,6 +103,22 @@
             </plugin>
         </plugins>
     </build>
+
+    <distributionManagement>
+        <!-- use the following if you're not using a snapshot version. -->
+        <repository>
+            <id>localSnap</id>
+            <name>RepositoryProxyRel</name>
+            <url>http://127.0.0.1:8080/nexus/content/repositories/releases/</url>
+        </repository>
+        <!-- use the following if you ARE using a snapshot version. -->
+        <snapshotRepository>
+            <id>MylocalSnap</id>
+            <name>RepositoryProxySnap</name>
+            <url>http://127.0.0.1:8080/nexus/content/repositories/snapshots/</url>
+        </snapshotRepository>
+    </distributionManagement>
+
     <dependencies>
         <dependency>
             <groupId>junit</groupId>

@@ -7,11 +7,9 @@ public class Regex {
 
     private String string;
     private String toStringCache = null;
-    private RegexTree tree;
 
     public Regex(String s) {
         string = normalizeString(s.trim());
-        tree = new RegexTree(string);
     }
 
     /**
@@ -48,8 +46,7 @@ public class Regex {
         }
         string = sb.toString();
 
-        //TODO: IMPLEMENT
-
+        //TODO: THIS COULD BE IMPLEMENTED IN THE FUTURE
     }
 
     /**

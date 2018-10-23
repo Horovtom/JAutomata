@@ -8,6 +8,7 @@ import cz.cvut.fel.horovtom.automata.samples.AutomatonSamples;
 import org.junit.Test;
 
 import java.io.*;
+import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Objects;
 
@@ -185,7 +186,7 @@ public class CSVTest {
         try {
             File file = File.createTempFile("enfa1", "csv");
             automaton.exportToCSV(file);
-            BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream(file)));
+            BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream(file), StandardCharsets.UTF_8));
             assertEquals("CSV was incorrect", ",,\"ε\",\"a\",\"b\"", br.readLine());
             assertEquals("CSV was incorrect", ">,\"0\",\"1\",\"2\",", br.readLine());
             assertEquals("CSV was incorrect", ",\"1\",,,\"3\"", br.readLine());

@@ -5,6 +5,7 @@ import cz.cvut.fel.horovtom.automata.tools.Pair;
 import cz.cvut.fel.horovtom.automata.tools.Utilities;
 
 import java.io.*;
+import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.logging.Logger;
 
@@ -682,7 +683,7 @@ public abstract class Automaton {
      */
     public void exportToCSV(File file, char separator) {
         try {
-            Writer writer = new OutputStreamWriter(new FileOutputStream(file), "UTF-8");
+            Writer writer = new OutputStreamWriter(new FileOutputStream(file), StandardCharsets.UTF_8);
             StringBuilder sb = new StringBuilder();
             if (description != null && description.length() != 0) {
                 sb.append("\"").append(this.description).append("\"");
