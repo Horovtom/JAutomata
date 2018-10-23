@@ -18,6 +18,7 @@ public class Main {
         }
 
         logger.addHandler(fh);
+
         ConsoleMenu cm = new ConsoleMenu();
         cm.displayMenu();
     }

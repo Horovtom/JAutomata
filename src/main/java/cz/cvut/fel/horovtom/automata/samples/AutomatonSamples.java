@@ -565,7 +565,8 @@ public class AutomatonSamples {
          */
         public static Automaton emptyAutomaton() {
             return Automaton.importFromCSV(
-                    new File(Objects.requireNonNull(AutomatonSamples.class.getClassLoader().getResource("samples/csv/empty.csv")).getFile())
+                    new File(Objects.requireNonNull(
+                            AutomatonSamples.class.getClassLoader().getResource("samples/csv/empty.csv")).getFile())
             ).getDFA();
         }
 
@@ -598,7 +599,8 @@ public class AutomatonSamples {
          */
         public static DFAAutomaton containsAAA() {
             return Automaton.importFromCSV(
-                    new File(Objects.requireNonNull(AutomatonSamples.class.getClassLoader().getResource("samples/csv/containsAAA.csv")).getFile())
+                    new File(Objects.requireNonNull(
+                            AutomatonSamples.class.getClassLoader().getResource("samples/csv/containsAAA.csv")).getFile())
             ).getDFA();
         }
     }
@@ -642,7 +644,8 @@ public class AutomatonSamples {
          */
         public static NFAAutomaton troy() {
             return Automaton.importFromCSV(
-                    new File(Objects.requireNonNull(AutomatonSamples.class.getClassLoader().getResource("samples/csv/nfa_troy.csv")).getFile())).getNFA();
+                    new File(Objects.requireNonNull(
+                            AutomatonSamples.class.getClassLoader().getResource("samples/csv/nfa_troy.csv")).getFile())).getNFA();
         }
 
         /**
