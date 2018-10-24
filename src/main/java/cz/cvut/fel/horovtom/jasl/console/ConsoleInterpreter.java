@@ -296,13 +296,13 @@ public class ConsoleInterpreter {
 
         public InvalidSyntaxException(String line) {
             super();
-            LOGGER.info("Syntax error when parsing line: " + line);
+            LOGGER.fine("Syntax error when parsing line: " + line);
             probablyIs = false;
         }
 
         public InvalidSyntaxException(String message, String line) {
             super(message);
-            LOGGER.info("Syntax error when parsing line: " + line);
+            LOGGER.fine("Syntax error when parsing line: " + line);
             probablyIs = false;
         }
 
@@ -311,8 +311,11 @@ public class ConsoleInterpreter {
          */
         public InvalidSyntaxException(String message, String line, boolean probablyIs) {
             super(message);
-            LOGGER.info("Syntax error when parsing line: " + line + ", but it " + (probablyIs ? "found" : "not found") + " the expression");
+            LOGGER.fine("Syntax error when parsing line: " + line + ", but it " + (probablyIs ? "found" : "not found") + " the expression");
             InvalidSyntaxException.probablyIs = probablyIs;
+            if (probablyIs) {
+                LOGGER.info("Syntax error when parsing line: " + line + ", but it found the expression.");
+            }
         }
     }
 }
