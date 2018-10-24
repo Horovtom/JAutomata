@@ -1,7 +1,13 @@
 package cz.cvut.fel.horovtom.jasl.console;
 
+import cz.cvut.fel.horovtom.automata.logic.Automaton;
+import cz.cvut.fel.horovtom.automata.logic.DFAAutomaton;
+import cz.cvut.fel.horovtom.automata.logic.ENFAAutomaton;
+import cz.cvut.fel.horovtom.automata.logic.NFAAutomaton;
 import org.fusesource.jansi.AnsiConsole;
+import org.omg.CORBA.DynAnyPackage.Invalid;
 
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Scanner;
@@ -72,14 +78,13 @@ public class ConsoleInterpreter {
      * @param line Line to be parsed
      * @return If true, input was indeed an assignment
      */
-    private boolean parseExpression(String line) {
-        System.out.println("Parsing as expression: " + line);
-
+    private boolean parseExpression(String line) throws InvalidSyntaxException {
         try {
             String result = getExpressionResult(line).toString();
             System.out.println(result);
             return true;
         } catch (NullPointerException | InvalidSyntaxException e) {
+            if (InvalidSyntaxException.probablyIs) throw e;
             return false;
         }
     }
@@ -161,6 +166,23 @@ public class ConsoleInterpreter {
      * @return Object containing the result of the functions.
      */
     private Object callVarFunction(Object varname, String functionName, Object argument) throws InvalidSyntaxException {
+        if (varname instanceof Automaton) {
+            Automaton a = (Automaton) varname;
+            // FIXME: Maybe use reflection here?
+
+            if (functionName.equals("reduce")) {
+                return a.getReduced();
+            } else if (functionName.equals("accepts")) {
+                if (argument instanceof String) {
+                    String arg = (String) argument;
+                    return a.acceptsWord(arg);
+                } else if (argument instanceof ArrayList) {
+                    ArrayList<String> arg = (ArrayList<String>) argument;
+                    return a.acceptsWord(arg);
+                }
+            }
+        }
+
         //TODO: IMPLEMENT
         return null;
     }
@@ -264,12 +286,12 @@ public class ConsoleInterpreter {
         if (line.indexOf('=') == -1) return false;
         String[] tokens = getNextToken(line, '=');
 
-        String toWhat = tokens[0];
+        String toWhat = tokens[0].trim();
         if (toWhat.length() == 0) throw new InvalidSyntaxException("You have to assign to a variable", line);
         if (toWhat.charAt(0) != '$') throw new InvalidSyntaxException("Variables must start with '$'", line);
 
-        Object result = getExpressionResult(tokens[1]);
-        variables.put(tokens[0], result);
+        Object result = getExpressionResult(tokens[1].trim());
+        variables.put(toWhat, result);
 
         return true;
     }
