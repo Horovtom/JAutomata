@@ -2,12 +2,8 @@ package cz.cvut.fel.horovtom.jasl.console;
 
 import cz.cvut.fel.horovtom.automata.logic.Automaton;
 import cz.cvut.fel.horovtom.automata.logic.DFAAutomaton;
-import cz.cvut.fel.horovtom.automata.logic.ENFAAutomaton;
-import cz.cvut.fel.horovtom.automata.logic.NFAAutomaton;
 import org.fusesource.jansi.AnsiConsole;
-import org.omg.CORBA.DynAnyPackage.Invalid;
 
-import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Scanner;
@@ -117,10 +113,100 @@ public class ConsoleInterpreter {
             if (InvalidSyntaxException.probablyIs) throw e;
         }
 
-        //TODO: CHECK FOR COMMANDS e.g.: DFA(), NFA() e.t.c...
+        try {
+            return parseCommand(expression);
+        } catch (InvalidSyntaxException e) {
+            if (InvalidSyntaxException.probablyIs) throw e;
+        }
 
-        //TODO: IMPLEMENT
         return expression;
+    }
+
+    /**
+     * This will try to parse expression as a command (meaning constructor) of object. It will throw {@link InvalidSyntaxException} if it is not valid
+     * e.g.: DFA($table) e.t.c.
+     *
+     * @param expression Expression to be parsed
+     * @return A resulting object of the command call
+     * @throws InvalidSyntaxException if it is not a command
+     */
+    private Object parseCommand(String expression) throws InvalidSyntaxException {
+        int[] insideIndices = extractFromBrackets(expression);
+        Object eval = getExpressionResult(expression.substring(insideIndices[0], insideIndices[1]));
+        Object res;
+        if (expression.startsWith("DFA(")) {
+            //DFA constructor
+            res = getDFA(eval);
+        } else if (expression.startsWith("NFA(")) {
+            res = getNFA(eval);
+        } else if (expression.startsWith("ENFA(")) {
+            res = getENFA(eval);
+        } else {
+            // TODO: IDK WHAT WILL GO IN HERE YET...
+            throw new InvalidSyntaxException("Unknown parse command", expression);
+        }
+
+        if (insideIndices[1] != expression.length() - 2) {
+            //There is something that follows this declaration...
+            //TODO: IMPLEMENT THIS
+            throw new InvalidSyntaxException("Not implemented yet! You have to assign first before calling on it!", expression);
+        }
+        return null;
+    }
+
+    private Object getDFA(Object eval) throws InvalidSyntaxException {
+        //TODO: IMPLEMENT THIS
+        if (eval instanceof ArrayList) {
+            // We need to somehow extract info about Sigma, Q and transitions from the table.
+            return getDFAFromTable((ArrayList<String>) eval);
+        }
+        return null;
+    }
+
+    private Object getDFAFromTable(ArrayList<String> table) {
+        return null;
+    }
+
+    private Object getNFA(Object eval) {
+        //TODO: IMPLEMENT THIS
+
+        return null;
+    }
+
+    private Object getENFA(Object eval) {
+        //TODO: IMPLEMENT THIS
+
+        return null;
+    }
+
+    /**
+     * This will extract string from bracket pair. It will return the extracted string indices.
+     *
+     * @return integer array with two elements: StartIndex, EndIndex
+     * @throws InvalidSyntaxException If it could not find closing bracket or any brackets at all
+     */
+    private int[] extractFromBrackets(String toExtract) throws InvalidSyntaxException {
+        int length = toExtract.length();
+        int depth = 0;
+        int startIndex = 0;
+        char[] arr = toExtract.toCharArray();
+        for (int i = 0; i < length; i++) {
+            if (arr[i] == '(') {
+                if (depth == 0) {
+                    startIndex = i + 1;
+                }
+                depth++;
+            } else if (arr[i] == ')') {
+                depth--;
+            }
+            if (depth == 0) {
+                return new int[]{startIndex, i + 1};
+            }
+        }
+
+        if (depth != 0)
+            throw new InvalidSyntaxException("Could not find closing bracket...", toExtract);
+        throw new InvalidSyntaxException("Could not find any brackets...", toExtract);
     }
 
     /**
