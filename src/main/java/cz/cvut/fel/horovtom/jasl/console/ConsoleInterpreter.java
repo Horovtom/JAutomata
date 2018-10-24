@@ -96,6 +96,8 @@ public class ConsoleInterpreter {
             return variables.get(expression);
         }
 
+        if (expression.equals("")) return "";
+
         // Check, whether it is a call to variable function
         try {
             return parseVarFunction(expression);
@@ -176,9 +178,23 @@ public class ConsoleInterpreter {
             throw new InvalidSyntaxException("List cannot start with " + expression.charAt(0), expression);
         ArrayList<String> elements = new ArrayList<>();
 
-        String[] token = new String[]{"", expression};
+        String[] token = new String[]{"", expression.substring(1, expression.length())};
         while (true) {
+            token[1] = token[1].trim();
+            if (token[1].startsWith("{")) {
+                // It is a nested list...
+                token = getNextTokenList(token[1]);
+                elements.add(token[0]);
+                if (token[1].length() == 0)
+                    throw new InvalidSyntaxException("Did not find closing bracket of list", expression);
+
+                if (token[1].equals("}")) break;
+
+                continue;
+            }
             token = getNextToken(token[1], ',');
+
+
             if (token[1].equals("")) {
                 if (!token[0].endsWith("}"))
                     throw new InvalidSyntaxException("Could not find end of list", expression, true);
@@ -196,6 +212,46 @@ public class ConsoleInterpreter {
         }
 
         return objectsList;
+    }
+
+    /**
+     * This function will extract the next list token from input. It will return array of strings with two elements: list, rest
+     * It will throw {@link InvalidSyntaxException} if it didn't find the end of the list.
+     *
+     * @param input String to be tokenized
+     * @return Array with two elements: [token, rest]
+     * @throws InvalidSyntaxException If there was no closing bracket to the list.
+     */
+    private String[] getNextTokenList(String input) throws InvalidSyntaxException {
+        if (input.charAt(0) != '{') throw new InvalidSyntaxException("Next token is not a list", input);
+        int index = input.indexOf('}');
+        if (index == -1) throw new InvalidSyntaxException("Could not find end of nested list", input);
+
+        char[] inputArr = input.toCharArray();
+        int level = 0;
+        int length = input.length();
+        for (int i = 0; i < length; i++) {
+            if (inputArr[i] == '{') {
+                level++;
+            } else if (inputArr[i] == '}') {
+                level--;
+            }
+
+            if (level == 0) {
+                if (i == length - 1) {
+                    return new String[]{input, ""};
+                }
+                if (inputArr[i + 1] == '}') {
+                    return new String[]{new String(inputArr, 0, i + 1), new String(inputArr, i, length - i - 1)};
+                } else if (inputArr[i + 1] == ',') {
+                    return new String[]{new String(inputArr, 0, i + 1), new String(inputArr, i + 2, length - i - 2)};
+                } else {
+                    throw new InvalidSyntaxException("Unexpected character at the end of list element", input);
+                }
+            }
+        }
+
+        throw new InvalidSyntaxException("Could not find closing bracket of list element", input);
     }
 
     /**
@@ -235,7 +291,7 @@ public class ConsoleInterpreter {
         return new String[]{input.substring(0, breakingPoint), input.substring(breakingPoint + 1, inputLength)};
     }
 
-    static class InvalidSyntaxException extends Exception {
+    public static class InvalidSyntaxException extends Exception {
         static boolean probablyIs = false;
 
         public InvalidSyntaxException(String line) {
