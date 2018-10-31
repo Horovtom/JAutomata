@@ -5,6 +5,7 @@ import cz.cvut.fel.horovtom.automata.logic.Automaton;
 import cz.cvut.fel.horovtom.automata.logic.DFAAutomaton;
 import cz.cvut.fel.horovtom.automata.logic.ENFAAutomaton;
 import cz.cvut.fel.horovtom.automata.logic.NFAAutomaton;
+import cz.cvut.fel.horovtom.automata.logic.converters.FromRegexConverter;
 
 import java.io.*;
 import java.util.ArrayList;
@@ -114,21 +115,28 @@ public class Interpreter {
         }
         Object res;
         if (expression.startsWith("DFA(")) {
-            //DFA constructor
+            // DFA C-TOR
             res = getDFA(eval);
         } else if (expression.startsWith("NFA(")) {
+            // NFA C-TOR
             res = getNFA(eval);
         } else if (expression.startsWith("ENFA(")) {
+            // ENFA C-TOR
             res = getENFA(eval);
         } else if (expression.startsWith("texImage(")) {
+            // TEX IMAGE GENERATOR
             //TODO: IMPLEMENT CONVERSION TO TEX IMAGE
             LOGGER.severe("NOT IMPLEMENTED function texImage YET!");
             return null;
         } else if (expression.startsWith("texTable(")) {
-            //TODO: IMPLEMENT CONVERSION TO TEX TABLE
-            LOGGER.severe("Not implemented function texTable Yet!");
-            return null;
+            // TEX TABLE GENERATOR
+            if (eval.length != 1) {
+                throw new InvalidSyntaxException("texTable function takes 2 arguments.", expression, true);
+            }
+            Automaton a = (Automaton) eval[0];
+            return a.exportToString().getTEX();
         } else if (expression.startsWith("fromCSV(")) {
+            // IMPORT AUTOMATON FROM CSV
             if (eval.length != 1)
                 throw new InvalidSyntaxException("fromCSV function takes 1 arguments!", expression, true);
 
@@ -140,17 +148,19 @@ public class Interpreter {
                 throw new InvalidSyntaxException("Could not find file: " + path, expression, true);
             }
         } else if (expression.startsWith("pngImage(")) {
+            // PNG IMAGE EXPORT
             //TODO: Implement conversion to png image
             LOGGER.severe("Not implemented function pngImage Yet!");
             return null;
         } else if (expression.startsWith("getExample1()")) {
+            // GETTING SAMPLE AUTOMATON
             return getExpressionResult("NFA({{a, b},{>, 0, 1, {2,3}},{>, 1, {}, {1, 4}},{<>, 2, {}, 0},{<, 3, 3, 3},{4,4,2}})");
         } else if (expression.startsWith("fromRegex(")) {
-            //TODO: Implement conversion from regex
-            LOGGER.severe("Not implemented function fromRegex Yet!");
-            return null;
+            // IMPORT FROM REGEX
+            if (eval.length != 1)
+                throw new InvalidSyntaxException("fromRegex function takes 1 argument.", expression, true);
+            return FromRegexConverter.getAutomaton((String) eval[0]);
         } else {
-            // TODO: IDK WHAT WILL GO IN HERE YET...
             throw new InvalidSyntaxException("Unknown parse command", expression);
         }
 
@@ -249,7 +259,7 @@ public class Interpreter {
     }
 
     private Object getDFAFromArgs(Object[] args) {
-        //TODO: IMPLEMENT THIS
+        //TODO: OPTIONAL - IMPLEMENT THIS
         return null;
     }
 
@@ -267,7 +277,7 @@ public class Interpreter {
     }
 
     private Object getNFAFromArgs(Object[] eval) {
-        //TODO: IMPLEMENT
+        //TODO: OPTIONAL - IMPLEMENT
         return null;
     }
 
@@ -300,7 +310,7 @@ public class Interpreter {
     }
 
     private Object getENFAFromArgs(Object[] eval) {
-        //TODO: IMPLEMENT
+        //TODO: OPTIONAL - IMPLEMENT
         return null;
     }
 
@@ -427,13 +437,14 @@ public class Interpreter {
     private Object callVarFunction(Object varname, String functionName, Object[] arguments) throws InvalidSyntaxException {
         if (varname instanceof Automaton || varname instanceof DFAAutomaton || varname instanceof NFAAutomaton || varname instanceof ENFAAutomaton) {
             Automaton a = (Automaton) varname;
-            // FIXME: Maybe use reflection here?
 
             if (functionName.equals("reduce")) {
+                // REDUCTION
                 if (arguments.length > 0)
                     throw new InvalidSyntaxException("Call to reduce should not have any arguments.", "", true);
                 return a.getReduced();
             } else if (functionName.equals("accepts")) {
+                // ACCEPTING
                 if (arguments.length == 0) return a.acceptsWord("");
                 if (arguments.length != 1)
                     throw new InvalidSyntaxException("Call to accepts should have 1 or 0 arguments", "", true);
@@ -447,7 +458,7 @@ public class Interpreter {
                     return a.acceptsWord(arg);
                 }
             } else if (functionName.equals("toCSV")) {
-                //TODO: Implement
+                // CSV EXPORT
                 if (arguments.length != 1)
                     throw new InvalidSyntaxException("Invalid number of arguments: " + arguments.length + "for toCSV member function.", "", true);
                 String path = (String) arguments[0];
@@ -456,15 +467,19 @@ public class Interpreter {
                 return null;
 
             } else if (functionName.equals("toTexImage")) {
+                // TIKZ EXPORT
                 //TODO: Implement
 
             } else if (functionName.equals("toPNGImage")) {
+                // PNG EXPORT
                 //TODO: Implement
 
             } else if (functionName.equals("toTexTable")) {
-                //TODO: Implement
+                // TEX TABLE EXPORT
+                return a.exportToString().getTEX();
             } else if (functionName.equals("toRegex")) {
-                //TODO: Implement
+                // REGEX EXPORT
+                return a.getRegex();
             } else {
                 throw new InvalidSyntaxException("Unknown function call", "", true);
             }
@@ -472,7 +487,6 @@ public class Interpreter {
             throw new InvalidSyntaxException("Unknown function call", "", true);
         }
 
-        //TODO: IMPLEMENT
         return null;
     }
 
