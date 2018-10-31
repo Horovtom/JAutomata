@@ -1,6 +1,7 @@
 package cz.cvut.fel.horovtom.jasl;
 
 import cz.cvut.fel.horovtom.automata.logic.DFAAutomaton;
+import cz.cvut.fel.horovtom.automata.logic.ENFAAutomaton;
 import cz.cvut.fel.horovtom.jasl.console.ConsoleInterpreter;
 import org.junit.Test;
 
@@ -195,14 +196,8 @@ public class ConsoleInterpreterTest {
 
     @Test
     public void reduceAutomaton() {
-        Method method;
-        try {
-            method = ConsoleInterpreter.class.getDeclaredMethod("getExpressionResult", String.class);
-            method.setAccessible(true);
-        } catch (NoSuchMethodException e) {
-            assertTrue("There is no such method in class ConsoleInterpreter", false);
-            return;
-        }
+        Method method = getExpressionResultMethod();
+        assertFalse(method == null);
 
         ConsoleInterpreter interpreter = new ConsoleInterpreter();
 
@@ -218,6 +213,50 @@ public class ConsoleInterpreterTest {
         try {
             Object result = method.invoke(interpreter, "ENFA(" + table + ").reduce()");
             assertTrue(result instanceof DFAAutomaton);
+        } catch (IllegalAccessException | InvocationTargetException e) {
+            assertFalse(true);
+        }
+    }
+
+    private static Method getExpressionResultMethod() {
+        try {
+            Method method = ConsoleInterpreter.class.getDeclaredMethod("getExpressionResult", String.class);
+            method.setAccessible(true);
+            return method;
+        } catch (NoSuchMethodException e) {
+            return null;
+        }
+    }
+
+    @Test
+    public void getENFAFromTable() {
+        Method method = getExpressionResultMethod();
+        assertFalse(method == null);
+
+        ConsoleInterpreter interpreter = new ConsoleInterpreter();
+
+        /*
+        Table;
+         , ,eps  ,a    ,b
+        >,a,"b,e",d    ,a
+         ,b,     ,"b,c",
+        <,c,     ,     ,
+         ,d,     ,     ,e
+        <,e,     ,     ,e
+         */
+
+        String input = "{{eps, a, b}, " +
+                "{>,a,{b,e},d,a}," +
+                "{b,{},{b,c},{}}," +
+                "{<,c,{},{},{}}," +
+                "{d,{},{},e}," +
+                "{<,e,{},{},e}}";
+
+        try {
+            Object result = method.invoke(interpreter, "ENFA(" + input + ").reduce()");
+            assertTrue(result instanceof ENFAAutomaton);
+            String regex = ((ENFAAutomaton) result).getRegex();
+            assertEquals("b*(eps+abb*+aa*)", regex);
         } catch (IllegalAccessException | InvocationTargetException e) {
             assertFalse(true);
         }
