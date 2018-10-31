@@ -17,8 +17,18 @@ import java.util.logging.Logger;
 public class FromRegexConverter {
     private static final Logger LOGGER = Logger.getLogger(FromRegexConverter.class.getName());
 
+    /**
+     * This function will convert regular expression to automaton.
+     * Examples of regular expressions:
+     * ε+(a+b)(a+b)((a+b)(a+b)(a+b))*(a+b)
+     * (a+eps)*b
+     *
+     * @param r Regular expression
+     * @return Automaton that accepts the language described by regular expression
+     */
     public static Automaton getAutomaton(String r) {
         LOGGER.fine("Trying to convert regex: " + r + " to automaton!");
+        r = r.replaceAll("eps", "ε");
         RegexTree regex = new RegexTree(r);
         char[] sigma = regex.getSigma();
         char[] letterIndices = regex.getLetterIndices();

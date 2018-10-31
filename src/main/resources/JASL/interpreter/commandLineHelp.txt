@@ -1,0 +1,106 @@
+This is help for the JASL Language. JASL is made to make work with JAutomata library easy and fast.
+JASL works as any other scripting language and is most commonly used in interactive shell environment.
+It's features include variables declarations, function calls and lists definition.
+
+Syntax:
+    Variable declarations:
+        Variables start with '$' sign. After $, there could be any string without spaces.
+            examples: $a, $alright, $let's, $doItMate26
+
+    Assignment to variables:
+        You can assign to variables with '=' sign. Just as you would in C or Java.
+            examples: $a = hello, $b = $a
+
+    Comments:
+        Comments in JASL start with # sign. If # sign is the first character on a line,
+        that line will not be parsed as a command.
+
+Data types:
+    Text:
+        Anything that is not a command, list, variable name or function call is interpreted as text.
+        It does not have to be enclosed in any type of quotes.
+            examples: this is text
+
+    Lists:
+        Lists in JASL are simple to use. Just enclose comma-separated list of objects in curly braces '{}'.
+        Every element of a list will be evaluated on assignment. Lists can be nested and they can have no elements.
+            examples: {2, 3, 1}, {2, {1, 3}, 2}, {}, {$b, $c}
+            note: Consider the following code:
+                    $b = 2
+                    $c = 3
+                    $a = {$b, $c}
+                  Because every element is evaluated on assignment, the contents of list $a will be: {2, 3}
+
+    Automata:
+        Automata in JASL are of three types: DFA, NFA and ENFA.
+        To declare Automaton of some type you have to specify its transition table in format of nested list.
+        If you are creating ENFA automaton, you can signify epsilon column in the table as 'eps'.
+            examples:
+                Consider this automaton transition table:
+                            a   b
+                    >   0   1   2,3
+                    >   1   -   1,4
+                    <>  2   -   0
+                    <   3   3   3
+                        4   4   2
+
+                This automaton has 4 states, It has three initial states and two accepting states.
+                We will create this NFA automaton as such:
+                    $alphabeth = {a, b}
+                    $row1 = {>, 0, 1, {2,3}}
+                    $row2 = {>, 1, {}, {1, 4}}
+                    $row3 = {<>, 2, {}, 0}
+                    $row4 = {<, 3, 3, 3}
+                    $row5 = {4,4,2}
+                    $automatonTable = {$alphabeth, $row1, $row2, $row3, $row4, $row5}
+                    $automaton = NFA($automatonTable)
+        We have these member functions on automaton objects:
+            reduce():
+                This will return reduced automaton. This reduced automaton will be DFAAutomaton object.
+                    example:
+                        $dfaReduced = $nfa.reduce()
+
+            accepts(word):
+                This will return whether the automaton accepts specified word. Word can be either a string or an array of letters.
+                    example:
+                        $automaton.accepts(hello)
+                        $automaton.accepts({h,e,l,l,o})
+
+            toCSV(path):
+                This will create file at specified path that will contain the automaton in .csv format separated by commas.
+                    example:
+                        $automaton.toCSV(/home/user/Documents/automaton.csv)
+
+            toTexImage():
+                This will return string containing TeX code to display the automaton diagram in TeX files.
+
+            toPNGImage(path):
+                This will create png image of this automaton at specified path.
+
+            toTexTable():
+                This will return string containing TeX code to display the automaton table in TeX files.
+
+Functions:
+    We have these functions for general use:
+        DFA(table):
+            This will return new DFAAutomaton object according to passed transition table.
+
+        NFA(table):
+            This will return new NFAAutomaton object according to passed transition table.
+
+        ENFA(table):
+            This will return new ENFAAutomaton object according to passed transition table.
+
+        texImage(automaton, args):
+            This will return string with tex code to display the automaton.
+                args is a list of arguments:
+                    TODO: FILL
+
+        pngImage(automaton, path, args):
+            This will create png image of automaton diagram at specified path.
+                args is a list of arguments:
+                    TODO: FILL
+
+        fromCSV(path, delim):
+            This will return Automaton object that has loaded from .csv file at path.
+
