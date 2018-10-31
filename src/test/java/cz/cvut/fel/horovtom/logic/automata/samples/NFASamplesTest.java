@@ -6,6 +6,8 @@ import cz.cvut.fel.horovtom.automata.logic.NFAAutomaton;
 import cz.cvut.fel.horovtom.automata.samples.AutomatonSamples;
 import org.junit.Test;
 
+import java.io.FileNotFoundException;
+import java.io.UnsupportedEncodingException;
 import java.util.HashMap;
 import java.util.Random;
 
@@ -14,7 +16,7 @@ import static org.junit.Assert.assertTrue;
 
 public class NFASamplesTest {
     @Test
-    public void testListSyntaxCheck() {
+    public void testListSyntaxCheck() throws FileNotFoundException, UnsupportedEncodingException {
         NFAAutomaton a = AutomatonSamples.NFASamples.listSyntaxCheck();
         assertTrue(a != null);
         assertTrue(a.acceptsWord(new String[]{"list ", "id", ";", "n", ";", "id", ";", "id", ";", "n", ";", "n", ";", "id", "#"}));
@@ -26,7 +28,7 @@ public class NFASamplesTest {
     }
 
     @Test
-    public void testbAtEnd() {
+    public void testbAtEnd() throws FileNotFoundException, UnsupportedEncodingException {
         NFAAutomaton a = AutomatonSamples.NFASamples.bAtEnd();
         assertTrue(a != null);
         assertTrue(a.acceptsWord("baa"));

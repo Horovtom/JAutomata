@@ -6,12 +6,15 @@ import cz.cvut.fel.horovtom.automata.logic.converters.FromRegexConverter;
 import cz.cvut.fel.horovtom.automata.samples.AutomatonSamples;
 import org.junit.Test;
 
+import java.io.FileNotFoundException;
+import java.io.UnsupportedEncodingException;
+
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 public class FromRegexTest {
     @Test
-    public void test1() {
+    public void test1() throws FileNotFoundException, UnsupportedEncodingException {
         String r = "ab*+ba*";
 
         Automaton a = FromRegexConverter.getAutomaton(r);
@@ -111,7 +114,7 @@ public class FromRegexTest {
     }
 
     @Test
-    public void test010w() {
+    public void test010w() throws FileNotFoundException, UnsupportedEncodingException {
         String r = "010(0+1)*";
         Automaton a = FromRegexConverter.getAutomaton(r);
         assertTrue(a != null);
@@ -119,7 +122,7 @@ public class FromRegexTest {
     }
 
     @Test
-    public void test101w() {
+    public void test101w() throws FileNotFoundException, UnsupportedEncodingException {
         String r = "101(0+1)*";
         Automaton a = FromRegexConverter.getAutomaton(r);
         assertTrue(a != null);
@@ -127,7 +130,7 @@ public class FromRegexTest {
 
     }
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws FileNotFoundException, UnsupportedEncodingException {
         String a = AutomatonSamples.DFASamples.regex101w().exportToString().getTIKZ();
         System.out.println(a);
     }

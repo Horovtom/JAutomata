@@ -749,7 +749,7 @@ public abstract class Automaton {
      * Calls {@link #importFromCSV(Reader, char)}
      * and uses default separator: ','
      */
-    public static Automaton importFromCSV(File fileToLoad) {
+    public static Automaton importFromCSV(File fileToLoad) throws FileNotFoundException, UnsupportedEncodingException {
         return importFromCSV(fileToLoad, ',');
     }
 
@@ -895,20 +895,15 @@ public abstract class Automaton {
      * Calls {@link #importFromCSV(Reader, char)}
      * and uses default separator: ','
      */
-    public static Automaton importFromCSV(File fileToLoad, char separator) {
+    public static Automaton importFromCSV(File fileToLoad, char separator) throws FileNotFoundException, UnsupportedEncodingException {
         if (fileToLoad == null) {
             LOGGER.warning("Cannot import from CSV file which is null!");
             return null;
         }
-        try {
-            FileInputStream is = new FileInputStream(fileToLoad);
-            Reader reader = new InputStreamReader(is, "UTF-8");
-            return importFromCSV(reader, ',');
-        } catch (IOException e) {
-            e.printStackTrace();
-            LOGGER.warning(e.getLocalizedMessage());
-            return null;
-        }
+        FileInputStream is = new FileInputStream(fileToLoad);
+        Reader reader = new InputStreamReader(is, "UTF-8");
+        return importFromCSV(reader, ',');
+
     }
 
     //endregion

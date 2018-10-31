@@ -8,6 +8,8 @@ import cz.cvut.fel.horovtom.automata.logic.converters.FromRegexConverter;
 
 import java.io.ByteArrayInputStream;
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.UnsupportedEncodingException;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.nio.charset.Charset;
@@ -420,7 +422,7 @@ public class AutomatonSamples {
          * +---+---+---+---+
          * </pre>
          */
-        public static DFAAutomaton regex1() {
+        public static DFAAutomaton regex1() throws FileNotFoundException, UnsupportedEncodingException {
             return Automaton.importFromCSV(
                     new File(Objects.requireNonNull(AutomatonSamples.class.getClassLoader().getResource("samples/csv/dfa_01_regex.csv")).getFile())).getDFA();
         }
@@ -449,7 +451,7 @@ public class AutomatonSamples {
          * +----+---+---+---+
          * </pre>
          */
-        public static DFAAutomaton regex2() {
+        public static DFAAutomaton regex2() throws FileNotFoundException, UnsupportedEncodingException {
             return Automaton.importFromCSV(
                     new File(Objects.requireNonNull(AutomatonSamples.class.getClassLoader()
                             .getResource("samples/csv/dfa_02_regex.csv")).getFile())).getDFA();
@@ -485,7 +487,7 @@ public class AutomatonSamples {
          * +---+---+---+---+
          * </pre>
          */
-        public static DFAAutomaton regex010w() {
+        public static DFAAutomaton regex010w() throws FileNotFoundException, UnsupportedEncodingException {
             return Automaton.importFromCSV(
                     new File(Objects.requireNonNull(AutomatonSamples.class.getClassLoader().getResource("samples/csv/regex010w.csv")).getFile())
             ).getDFA();
@@ -521,7 +523,7 @@ public class AutomatonSamples {
          * +---+---+---+---+
          * </pre>
          */
-        public static DFAAutomaton regex101w() {
+        public static DFAAutomaton regex101w() throws FileNotFoundException, UnsupportedEncodingException {
             return Automaton.importFromCSV(
                     new File(Objects.requireNonNull(AutomatonSamples.class.getClassLoader().getResource("samples/csv/regex101w.csv")).getFile())
             ).getDFA();
@@ -554,7 +556,7 @@ public class AutomatonSamples {
          * +---+---+---+---+
          * </pre>
          */
-        public static DFAAutomaton atLeastThreeAs() {
+        public static DFAAutomaton atLeastThreeAs() throws FileNotFoundException, UnsupportedEncodingException {
             return Automaton.importFromCSV(
                     new File(Objects.requireNonNull(AutomatonSamples.class.getClassLoader().getResource("samples/csv/atLeastThreeAs.csv")).getFile())
             ).getDFA();
@@ -563,7 +565,7 @@ public class AutomatonSamples {
         /**
          * This will return an empty automaton
          */
-        public static Automaton emptyAutomaton() {
+        public static Automaton emptyAutomaton() throws FileNotFoundException, UnsupportedEncodingException {
             return Automaton.importFromCSV(
                     new File(Objects.requireNonNull(
                             AutomatonSamples.class.getClassLoader().getResource("samples/csv/empty.csv")).getFile())
@@ -597,7 +599,7 @@ public class AutomatonSamples {
          * +---+---+---+---+
          * </pre>
          */
-        public static DFAAutomaton containsAAA() {
+        public static DFAAutomaton containsAAA() throws FileNotFoundException, UnsupportedEncodingException {
             return Automaton.importFromCSV(
                     new File(Objects.requireNonNull(
                             AutomatonSamples.class.getClassLoader().getResource("samples/csv/containsAAA.csv")).getFile())
@@ -642,7 +644,7 @@ public class AutomatonSamples {
          * +---+---+-----+---+---+---+
          * </pre>
          */
-        public static NFAAutomaton troy() {
+        public static NFAAutomaton troy() throws FileNotFoundException, UnsupportedEncodingException {
             return Automaton.importFromCSV(
                     new File(Objects.requireNonNull(
                             AutomatonSamples.class.getClassLoader().getResource("samples/csv/nfa_troy.csv")).getFile())).getNFA();
@@ -945,7 +947,7 @@ public class AutomatonSamples {
          * +---+---+---+---+
          * </pre>
          */
-        public static NFAAutomaton regex2() {
+        public static NFAAutomaton regex2() throws FileNotFoundException, UnsupportedEncodingException {
             return Automaton.importFromCSV(
                     new File(Objects.requireNonNull(AutomatonSamples.class.getClassLoader()
                             .getResource("samples/csv/nfa_01_regex.csv")).getFile())).getNFA();
@@ -1056,7 +1058,7 @@ public class AutomatonSamples {
          * +---+---+-------+----+---+---+---+
          * </pre>
          */
-        public static NFAAutomaton listSyntaxCheck() {
+        public static NFAAutomaton listSyntaxCheck() throws FileNotFoundException, UnsupportedEncodingException {
             return Automaton.importFromCSV(new File(Objects.requireNonNull(AutomatonSamples.class.getClassLoader().getResource("samples/csv/listSyntax.csv")).getFile())).getNFA();
         }
 
@@ -1087,7 +1089,7 @@ public class AutomatonSamples {
          * +---+---+---+-----+
          * </pre>
          */
-        public static NFAAutomaton bAtEnd() {
+        public static NFAAutomaton bAtEnd() throws FileNotFoundException, UnsupportedEncodingException {
             return Automaton.importFromCSV(
                     new File(Objects.requireNonNull(AutomatonSamples.class.getClassLoader()
                             .getResource("samples/csv/bAtEnd.csv")).getFile())).getNFA();
@@ -1178,7 +1180,7 @@ public class AutomatonSamples {
          * +---+---+---+---+---+
          * </pre>
          */
-        public static ENFAAutomaton regex1() {
+        public static ENFAAutomaton regex1() throws FileNotFoundException, UnsupportedEncodingException {
             File f = new File(Objects.requireNonNull(AutomatonSamples.class.getClassLoader().getResource("samples/csv/enfaRegex1.csv")).getFile());
             return (ENFAAutomaton) Automaton.importFromCSV(f);
         }
@@ -1252,7 +1254,7 @@ public class AutomatonSamples {
          * | → | 5 | 0 |   |   |
          * +---+---+---+---+---+
          */
-        public static ENFAAutomaton aa_c_a() {
+        public static ENFAAutomaton aa_c_a() throws FileNotFoundException, UnsupportedEncodingException {
             return (ENFAAutomaton) Automaton.importFromCSV(
                     new File(Objects.requireNonNull(AutomatonSamples.class.getClassLoader().getResource("samples/csv/aa_c_a.csv")).getFile()));
         }
@@ -1284,7 +1286,7 @@ public class AutomatonSamples {
          * +---+---+-----+---+---+
          * </pre>
          */
-        public static ENFAAutomaton factors_aba() {
+        public static ENFAAutomaton factors_aba() throws FileNotFoundException, UnsupportedEncodingException {
             return Automaton.importFromCSV(
                     new File(Objects.requireNonNull(AutomatonSamples.class.getClassLoader()
                             .getResource("samples/csv/factors_aba.csv")).getFile())).getENFA();

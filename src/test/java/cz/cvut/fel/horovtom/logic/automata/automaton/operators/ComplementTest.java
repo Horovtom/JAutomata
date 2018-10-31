@@ -6,6 +6,8 @@ import cz.cvut.fel.horovtom.automata.logic.ENFAAutomaton;
 import cz.cvut.fel.horovtom.automata.samples.AutomatonSamples;
 import org.junit.Test;
 
+import java.io.FileNotFoundException;
+import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Random;
@@ -15,7 +17,7 @@ import static org.junit.Assert.assertTrue;
 
 public class ComplementTest {
     @Test
-    public void test1() {
+    public void test1() throws FileNotFoundException, UnsupportedEncodingException {
         Automaton troy = AutomatonSamples.NFASamples.troy();
         Automaton troyComplement = troy.getComplement();
         assertTrue(troyComplement != null);

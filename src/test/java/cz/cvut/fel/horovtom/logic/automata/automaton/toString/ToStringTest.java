@@ -6,11 +6,14 @@ import cz.cvut.fel.horovtom.automata.logic.NFAAutomaton;
 import cz.cvut.fel.horovtom.automata.samples.AutomatonSamples;
 import org.junit.Test;
 
+import java.io.FileNotFoundException;
+import java.io.UnsupportedEncodingException;
+
 import static org.junit.Assert.assertEquals;
 
 public class ToStringTest {
     @Test
-    public void testBordered() {
+    public void testBordered() throws FileNotFoundException, UnsupportedEncodingException {
         Automaton nfa_troy = AutomatonSamples.NFASamples.troy();
         System.out.println(nfa_troy.exportToString().getBorderedPlainText());
         assertEquals("Automaton did not output bordered version correctly!", "+---+---+-----+---+---+---+\n" +

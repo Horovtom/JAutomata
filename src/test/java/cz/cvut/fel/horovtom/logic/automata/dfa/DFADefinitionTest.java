@@ -6,8 +6,10 @@ import cz.cvut.fel.horovtom.automata.samples.AutomatonSamples;
 import cz.cvut.fel.horovtom.automata.tools.Utilities;
 import org.junit.Test;
 
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.logging.Logger;
@@ -176,7 +178,7 @@ public class DFADefinitionTest {
     }
 
     @Test
-    public void testEmptyAutomaton() {
+    public void testEmptyAutomaton() throws FileNotFoundException, UnsupportedEncodingException {
         Automaton automaton = AutomatonSamples.DFASamples.emptyAutomaton();
         assertTrue(automaton.acceptsWord(""));
         assertFalse(automaton.acceptsWord("a"));

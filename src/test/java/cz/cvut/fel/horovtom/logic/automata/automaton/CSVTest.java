@@ -16,7 +16,7 @@ import static org.junit.Assert.*;
 
 public class CSVTest {
     @Test
-    public void testImportCSVDFA() {
+    public void testImportCSVDFA() throws FileNotFoundException, UnsupportedEncodingException {
         Automaton automaton = Automaton.importFromCSV(new File(Objects.requireNonNull(this.getClass().getClassLoader().getResource("samples/csv/dfa.csv")).getFile()));
         assertTrue("Automaton did not import correctly", automaton != null && automaton instanceof ENFAAutomaton);
         assertEquals("Automaton had wrong number of states", 4, automaton.getQSize());
@@ -32,7 +32,7 @@ public class CSVTest {
     }
 
     @Test
-    public void testImportCSVNFA() {
+    public void testImportCSVNFA() throws FileNotFoundException, UnsupportedEncodingException {
         Automaton automaton = Automaton.importFromCSV(new File(Objects.requireNonNull(this.getClass().getClassLoader().getResource("samples/csv/nfa.csv")).getFile()));
         assertTrue("Automaton did not import correctly", automaton != null && automaton instanceof ENFAAutomaton);
         assertEquals("Automaton had wrong number of states", 3, automaton.getQSize());
@@ -47,7 +47,7 @@ public class CSVTest {
     }
 
     @Test
-    public void testExportCSV2() {
+    public void testExportCSV2() throws FileNotFoundException, UnsupportedEncodingException {
         Automaton automaton = AutomatonSamples.NFASamples.troy();
         try {
             File file = File.createTempFile("enfa", "csv");
@@ -67,7 +67,7 @@ public class CSVTest {
     }
 
     @Test
-    public void testImportCSV2() {
+    public void testImportCSV2() throws FileNotFoundException, UnsupportedEncodingException {
         Automaton troy = AutomatonSamples.NFASamples.troy();
         assertEquals("Description did not import correctly", "This automaton accepts words that contain substring: 'troy'", troy.getDescription());
         assertFalse(troy.acceptsWord(new String[]{"t", "t", "t", "t", "r", "o", "t", "r", "t", "r", "t", "o", "y"}));
@@ -76,7 +76,7 @@ public class CSVTest {
     }
 
     @Test
-    public void testImportCSVENFA() {
+    public void testImportCSVENFA() throws FileNotFoundException, UnsupportedEncodingException {
         Automaton automaton = Automaton.importFromCSV(new File(Objects.requireNonNull(this.getClass().getClassLoader().getResource("samples/csv/enfa.csv")).getFile()));
         assertTrue("Automaton did not import correctly", automaton != null && automaton instanceof ENFAAutomaton);
         assertEquals("Automaton had wrong number of states", 3, automaton.getQSize());

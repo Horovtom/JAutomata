@@ -80,6 +80,9 @@ Data types:
             toTexTable():
                 This will return string containing TeX code to display the automaton table in TeX files.
 
+            getRegex():
+                This will return string containing regular expression that describes the automaton.
+
 Functions:
     We have these functions for general use:
         DFA(table):
@@ -101,6 +104,14 @@ Functions:
                 args is a list of arguments:
                     TODO: FILL
 
-        fromCSV(path, delim):
-            This will return Automaton object that has loaded from .csv file at path.
+        fromCSV(path):
+            This will return Automaton object that has loaded from .csv file at path. This .csv has to be comma-separated.
 
+        getExample1():
+            This will return NFAAutomaton that had been specified in the example of Automaton initialization
+
+        fromRegex(regex):
+            This will return Automaton that accepts the same language as regex specified in the argument.
+            Epsilon in the regex should be signified as 'eps'
+            example:
+                $automaton = fromRegex(a*bba*(eps+b)*)

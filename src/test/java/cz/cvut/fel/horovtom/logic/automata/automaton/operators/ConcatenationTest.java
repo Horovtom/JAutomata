@@ -6,6 +6,8 @@ import cz.cvut.fel.horovtom.automata.logic.ENFAAutomaton;
 import cz.cvut.fel.horovtom.automata.samples.AutomatonSamples;
 import org.junit.Test;
 
+import java.io.FileNotFoundException;
+import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -194,7 +196,7 @@ public class ConcatenationTest {
     }
 
     @Test
-    public void testENFA2() {
+    public void testENFA2() throws FileNotFoundException, UnsupportedEncodingException {
         ENFAAutomaton a = AutomatonSamples.ENFASamples.regex1();
         ENFAAutomaton b = AutomatonSamples.ENFASamples.aa_c_a();
         Automaton concatenation = Automaton.getConcatenation(a, b);

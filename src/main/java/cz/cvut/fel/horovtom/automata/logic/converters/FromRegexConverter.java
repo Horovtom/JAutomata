@@ -5,6 +5,8 @@ import cz.cvut.fel.horovtom.automata.logic.DFAAutomaton;
 import cz.cvut.fel.horovtom.automata.logic.NFAAutomaton;
 import cz.cvut.fel.horovtom.automata.samples.AutomatonSamples;
 
+import java.io.FileNotFoundException;
+import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -42,7 +44,11 @@ public class FromRegexConverter {
     private static Automaton convertToAutomaton(char[] sigma, char[] letterIndices, int[] initials, int[] accepting, ArrayList<int[]> followers, boolean nullable) {
         if (sigma == null || sigma.length == 0) {
             LOGGER.fine("User input empty regular expression.");
-            return AutomatonSamples.DFASamples.emptyAutomaton();
+            try {
+                return AutomatonSamples.DFASamples.emptyAutomaton();
+            } catch (FileNotFoundException | UnsupportedEncodingException e) {
+                LOGGER.warning("Did not find empty automaton!");
+            }
         }
         ArrayList<String> Q = new ArrayList<>();
 

@@ -4,6 +4,8 @@ import cz.cvut.fel.horovtom.automata.logic.DFAAutomaton;
 import cz.cvut.fel.horovtom.automata.samples.AutomatonSamples;
 import org.junit.Test;
 
+import java.io.FileNotFoundException;
+import java.io.UnsupportedEncodingException;
 import java.util.Random;
 
 import static org.junit.Assert.assertFalse;
@@ -12,7 +14,7 @@ import static org.junit.Assert.assertTrue;
 public class DFASamplesTest {
 
     @Test
-    public void testRegex010w() {
+    public void testRegex010w() throws FileNotFoundException, UnsupportedEncodingException {
         DFAAutomaton a = AutomatonSamples.DFASamples.regex010w();
         assertTrue(a != null);
         assertTrue(a.acceptsWord("010"));
@@ -41,7 +43,7 @@ public class DFASamplesTest {
     }
 
     @Test
-    public void testRegex101w() {
+    public void testRegex101w() throws FileNotFoundException, UnsupportedEncodingException {
         DFAAutomaton a = AutomatonSamples.DFASamples.regex101w();
         assertTrue(a != null);
         assertTrue(a.acceptsWord("101"));
@@ -70,7 +72,7 @@ public class DFASamplesTest {
     }
 
     @Test
-    public void testAtLeastThreeAs() {
+    public void testAtLeastThreeAs() throws FileNotFoundException, UnsupportedEncodingException {
         DFAAutomaton a = AutomatonSamples.DFASamples.atLeastThreeAs();
         assertTrue(a != null);
         assertFalse(a.acceptsWord(""));
@@ -96,7 +98,7 @@ public class DFASamplesTest {
     }
 
     @Test
-    public void testContainsAAA() {
+    public void testContainsAAA() throws FileNotFoundException, UnsupportedEncodingException {
         DFAAutomaton a = AutomatonSamples.DFASamples.containsAAA();
         assertTrue(a != null);
         assertFalse(a.acceptsWord(""));

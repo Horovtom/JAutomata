@@ -6,6 +6,8 @@ import cz.cvut.fel.horovtom.automata.logic.functionals.FunctionalCreator;
 import cz.cvut.fel.horovtom.automata.samples.AutomatonSamples;
 import org.junit.Test;
 
+import java.io.FileNotFoundException;
+import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.Random;
 
@@ -48,7 +50,7 @@ public class UnionTest {
     }
 
     @Test
-    public void test1() {
+    public void test1() throws FileNotFoundException, UnsupportedEncodingException {
         DFAAutomaton lolipopAutomaton = AutomatonSamples.DFASamples.lolipop();
         Automaton troyAutomaton = AutomatonSamples.NFASamples.troy();
         Automaton union = Automaton.getUnion(lolipopAutomaton, troyAutomaton);

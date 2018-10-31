@@ -6,9 +6,7 @@ import cz.cvut.fel.horovtom.automata.logic.DFAAutomaton;
 import cz.cvut.fel.horovtom.automata.logic.ENFAAutomaton;
 import cz.cvut.fel.horovtom.automata.logic.NFAAutomaton;
 
-import java.io.IOException;
-import java.io.Reader;
-import java.io.Writer;
+import java.io.*;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.logging.Logger;
@@ -131,12 +129,25 @@ public class Interpreter {
             LOGGER.severe("Not implemented function texTable Yet!");
             return null;
         } else if (expression.startsWith("fromCSV(")) {
-            //TODO: IMPLEMENT AUTOMATON LOADING FROM CSV FORMAT
-            LOGGER.severe("Not implemented function fromCSV Yet!");
-            return null;
+            if (eval.length != 1)
+                throw new InvalidSyntaxException("fromCSV function takes 1 arguments!", expression, true);
+
+            String path = (String) eval[0];
+            LOGGER.info("Importing Automaton from CSV file at: " + path);
+            try {
+                return Automaton.importFromCSV(new File(path));
+            } catch (FileNotFoundException | UnsupportedEncodingException e) {
+                throw new InvalidSyntaxException("Could not find file: " + path, expression, true);
+            }
         } else if (expression.startsWith("pngImage(")) {
             //TODO: Implement conversion to png image
             LOGGER.severe("Not implemented function pngImage Yet!");
+            return null;
+        } else if (expression.startsWith("getExample1()")) {
+            return getExpressionResult("NFA({{a, b},{>, 0, 1, {2,3}},{>, 1, {}, {1, 4}},{<>, 2, {}, 0},{<, 3, 3, 3},{4,4,2}})");
+        } else if (expression.startsWith("fromRegex(")) {
+            //TODO: Implement conversion from regex
+            LOGGER.severe("Not implemented function fromRegex Yet!");
             return null;
         } else {
             // TODO: IDK WHAT WILL GO IN HERE YET...
@@ -414,8 +425,6 @@ public class Interpreter {
      * @return Object containing the result of the functions.
      */
     private Object callVarFunction(Object varname, String functionName, Object[] arguments) throws InvalidSyntaxException {
-
-
         if (varname instanceof Automaton || varname instanceof DFAAutomaton || varname instanceof NFAAutomaton || varname instanceof ENFAAutomaton) {
             Automaton a = (Automaton) varname;
             // FIXME: Maybe use reflection here?
@@ -437,6 +446,25 @@ public class Interpreter {
                     ArrayList<String> arg = (ArrayList<String>) argument;
                     return a.acceptsWord(arg);
                 }
+            } else if (functionName.equals("toCSV")) {
+                //TODO: Implement
+                if (arguments.length != 1)
+                    throw new InvalidSyntaxException("Invalid number of arguments: " + arguments.length + "for toCSV member function.", "", true);
+                String path = (String) arguments[0];
+                LOGGER.info("Trying to export to CSV to path: " + path);
+                a.exportToCSV(new File(path));
+                return null;
+
+            } else if (functionName.equals("toTexImage")) {
+                //TODO: Implement
+
+            } else if (functionName.equals("toPNGImage")) {
+                //TODO: Implement
+
+            } else if (functionName.equals("toTexTable")) {
+                //TODO: Implement
+            } else if (functionName.equals("toRegex")) {
+                //TODO: Implement
             } else {
                 throw new InvalidSyntaxException("Unknown function call", "", true);
             }

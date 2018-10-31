@@ -4,6 +4,8 @@ import cz.cvut.fel.horovtom.automata.logic.ENFAAutomaton;
 import cz.cvut.fel.horovtom.automata.samples.AutomatonSamples;
 import org.junit.Test;
 
+import java.io.FileNotFoundException;
+import java.io.UnsupportedEncodingException;
 import java.util.Scanner;
 
 import static org.junit.Assert.assertFalse;
@@ -12,7 +14,7 @@ import static org.junit.Assert.assertTrue;
 public class ENFASamplesTest {
 
     @Test
-    public void testFactors_aba() {
+    public void testFactors_aba() throws FileNotFoundException, UnsupportedEncodingException {
         ENFAAutomaton a = AutomatonSamples.ENFASamples.factors_aba();
         assertTrue(a != null);
         assertTrue(a.acceptsWord(""));

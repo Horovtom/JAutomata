@@ -5,6 +5,8 @@ import cz.cvut.fel.horovtom.automata.logic.ENFAAutomaton;
 import org.junit.Test;
 
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.UnsupportedEncodingException;
 import java.util.Objects;
 
 import static org.junit.Assert.assertFalse;
@@ -14,7 +16,7 @@ import static org.junit.Assert.assertTrue;
 public class ENFAReduceTest {
 
     @Test
-    public void testSimpleENFA() {
+    public void testSimpleENFA() throws FileNotFoundException, UnsupportedEncodingException {
         Automaton automaton = Automaton.importFromCSV(new File(Objects.requireNonNull(this.getClass().getClassLoader().getResource("samples/csv/enfa_01_regex.csv")).getFile()));
         assertTrue("Automaton did not import correctly", automaton != null && automaton instanceof ENFAAutomaton);
         automaton = automaton.getReduced();

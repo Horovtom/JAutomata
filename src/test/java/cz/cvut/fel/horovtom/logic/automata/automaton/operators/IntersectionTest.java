@@ -6,6 +6,8 @@ import cz.cvut.fel.horovtom.automata.logic.functionals.FunctionalCreator;
 import cz.cvut.fel.horovtom.automata.samples.AutomatonSamples;
 import org.junit.Test;
 
+import java.io.FileNotFoundException;
+import java.io.UnsupportedEncodingException;
 import java.util.HashMap;
 import java.util.Random;
 
@@ -92,7 +94,7 @@ public class IntersectionTest {
     }
 
     @Test
-    public void test1() {
+    public void test1() throws FileNotFoundException, UnsupportedEncodingException {
         //(a*b + b*a)
         Automaton a = AutomatonSamples.DFASamples.regex1();
         //(a*b*)
