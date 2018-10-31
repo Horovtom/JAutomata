@@ -746,7 +746,7 @@ public abstract class Automaton {
     //region IMPORT
 
     /**
-     * Calls {@link #importFromCSV(File, char)}
+     * Calls {@link #importFromCSV(Reader, char)}
      * and uses default separator: ','
      */
     public static Automaton importFromCSV(File fileToLoad) {
@@ -774,13 +774,8 @@ public abstract class Automaton {
      * If there are multiple states in [transxx], encapsulate whole [transxx] in "" and separate them by commas
      * <br>
      */
-    public static Automaton importFromCSV(File fileToLoad, char separator) {
-        if (fileToLoad == null) {
-            LOGGER.warning("Cannot import from CSV file which is null!");
-            return null;
-        }
+    public static Automaton importFromCSV(Reader reader, char separator) {
         try {
-            Reader reader = new InputStreamReader(new FileInputStream(fileToLoad), "UTF-8");
             BufferedReader r = new BufferedReader(reader);
             String line = r.readLine();
             ArrayList<String> sigma = new ArrayList<>();
@@ -889,6 +884,26 @@ public abstract class Automaton {
             enfaAutomaton.setDescription(c);
 
             return enfaAutomaton;
+        } catch (IOException e) {
+            e.printStackTrace();
+            LOGGER.warning(e.getLocalizedMessage());
+            return null;
+        }
+    }
+
+    /**
+     * Calls {@link #importFromCSV(Reader, char)}
+     * and uses default separator: ','
+     */
+    public static Automaton importFromCSV(File fileToLoad, char separator) {
+        if (fileToLoad == null) {
+            LOGGER.warning("Cannot import from CSV file which is null!");
+            return null;
+        }
+        try {
+            FileInputStream is = new FileInputStream(fileToLoad);
+            Reader reader = new InputStreamReader(is, "UTF-8");
+            return importFromCSV(reader, ',');
         } catch (IOException e) {
             e.printStackTrace();
             LOGGER.warning(e.getLocalizedMessage());

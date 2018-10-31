@@ -1,9 +1,15 @@
 package cz.cvut.fel.horovtom.jasl.console;
 
+import com.Ostermiller.util.CircularCharBuffer;
 import cz.cvut.fel.horovtom.automata.logic.Automaton;
 import cz.cvut.fel.horovtom.automata.logic.DFAAutomaton;
+import cz.cvut.fel.horovtom.automata.logic.ENFAAutomaton;
+import cz.cvut.fel.horovtom.automata.logic.NFAAutomaton;
 import org.fusesource.jansi.AnsiConsole;
 
+import java.io.IOException;
+import java.io.Reader;
+import java.io.Writer;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Scanner;
@@ -132,7 +138,10 @@ public class ConsoleInterpreter {
      */
     private Object parseCommand(String expression) throws InvalidSyntaxException {
         int[] insideIndices = extractFromBrackets(expression);
-        Object eval = getExpressionResult(expression.substring(insideIndices[0], insideIndices[1]));
+        Object[] eval = new Object[insideIndices.length / 2];
+        for (int i = 0; i < insideIndices.length; i += 2) {
+            eval[i / 2] = getExpressionResult(expression.substring(insideIndices[i], insideIndices[i + 1] + 1));
+        }
         Object res;
         if (expression.startsWith("DFA(")) {
             //DFA constructor
@@ -146,67 +155,201 @@ public class ConsoleInterpreter {
             throw new InvalidSyntaxException("Unknown parse command", expression);
         }
 
-        if (insideIndices[1] != expression.length() - 2) {
+        if (insideIndices[insideIndices.length - 1] < expression.length() - 2) {
             //There is something that follows this declaration...
-            //TODO: IMPLEMENT THIS
-            throw new InvalidSyntaxException("Not implemented yet! You have to assign first before calling on it!", expression);
+            Object tmp = variables.get("$TEMP");
+
+
+            variables.put("$TEMP", res);
+            res = parseVarFunction("$TEMP" + expression.substring(insideIndices[insideIndices.length - 1] + 2, expression.length()));
+            if (tmp == null)
+                variables.remove("$TEMP");
+            else
+                variables.put("$TEMP", tmp);
+
+        }
+
+        return res;
+    }
+
+    private Object getDFA(Object[] eval) throws InvalidSyntaxException {
+        if (eval.length == 1) {
+            Object o = eval[0];
+            if (o instanceof ArrayList) {
+                Reader res = getReaderFromTable((ArrayList<Object>) o);
+                return getDFAFromTable(res);
+            }
+        } else if (eval.length == 5) {
+            return getDFAFromArgs(eval);
+        }
+        throw new InvalidSyntaxException("Unknown number of parameters...");
+    }
+
+    private String getStringFromElementOfTable(Object o) {
+        if (o instanceof ArrayList) {
+            StringBuilder sb = new StringBuilder();
+            sb.append("\"");
+            ArrayList<String> as = (ArrayList<String>) o;
+            for (int i1 = 0; i1 < as.size(); i1++) {
+                if (i1 != 0) {
+                    sb.append(",");
+                }
+                sb.append(as.get(i1));
+            }
+
+            sb.append("\"");
+            return sb.toString();
+        } else if (o instanceof String) {
+            return (String) o;
+        } else {
+            return "";
+        }
+    }
+
+    private Reader getReaderFromTable(ArrayList<Object> table) throws InvalidSyntaxException {
+        try {
+            // Create circularCharBuffer
+            CircularCharBuffer ccb = new CircularCharBuffer();
+            Writer writer = ccb.getWriter();
+            ArrayList<String> firstRow = (ArrayList<String>) table.get(0);
+            int properLineLength = firstRow.size() + 2;
+            writer.write(",");
+            for (String aFirstRow : firstRow) {
+                writer.write(',' + aFirstRow);
+            }
+            writer.write('\n');
+            for (int i = 1; i < table.size(); i++) {
+                ArrayList<Object> strings = (ArrayList<Object>) table.get(i);
+
+                for (int j = 0; j < strings.size(); j++) {
+
+                    if (j == 0 && strings.size() == properLineLength) {
+                        writer.write(getStringFromElementOfTable(strings.get(j)));
+                    } else {
+                        writer.write(',' + getStringFromElementOfTable(strings.get(j)));
+                    }
+                }
+                writer.write('\n');
+            }
+            writer.close();
+
+            return ccb.getReader();
+        } catch (IOException | NullPointerException ignored) {
         }
         return null;
+
     }
 
-    private Object getDFA(Object eval) throws InvalidSyntaxException {
+    private Object getDFAFromTable(Reader reader) {
+
+        Automaton a = Automaton.importFromCSV(reader, ',');
+        if (a == null) return null;
+
+        return a.getDFA();
+
+    }
+
+    private Object getDFAFromArgs(Object[] args) {
         //TODO: IMPLEMENT THIS
-        if (eval instanceof ArrayList) {
-            // We need to somehow extract info about Sigma, Q and transitions from the table.
-            return getDFAFromTable((ArrayList<String>) eval);
+        return null;
+    }
+
+    private Object getNFA(Object[] eval) throws InvalidSyntaxException {
+        if (eval.length == 1) {
+            Object o = eval[0];
+            if (o instanceof ArrayList) {
+                Reader res = getReaderFromTable((ArrayList<Object>) o);
+                return getNFAFromTable(res);
+            }
+        } else if (eval.length == 5) {
+            return getNFAFromArgs(eval);
         }
+        throw new InvalidSyntaxException("Unknown number of parameters...");
+    }
+
+    private Object getNFAFromArgs(Object[] eval) {
+        //TODO: IMPLEMENT
         return null;
     }
 
-    private Object getDFAFromTable(ArrayList<String> table) {
-        return null;
+    private Object getNFAFromTable(Reader reader) {
+        Automaton a = Automaton.importFromCSV(reader, ',');
+        if (a == null) return null;
+
+        return a.getNFA();
     }
 
-    private Object getNFA(Object eval) {
-        //TODO: IMPLEMENT THIS
+    private Object getENFAFromTable(Reader reader) {
+        Automaton a = Automaton.importFromCSV(reader, ',');
+        if (a == null) return null;
 
-        return null;
+        return a.getENFA();
     }
 
-    private Object getENFA(Object eval) {
-        //TODO: IMPLEMENT THIS
+    private Object getENFA(Object[] eval) throws InvalidSyntaxException {
+        if (eval.length == 1) {
+            Object o = eval[0];
+            if (o instanceof ArrayList) {
+                Reader res = getReaderFromTable((ArrayList<Object>) o);
+                return getENFAFromTable(res);
+            }
+        } else if (eval.length == 5) {
+            return getENFAFromArgs(eval);
+        }
+        throw new InvalidSyntaxException("Unknown number of parameters...");
 
+    }
+
+    private Object getENFAFromArgs(Object[] eval) {
+        //TODO: IMPLEMENT
         return null;
     }
 
     /**
-     * This will extract string from bracket pair. It will return the extracted string indices.
+     * This will extract string arguments from bracket pair. It will return the extracted string indices.
+     * For example:
+     * input: aab(2,{3,4,1}, ss(12)). This will return:
+     * {4, 4, 6, 12, 15, 20}
      *
-     * @return integer array with two elements: StartIndex, EndIndex
+     * @return integer array with pairs of elements: {StartIndex, EndIndex}
      * @throws InvalidSyntaxException If it could not find closing bracket or any brackets at all
      */
     private int[] extractFromBrackets(String toExtract) throws InvalidSyntaxException {
-        int length = toExtract.length();
         int depth = 0;
-        int startIndex = 0;
         char[] arr = toExtract.toCharArray();
-        for (int i = 0; i < length; i++) {
+        ArrayList<Integer> returning = new ArrayList<>();
+        boolean in = false;
+        for (int i = 0; i < arr.length; i++) {
             if (arr[i] == '(') {
-                if (depth == 0) {
-                    startIndex = i + 1;
+                depth++;
+
+            } else if (arr[i] == '{') {
+                if (depth == 1 && !in) {
+                    in = true;
+                    returning.add(i);
                 }
                 depth++;
-            } else if (arr[i] == ')') {
+            } else if (arr[i] == ',') {
+                if (in && depth == 1) {
+                    in = false;
+                    returning.add(i - 1);
+                }
+            } else if (arr[i] == ')' || arr[i] == '}') {
+                if (in && depth == 1) {
+                    in = false;
+                    returning.add(i - 1);
+                }
                 depth--;
-            }
-            if (depth == 0) {
-                return new int[]{startIndex, i + 1};
+            } else {
+                if (depth == 1 && !in) {
+                    in = true;
+                    returning.add(i);
+
+                }
             }
         }
 
-        if (depth != 0)
-            throw new InvalidSyntaxException("Could not find closing bracket...", toExtract);
-        throw new InvalidSyntaxException("Could not find any brackets...", toExtract);
+        return returning.stream().mapToInt(a -> a).toArray();
     }
 
     /**
@@ -223,6 +366,7 @@ public class ConsoleInterpreter {
 
         // Find variable name
         String[] tokens = getNextToken(expression, '.');
+        String call = tokens[1];
         if (tokens[1].equals(""))
             throw new InvalidSyntaxException("Member function of variable not specified", expression, true);
         String varname = tokens[0];
@@ -238,9 +382,12 @@ public class ConsoleInterpreter {
         //Find arguments
         if (!tokens[1].endsWith(")"))
             throw new InvalidSyntaxException("Could not find closing parenthesis for function call", expression, true);
-        Object argument = getExpressionResult(tokens[1].substring(0, tokens[1].length() - 1));
-
-        return callVarFunction(variables.get(varname), functionName, argument);
+        int[] argumentIndices = extractFromBrackets(call);
+        Object[] arguments = new Object[argumentIndices.length / 2];
+        for (int i = 0; i < arguments.length; i++) {
+            arguments[i] = getExpressionResult(call.substring(argumentIndices[i * 2], argumentIndices[i * 2 + 1] + 1));
+        }
+        return callVarFunction(variables.get(varname), functionName, arguments);
     }
 
     /**
@@ -248,17 +395,24 @@ public class ConsoleInterpreter {
      *
      * @param varname      variable
      * @param functionName member function of the variable
-     * @param argument     Argument of the function in an object.
+     * @param arguments     Arguments of the function in an object array.
      * @return Object containing the result of the functions.
      */
-    private Object callVarFunction(Object varname, String functionName, Object argument) throws InvalidSyntaxException {
-        if (varname instanceof Automaton) {
+    private Object callVarFunction(Object varname, String functionName, Object[] arguments) throws InvalidSyntaxException {
+
+
+        if (varname instanceof Automaton || varname instanceof DFAAutomaton || varname instanceof NFAAutomaton || varname instanceof ENFAAutomaton) {
             Automaton a = (Automaton) varname;
             // FIXME: Maybe use reflection here?
 
             if (functionName.equals("reduce")) {
+                if (arguments.length > 0)
+                    throw new InvalidSyntaxException("Call to reduce should not have any arguments.", "", true);
                 return a.getReduced();
             } else if (functionName.equals("accepts")) {
+                if (arguments.length != 1)
+                    throw new InvalidSyntaxException("Call to accepts should have 1 argument", "", true);
+                Object argument = arguments[0];
                 if (argument instanceof String) {
                     String arg = (String) argument;
                     return a.acceptsWord(arg);
@@ -266,7 +420,11 @@ public class ConsoleInterpreter {
                     ArrayList<String> arg = (ArrayList<String>) argument;
                     return a.acceptsWord(arg);
                 }
+            } else {
+                throw new InvalidSyntaxException("Unknown function call", "", true);
             }
+        } else {
+            throw new InvalidSyntaxException("Unknown function call", "", true);
         }
 
         //TODO: IMPLEMENT
