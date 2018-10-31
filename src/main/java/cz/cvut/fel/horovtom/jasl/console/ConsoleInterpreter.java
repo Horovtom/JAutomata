@@ -206,7 +206,7 @@ public class ConsoleInterpreter {
         }
     }
 
-    private Reader getReaderFromTable(ArrayList<Object> table) throws InvalidSyntaxException {
+    private Reader getReaderFromTable(ArrayList<Object> table) {
         try {
             // Create circularCharBuffer
             CircularCharBuffer ccb = new CircularCharBuffer();
@@ -314,7 +314,7 @@ public class ConsoleInterpreter {
      * @return integer array with pairs of elements: {StartIndex, EndIndex}
      * @throws InvalidSyntaxException If it could not find closing bracket or any brackets at all
      */
-    private int[] extractFromBrackets(String toExtract) throws InvalidSyntaxException {
+    private int[] extractFromBrackets(String toExtract) {
         int depth = 0;
         char[] arr = toExtract.toCharArray();
         ArrayList<Integer> returning = new ArrayList<>();
@@ -340,6 +340,7 @@ public class ConsoleInterpreter {
                     returning.add(i - 1);
                 }
                 depth--;
+                if (depth == 0) break;
             } else {
                 if (depth == 1 && !in) {
                     in = true;
@@ -410,8 +411,10 @@ public class ConsoleInterpreter {
                     throw new InvalidSyntaxException("Call to reduce should not have any arguments.", "", true);
                 return a.getReduced();
             } else if (functionName.equals("accepts")) {
+                if (arguments.length == 0) return a.acceptsWord("");
                 if (arguments.length != 1)
-                    throw new InvalidSyntaxException("Call to accepts should have 1 argument", "", true);
+                    throw new InvalidSyntaxException("Call to accepts should have 1 or 0 arguments", "", true);
+
                 Object argument = arguments[0];
                 if (argument instanceof String) {
                     String arg = (String) argument;
