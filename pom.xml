@@ -137,6 +137,13 @@
             <artifactId>utils</artifactId>
             <version>1.07.00</version>
         </dependency>
+        <!-- https://mvnrepository.com/artifact/guru.nidi/graphviz-java -->
+        <!-- https://github.com/nidi3/graphviz-java -->
+        <dependency>
+            <groupId>guru.nidi</groupId>
+            <artifactId>graphviz-java</artifactId>
+            <version>0.7.0</version>
+        </dependency>
 
     </dependencies>
 </project>

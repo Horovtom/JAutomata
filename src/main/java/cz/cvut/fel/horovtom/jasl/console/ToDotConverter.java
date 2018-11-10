@@ -1,16 +1,20 @@
 package cz.cvut.fel.horovtom.jasl.console;
 
 import cz.cvut.fel.horovtom.automata.logic.Automaton;
-import cz.cvut.fel.horovtom.automata.logic.DFAAutomaton;
 import cz.cvut.fel.horovtom.automata.samples.AutomatonSamples;
+import org.apache.commons.io.IOUtils;
 
-import java.io.FileNotFoundException;
-import java.io.UnsupportedEncodingException;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.logging.Logger;
+
 
 public class ToDotConverter {
-
+    private static final Logger LOGGER = Logger.getLogger(ToDotConverter.class.getName());
     /**
      * This function will return a string containing the dot code to display specified automaton.
      */
@@ -83,20 +87,62 @@ public class ToDotConverter {
     }
 
     public static void main(String[] args) {
-        //thisIsUgly();
-
         try {
             Automaton dfaAutomaton = AutomatonSamples.ENFASamples.aa_c_a();
+            System.out.println("We got from: ");
             System.out.println(convertToDot(dfaAutomaton));
-        } catch (FileNotFoundException | UnsupportedEncodingException e) {
+            System.out.println("\n\nThis:");
+            String s = getFormattedDot(convertToDot(dfaAutomaton));
+            System.out.println(s);
+        } catch (IOException e) {
             e.printStackTrace();
         }
 
     }
 
-    private static void thisIsUgly() {
-        DFAAutomaton dfaAutomaton = AutomatonSamples.DFASamples.lolipop();
-        System.out.println(convertToDot(dfaAutomaton));
+    /**
+     * This function will return dot code of the graphvized automaton.
+     *
+     * @param s Dot code of the original automaton
+     * @return Dot code of the formatted automaton
+     */
+    private static String getFormattedDot(String s) throws IOException {
+        String res = null;
+        try {
+            res = execute("dot -Tdot\n", s);
+
+        } catch (UnknownCommandException e) {
+            LOGGER.severe("The 'dot' command is not accessible from console!");
+            e.printStackTrace();
+            System.exit(-2);
+        }
+        return res;
+    }
+
+    /**
+     * This function will return output of command executed in command line..
+     *
+     * @param command  Command to be executed
+     * @param argument Input for the command.
+     * @return String containing the output of the process.
+     */
+    private static String execute(String command, String argument) throws IOException, UnknownCommandException {
+        Process p = Runtime.getRuntime().exec(command);
+        OutputStream os = p.getOutputStream();
+        os.write(argument.getBytes());
+        os.close();
+        StringWriter sw = new StringWriter();
+        InputStream is = p.getInputStream();
+        IOUtils.copy(is, sw, "UTF-8");
+        is.close();
+        if (p.exitValue() != 0) throw new UnknownCommandException(command);
+        return sw.toString();
+    }
+
+    private static class UnknownCommandException extends Exception {
+        public UnknownCommandException(String message) {
+            super(message);
+        }
     }
 
 }
