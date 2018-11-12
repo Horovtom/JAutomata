@@ -142,6 +142,7 @@ public class Regex {
         char ch, lastCh = '(';
         for (int i = 0; i < r.length(); i++) {
             ch = r.charAt(i);
+            if (ch == ' ') continue;
 
             if (ch == '(') bracketsDepth++;
             else if (ch == ')') bracketsDepth--;

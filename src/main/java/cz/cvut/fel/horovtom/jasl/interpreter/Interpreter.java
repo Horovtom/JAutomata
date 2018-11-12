@@ -487,9 +487,19 @@ public class Interpreter {
      * toRegex(),
      * toDot(),
      * toSimpleDot()
+     * equals(Automaton)
      */
     private Object callAutomatonMemberFunction(Automaton a, String functionName, Object[] arguments) throws InvalidSyntaxException {
+        Object argument;
         switch (functionName) {
+            case "equals":
+                if (arguments.length != 1)
+                    throw new InvalidSyntaxException("Call to equals should have 1 argument.", "", true);
+                argument = arguments[0];
+                if (!(argument instanceof Automaton)) return false;
+                Automaton other = (Automaton) argument;
+                return a.equals(other);
+
             case "reduce":
                 if (arguments.length > 0)
                     throw new InvalidSyntaxException("Call to reduce should not have any arguments.", "", true);
@@ -500,7 +510,7 @@ public class Interpreter {
                 if (arguments.length != 1)
                     throw new InvalidSyntaxException("Call to accepts should have 1 or 0 arguments", "", true);
 
-                Object argument = arguments[0];
+                argument = arguments[0];
                 if (argument instanceof String) {
                     String arg = (String) argument;
                     return a.acceptsWord(arg);
@@ -529,10 +539,11 @@ public class Interpreter {
                     throw new InvalidSyntaxException(
                             "Invalid number of arguments: " + arguments.length + ". toPNGImage expects 1 argument.",
                             "", true);
-                if (!(arguments[0] instanceof String)) throw new InvalidSyntaxException(
-                        "Invalid type of argument: " + arguments[0].getClass() + ". toPNGImage expects String.",
+                argument = arguments[0];
+                if (!(argument instanceof String)) throw new InvalidSyntaxException(
+                        "Invalid type of argument: " + argument.getClass() + ". toPNGImage expects String.",
                         "", true);
-                String p = (String) arguments[0];
+                String p = (String) argument;
                 File f = Paths.get(p).toFile();
                 if (f.isDirectory())
                     throw new InvalidSyntaxException("Cannot write to file at: " + p, "", true);

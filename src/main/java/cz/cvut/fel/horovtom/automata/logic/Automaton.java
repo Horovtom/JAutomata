@@ -352,7 +352,7 @@ public abstract class Automaton {
 
     @Override
     public String toString() {
-        return "Automaton:\n" + (this.description != null ? (this.description + "\n") : "") +
+        return "Automaton:\n" + (this.description != null && !this.description.equals("") ? (this.description + "\n") : "") +
                 exportToString().getPlainText();
     }
 
