@@ -2,20 +2,25 @@ package cz.cvut.fel.horovtom.jasl;
 
 
 import cz.cvut.fel.horovtom.jasl.console.ConsoleInterpreter;
+import cz.cvut.fel.horovtom.jasl.interpreter.FileInterpreter;
 
-import java.util.logging.Logger;
+import java.io.IOException;
+import java.util.logging.*;
 
 public class Main {
     private static Logger LOGGER = Logger.getLogger(Main.class.getName());
-    public static void main(String[] args) {
+
+    public static void main(String[] args) throws IOException {
         System.out.println("Welcome to Java Automata Scripting Language (JASL) interpreter");
 
+//        setLoggingHandlers();
 
         if (args.length > 0) {
             if (args[0].equals("-h")) displayHelp();
             if (args[0].equals("-f")) {
                 try {
                     loadFromFile(args[1]);
+
                 } catch (ArrayIndexOutOfBoundsException e) {
                     System.err.println("No file path specified...");
                     displayHelp();
@@ -29,8 +34,32 @@ public class Main {
         }
     }
 
+    @Deprecated
+    private static void setLoggingHandlers() throws IOException {
+        Handler fh = new FileHandler("LOG.log");
+        Logger logger = Logger.getLogger("");
+        for (Handler handler : logger.getHandlers()) {
+            logger.removeHandler(handler);
+        }
+
+        logger.addHandler(fh);
+
+
+        Logger rootLogger = LogManager.getLogManager().getLogger("");
+        rootLogger.setLevel(Level.WARNING);
+        for (Handler handler : rootLogger.getHandlers()) {
+            handler.setLevel(Level.WARNING);
+        }
+    }
+
     private static void loadFromFile(String path) {
         System.out.println("Loading from file: " + path);
+        FileInterpreter interpreter = new FileInterpreter(path);
+        boolean exitStatus = interpreter.start();
+        if (!exitStatus) {
+            System.err.println("Interpreter exited on error!");
+            interpreter.getException().printStackTrace();
+        }
     }
 
     private static void displayHelp() {

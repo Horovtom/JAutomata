@@ -151,10 +151,10 @@ public class Interpreter {
             } catch (FileNotFoundException | UnsupportedEncodingException e) {
                 throw new InvalidSyntaxException("Could not find file: " + path, expression, true);
             }
-        } else if (expression.startsWith("pngImage(")) {
+        } else if (expression.startsWith("toPNG(")) {
             // PNG IMAGE EXPORT
             //TODO: Implement conversion to png image
-            LOGGER.severe("Not implemented function pngImage Yet!");
+            LOGGER.severe("Not implemented function toPNG Yet!");
             return null;
         } else if (expression.startsWith("getExample1()")) {
             // GETTING SAMPLE AUTOMATON
@@ -482,7 +482,7 @@ public class Interpreter {
      * accepts(String[]), accepts(ArrayList), accepts(String)
      * toCSV(String),
      * toTexImage(),
-     * toPNGImage(String),
+     * toPNG(String),
      * toTexTable(),
      * toRegex(),
      * toDot(),
@@ -524,7 +524,7 @@ public class Interpreter {
 
                 break;
 
-            case "toPNGImage":
+            case "toPNG":
                 if (arguments.length != 1)
                     throw new InvalidSyntaxException(
                             "Invalid number of arguments: " + arguments.length + ". toPNGImage expects 1 argument.",
@@ -534,8 +534,14 @@ public class Interpreter {
                         "", true);
                 String p = (String) arguments[0];
                 File f = Paths.get(p).toFile();
-                if (f.isDirectory() || f.exists())
+                if (f.isDirectory())
                     throw new InvalidSyntaxException("Cannot write to file at: " + p, "", true);
+                if (f.exists()) {
+                    LOGGER.info("Overwriting file at: " + p);
+                    if (!f.delete()) {
+                        throw new InvalidSyntaxException("Cannot overwrite file at: " + p, "", true);
+                    }
+                }
                 GraphvizAPI.toPNG(a, p);
 
                 break;

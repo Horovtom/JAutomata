@@ -11,6 +11,15 @@ public class Main {
 
 
     public static void main(String[] args) throws IOException {
+        // setLoggingHandler();
+
+
+        ConsoleMenu cm = new ConsoleMenu();
+        cm.displayMenu();
+    }
+
+    @Deprecated
+    private static void setLoggingHandler() throws IOException {
         Handler fh = new FileHandler("LOG.log");
         Logger logger = Logger.getLogger("");
         for (Handler handler : logger.getHandlers()) {
@@ -18,8 +27,5 @@ public class Main {
         }
 
         logger.addHandler(fh);
-
-        ConsoleMenu cm = new ConsoleMenu();
-        cm.displayMenu();
     }
 }
