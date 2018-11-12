@@ -10,7 +10,6 @@ import cz.cvut.fel.horovtom.jasl.graphviz.GraphvizAPI;
 
 import java.io.*;
 import java.nio.file.Files;
-import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
 import java.util.ArrayList;
@@ -139,7 +138,7 @@ public class Interpreter {
                 throw new InvalidSyntaxException("texTable function takes 2 arguments.", expression, true);
             }
             Automaton a = (Automaton) eval[0];
-            return a.exportToString().getTEX();
+            res = a.exportToString().getTEX();
         } else if (expression.startsWith("fromCSV(")) {
             // IMPORT AUTOMATON FROM CSV
             if (eval.length != 1)
@@ -159,28 +158,43 @@ public class Interpreter {
             return null;
         } else if (expression.startsWith("getExample1()")) {
             // GETTING SAMPLE AUTOMATON
-            return getExpressionResult("NFA({{a, b},{>, 0, 1, {2,3}},{>, 1, {}, {1, 4}},{<>, 2, {}, 0},{<, 3, 3, 3},{4,4,2}})");
+            res = getExpressionResult("NFA({{a, b},{>, 0, 1, {2,3}},{>, 1, {}, {1, 4}},{<>, 2, {}, 0},{<, 3, 3, 3},{4,4,2}})");
         } else if (expression.startsWith("fromRegex(")) {
             // IMPORT FROM REGEX
             if (eval.length != 1)
                 throw new InvalidSyntaxException("fromRegex function takes 1 argument.", expression, true);
-            return FromRegexConverter.getAutomaton((String) eval[0]);
+            res = FromRegexConverter.getAutomaton((String) eval[0]);
         } else {
             throw new InvalidSyntaxException("Unknown parse command", expression);
         }
 
-        if (insideIndices[insideIndices.length - 1] < expression.length() - 2) {
-            //There is something that follows this declaration...
+        // We have to check, whether there is some chaining:
+        String commandToChain = null;
+        if (insideIndices.length > 0) {
+            // It had some arguments
+            if (insideIndices[insideIndices.length - 1] < expression.length() - 2)
+                commandToChain = expression.substring(insideIndices[insideIndices.length - 1] + 2, expression.length());
+        } else {
+            // It is without arguments
+            // Find end of function:
+            int start = expression.indexOf("()") + 2;
+            if (start < expression.length()) {
+                if (expression.charAt(start) != '.')
+                    throw new InvalidSyntaxException("Unexpected token at position: " + (start) + ". '.' expected.", expression, true);
+                commandToChain = expression.substring(start, expression.length());
+            }
+        }
+
+        if (commandToChain != null) {
+            //There is something that follows the function call...
             Object tmp = variables.get("$TEMP");
 
-
             variables.put("$TEMP", res);
-            res = parseVarFunction("$TEMP" + expression.substring(insideIndices[insideIndices.length - 1] + 2, expression.length()));
+            res = parseVarFunction("$TEMP" + commandToChain);
             if (tmp == null)
                 variables.remove("$TEMP");
             else
                 variables.put("$TEMP", tmp);
-
         }
 
         return res;
@@ -434,7 +448,7 @@ public class Interpreter {
 
     /**
      * This will call automaton member function specified in the arguments.
-     *
+     * <p>
      * Valid functions are:
      * reduce(),
      * accepts(String[]), accepts(ArrayList), accepts(String)
@@ -447,7 +461,7 @@ public class Interpreter {
      * toSimpleDot()
      */
     private Object callAutomatonMemberFunction(Automaton a, String functionName, Object[] arguments) throws InvalidSyntaxException {
-        switch(functionName) {
+        switch (functionName) {
             case "reduce":
                 if (arguments.length > 0)
                     throw new InvalidSyntaxException("Call to reduce should not have any arguments.", "", true);
@@ -524,7 +538,7 @@ public class Interpreter {
      * This will call specified function of string on specified arguments.
      */
     private Object callStringMemberFunction(String s, String functionName, Object[] arguments) throws InvalidSyntaxException {
-        switch(functionName) {
+        switch (functionName) {
             case "save":
                 if (!(arguments.length == 1 && arguments[0] instanceof String)) throw new InvalidSyntaxException(
                         "save function needs path argument to be specified!", "", true);
@@ -564,7 +578,7 @@ public class Interpreter {
     /**
      * This will call function of a variable and return result as an Object
      *
-     * @param var      variable
+     * @param var          variable
      * @param functionName member function of the variable
      * @param arguments    Arguments of the function in an object array.
      * @return Object containing the result of the functions.
