@@ -147,7 +147,7 @@ public class Interpreter {
             String path = (String) eval[0];
             LOGGER.info("Importing Automaton from CSV file at: " + path);
             try {
-                return Automaton.importFromCSV(new File(path));
+                res = Automaton.importFromCSV(new File(path));
             } catch (FileNotFoundException | UnsupportedEncodingException e) {
                 throw new InvalidSyntaxException("Could not find file: " + path, expression, true);
             }
@@ -186,15 +186,7 @@ public class Interpreter {
         }
 
         if (commandToChain != null) {
-            //There is something that follows the function call...
-            Object tmp = variables.get("$TEMP");
-
-            variables.put("$TEMP", res);
-            res = parseVarFunction("$TEMP" + commandToChain);
-            if (tmp == null)
-                variables.remove("$TEMP");
-            else
-                variables.put("$TEMP", tmp);
+            res = chainOnTemp(res, commandToChain);
         }
 
         return res;
@@ -435,14 +427,50 @@ public class Interpreter {
         String functionName = tokens[0];
 
         //Find arguments
+
         if (!tokens[1].endsWith(")"))
             throw new InvalidSyntaxException("Could not find closing parenthesis for function call", expression, true);
         int[] argumentIndices = extractFromBrackets(call);
+
         Object[] arguments = new Object[argumentIndices.length / 2];
         for (int i = 0; i < arguments.length; i++) {
             arguments[i] = getExpressionResult(call.substring(argumentIndices[i * 2], argumentIndices[i * 2 + 1] + 1));
         }
-        return callVarFunction(variables.get(varname), functionName, arguments);
+        Object res = callVarFunction(variables.get(varname), functionName, arguments);
+
+        String toBeChained = null;
+        if (argumentIndices.length == 0 && tokens[1].startsWith(")") && tokens[1].length() > 1 && tokens[1].charAt(1) == '.') {
+            //Extract chained statement from no arguments call
+            toBeChained = tokens[1].substring(1, tokens[1].length());
+        } else if (argumentIndices.length > 0 && argumentIndices[argumentIndices.length - 1] + 2 < call.length()) {
+            toBeChained = call.substring(argumentIndices[argumentIndices.length - 1] + 2, call.length());
+        }
+
+        if (toBeChained != null) {
+            res = chainOnTemp(res, toBeChained);
+        }
+
+        return res;
+    }
+
+    /**
+     * This function will execute command on temp object.
+     * It will create new 'stack frame'. (Only using $TEMP variable, while saving its old value)
+     *
+     * @param temp    Object for the command to be executed onto
+     * @param command String with commands that should be executed on the object. In form of '.func(args)'
+     * @return Object that is the result of execution
+     */
+    private Object chainOnTemp(Object temp, String command) throws InvalidSyntaxException {
+        Object tmp = variables.get("$TEMP");
+        variables.put("$TEMP", temp);
+        Object res = parseVarFunction("$TEMP" + command);
+        if (tmp == null) {
+            variables.remove("$TEMP");
+        } else {
+            variables.put("$TEMP", tmp);
+        }
+        return res;
     }
 
 
@@ -526,7 +554,6 @@ public class Interpreter {
 
             default:
                 throw new InvalidSyntaxException("Unknown function call", "", true);
-
         }
 
         //FIXME: This should be unreachable
@@ -584,6 +611,7 @@ public class Interpreter {
      * @return Object containing the result of the functions.
      */
     private Object callVarFunction(Object var, String functionName, Object[] arguments) throws InvalidSyntaxException {
+        if (var instanceof Boolean) var = var.toString();
         if (var instanceof Automaton || var instanceof DFAAutomaton || var instanceof NFAAutomaton || var instanceof ENFAAutomaton) {
             Automaton a = (Automaton) var;
 
