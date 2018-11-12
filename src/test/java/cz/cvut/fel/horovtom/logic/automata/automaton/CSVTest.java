@@ -51,6 +51,7 @@ public class CSVTest {
         Automaton automaton = AutomatonSamples.NFASamples.troy();
         try {
             File file = File.createTempFile("enfa", "csv");
+            file.deleteOnExit();
             automaton.exportToCSV(file);
             BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream(file)));
             assertEquals("CSV was incorrect", "\"This automaton accepts words that contain substring: 'troy'\",,\"t\",\"r\",\"o\",\"y\"", br.readLine());
@@ -113,6 +114,7 @@ public class CSVTest {
         Automaton automaton = new DFAAutomaton(states, letters, map, initial, accepting);
         try {
             File file = File.createTempFile("dfa", "csv");
+            file.deleteOnExit();
             automaton.exportToCSV(file);
             BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream(file)));
             assertEquals("CSV was incorrect", ",,\"a\",\"b\"", br.readLine());
@@ -148,6 +150,7 @@ public class CSVTest {
         NFAAutomaton automaton = new NFAAutomaton(states, letters, initials, accepting, map);
         try {
             File file = File.createTempFile("nfa", "csv");
+            file.deleteOnExit();
             automaton.exportToCSV(file);
             BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream(file)));
             assertEquals("CSV was incorrect", ",,\"a\",\"b\"", br.readLine());
@@ -165,6 +168,7 @@ public class CSVTest {
         NFAAutomaton automaton = AutomatonSamples.NFASamples.regex1();
         try {
             File file = File.createTempFile("nfa2", "csv");
+            file.deleteOnExit();
             automaton.exportToCSV(file);
             BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream(file)));
             assertEquals("CSV was incorrect", ",,\"a\",\"b\",\"c\"", br.readLine());
@@ -185,6 +189,7 @@ public class CSVTest {
         ENFAAutomaton automaton = AutomatonSamples.ENFASamples.oneLetter();
         try {
             File file = File.createTempFile("enfa1", "csv");
+            file.deleteOnExit();
             automaton.exportToCSV(file);
             BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream(file), StandardCharsets.UTF_8));
             assertEquals("CSV was incorrect", ",,\"ε\",\"a\",\"b\"", br.readLine());

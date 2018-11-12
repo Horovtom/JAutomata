@@ -1,12 +1,12 @@
 package cz.cvut.fel.horovtom.jasl.interpreter;
 
-import com.Ostermiller.util.CircularCharBuffer;
 import cz.cvut.fel.horovtom.automata.logic.Automaton;
 import cz.cvut.fel.horovtom.automata.logic.DFAAutomaton;
 import cz.cvut.fel.horovtom.automata.logic.ENFAAutomaton;
 import cz.cvut.fel.horovtom.automata.logic.NFAAutomaton;
 import cz.cvut.fel.horovtom.automata.logic.converters.FromRegexConverter;
 import cz.cvut.fel.horovtom.jasl.graphviz.GraphvizAPI;
+import cz.cvut.fel.horovtom.utilities.Utilities;
 
 import java.io.*;
 import java.nio.file.Files;
@@ -197,7 +197,9 @@ public class Interpreter {
             Object o = eval[0];
             if (o instanceof ArrayList) {
                 Reader res = getReaderFromTable((ArrayList<Object>) o);
+
                 return getDFAFromTable(res);
+
             }
         } else if (eval.length == 5) {
             return getDFAFromArgs(eval);
@@ -228,9 +230,9 @@ public class Interpreter {
 
     private Reader getReaderFromTable(ArrayList<Object> table) {
         try {
-            // Create circularCharBuffer
-            CircularCharBuffer ccb = new CircularCharBuffer();
-            Writer writer = ccb.getWriter();
+            // Create temporary file.
+            File temp = Utilities.createTempFile();
+            FileWriter writer = new FileWriter(temp);
             ArrayList<String> firstRow = (ArrayList<String>) table.get(0);
             int properLineLength = firstRow.size() + 2;
             writer.write(",");
@@ -253,7 +255,7 @@ public class Interpreter {
             }
             writer.close();
 
-            return ccb.getReader();
+            return new FileReader(temp);
         } catch (IOException | NullPointerException ignored) {
         }
         return null;
@@ -263,10 +265,13 @@ public class Interpreter {
     private Object getDFAFromTable(Reader reader) {
 
         Automaton a = Automaton.importFromCSV(reader, ',');
+        try {
+            reader.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
         if (a == null) return null;
-
         return a.getDFA();
-
     }
 
     private Object getDFAFromArgs(Object[] args) {

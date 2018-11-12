@@ -2,27 +2,19 @@ package cz.cvut.fel.horovtom.jasl;
 
 import cz.cvut.fel.horovtom.jasl.interpreter.Interpreter;
 import cz.cvut.fel.horovtom.jasl.interpreter.Interpreter.InvalidSyntaxException;
+import cz.cvut.fel.horovtom.utilities.Utilities;
 import org.junit.Test;
 
 import javax.imageio.ImageIO;
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileReader;
 import java.io.IOException;
 
 import static org.junit.Assert.*;
 
 public class InterpreterOutputTest {
-    private File createTemp() {
-        try {
-            File tempFile = File.createTempFile("test-", "");
-            tempFile.deleteOnExit();
-            return tempFile;
-        } catch (IOException e) {
-            System.err.println("Could not run test, because creation of temporary file failed");
-            e.printStackTrace();
-            assertFalse("Could not run test, because creation of temporary file failed", true);
-            return null;
-        }
-    }
+
 
     //TODO: TEST FILE INTERPRETING
 
@@ -169,7 +161,7 @@ public class InterpreterOutputTest {
     @Test
     public void exportPng() {
         Interpreter interpreter = new Interpreter();
-        File tmp = createTemp();
+        File tmp = Utilities.createTempFile();
         assert tmp != null;
 
         try {
@@ -184,6 +176,7 @@ public class InterpreterOutputTest {
 
             File f = new File(path);
             assertEquals("The result file should be a png file.", "png", ImageIO.getImageReaders(ImageIO.createImageInputStream(f)).next().getFormatName());
+
         } catch (InvalidSyntaxException e) {
             e.printStackTrace();
             assertFalse("Failed to run test because of InvalidSyntaxException!", true);
@@ -212,5 +205,31 @@ public class InterpreterOutputTest {
             assertFalse("Failed to run test because of InvalidSyntaxException!", true);
         }
 
+    }
+
+    @Test
+    public void chaining() {
+        Interpreter interpreter = new Interpreter();
+
+        try {
+            String res;
+            File tmp = Utilities.createTempFile();
+
+            res = interpreter.parseLine("getExample1().reduce().equals(getExample1()).save(" + tmp.getAbsolutePath() + ")");
+            assertEquals("There should be no output from .save call", "", res);
+
+            FileReader fr = new FileReader(tmp);
+            BufferedReader br = new BufferedReader(fr);
+            String line = br.readLine();
+            assertEquals("The result of the line should be true...", "true", line);
+            br.close();
+            fr.close();
+        } catch (InvalidSyntaxException e) {
+            e.printStackTrace();
+            assertFalse("Failed to run test because of InvalidSyntaxException!", true);
+        } catch (IOException e) {
+            e.printStackTrace();
+            assertFalse(true);
+        }
     }
 }
