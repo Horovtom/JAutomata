@@ -74,6 +74,7 @@ public class LengthDivisibilityTest {
         assertTrue(a != null);
         assertTrue(a.acceptsWord(""));
         Random r = new Random();
+
         for (int i = 1; i < 7000; i++) {
             StringBuilder sb = new StringBuilder(i);
             String[] word = new String[i];

@@ -14,4 +14,3 @@ while True:
 	print(str)
 	r.clipboard_clear()
 	r.clipboard_append(str)
-

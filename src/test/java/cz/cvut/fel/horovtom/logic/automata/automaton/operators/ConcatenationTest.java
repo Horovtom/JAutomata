@@ -284,19 +284,6 @@ public class ConcatenationTest {
             }
 
         }
-        Automaton reduced = concatenation.getReduced();
-        System.out.println(reduced);
-    }
-
-    @Test
-    public void test1() {
-        DFAAutomaton dfa1 = AutomatonSamples.DFASamples.startEndSame();
-        DFAAutomaton dfa2 = AutomatonSamples.DFASamples.lolipopNumbers();
-        Automaton concatenation = Automaton.getConcatenation(dfa1, dfa2);
-        System.out.println(concatenation.getQSize());
-        Automaton reduced = concatenation.getReduced();
-        System.out.println(reduced.getQSize());
-        System.out.println(reduced.getKleene().getReduced());
     }
 
     private static boolean testL2(ArrayList<String> s, int currIndex) {

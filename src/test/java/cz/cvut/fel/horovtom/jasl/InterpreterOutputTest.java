@@ -4,6 +4,7 @@ import cz.cvut.fel.horovtom.jasl.interpreter.Interpreter;
 import cz.cvut.fel.horovtom.jasl.interpreter.Interpreter.InvalidSyntaxException;
 import org.junit.Test;
 
+import javax.imageio.ImageIO;
 import java.io.File;
 import java.io.IOException;
 
@@ -108,7 +109,7 @@ public class InterpreterOutputTest {
 
             res = interpreter.parseLine("NFA($c).equals($a)");
             assertEquals("Automata should be equal!", "true", res);
-            
+
             res = interpreter.parseLine("fromRegex(eps + a(a* + b*)).equals($a)");
             assertEquals("Automaton from this regex and automaton A should be the same.", "true", res);
 
@@ -118,5 +119,98 @@ public class InterpreterOutputTest {
             e.printStackTrace();
             assertFalse("Failed to run test because of InvalidSyntaxException!", true);
         }
+    }
+
+    @Test
+    public void enfaDefinition() {
+        Interpreter interpreter = new Interpreter();
+
+        try {
+            String res;
+
+            res = interpreter.parseLine(
+                    "$a = ENFA({{eps,a,b},{>,0,{1,3},{},{}},{1,{},1,2},{<,2,{},{},{}},{3,{},{},{3,4}},{<,4,{},{},{}}})");
+            assertEquals("Automaton initialization and assignment should not generate any output.", "", res);
+
+            res = interpreter.parseLine("$a.accepts(aaab)");
+            assertEquals("Automaton should accept word 'aaab'.", "true", res);
+
+            res = interpreter.parseLine("$a.accepts(bbbbbb)");
+            assertEquals("Automaton should accept word 'bbbbbb'.", "true", res);
+
+            res = interpreter.parseLine("$a.accepts(b)");
+            assertEquals("Automaton should accept word 'b'.", "true", res);
+
+            res = interpreter.parseLine("$a.accepts(babbbbaaa)");
+            assertEquals("Automaton should not accept word 'babbbbaaa'.", "false", res);
+
+            res = interpreter.parseLine("$a.accepts(aaba)");
+            assertEquals("Automaton should not accept word 'aaba'.", "false", res);
+
+            res = interpreter.parseLine("$a.accepts()");
+            assertEquals("Automaton should not accept word ''.", "false", res);
+
+            interpreter.parseLine("$c = {{ε,a,b},{>,0,{1,3},{},{}},{1,{},1,2},{<,2,{},{},{}},{3,{},{},{3,4}},{<,4,{},{},{}}}");
+
+            res = interpreter.parseLine("ENFA($c).equals($a)");
+            assertEquals("Automata should be equal!", "true", res);
+
+            res = interpreter.parseLine("fromRegex((a*+b*)b).equals($a)");
+            assertEquals("Automaton from this regex and automaton A should be the same.", "true", res);
+
+            res = interpreter.parseLine("fromRegex((ba(b)*)*).equals($a)");
+            assertEquals("Automaton from this regex and automaton A should not be the same.", "false", res);
+        } catch (InvalidSyntaxException e) {
+            e.printStackTrace();
+            assertFalse("Failed to run test because of InvalidSyntaxException!", true);
+        }
+    }
+
+    @Test
+    public void exportPng() {
+        Interpreter interpreter = new Interpreter();
+        File tmp = createTemp();
+        assert tmp != null;
+
+        try {
+            String res;
+
+            res = interpreter.parseLine("$a = DFA({{a,b},{>,0,2,1},{1,2,1},{<,2,2,1}})");
+            assertEquals("Automaton definition and assignment should not generate any output!", "", res);
+
+            String path = tmp.getAbsolutePath();
+            res = interpreter.parseLine("$a.toPNG(" + path + ")");
+            assertEquals("Exporting to PNG should not have any output.", "", res);
+
+            File f = new File(path);
+            assertEquals("The result file should be a png file.", "png", ImageIO.getImageReaders(ImageIO.createImageInputStream(f)).next().getFormatName());
+        } catch (InvalidSyntaxException e) {
+            e.printStackTrace();
+            assertFalse("Failed to run test because of InvalidSyntaxException!", true);
+        } catch (IOException e) {
+            e.printStackTrace();
+            assertFalse(true);
+        }
+    }
+
+    @Test
+    public void exportDot() {
+        Interpreter interpreter = new Interpreter();
+        try {
+            String res;
+
+            res = interpreter.parseLine("$a = DFA({{a,b},{>,0,2,1},{1,2,1},{<,2,2,1}})");
+            assertEquals("Automaton definition and assignment should not generate any output!", "", res);
+
+            res = interpreter.parseLine("$a.toDot()");
+            assertTrue("Result should at least start with: digraph automaton", res.startsWith("digraph automaton"));
+
+            res = interpreter.parseLine("$a.toSimpleDot()");
+            assertTrue("Result should at least start with: digraph automaton", res.startsWith("digraph automaton"));
+        } catch (InvalidSyntaxException e) {
+            e.printStackTrace();
+            assertFalse("Failed to run test because of InvalidSyntaxException!", true);
+        }
+
     }
 }
