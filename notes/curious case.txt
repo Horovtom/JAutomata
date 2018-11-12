@@ -1,0 +1,11 @@
+Why does drawing this automaton:
+    a b
+ >0 1 2,3
+ >1   1,4
+<>2   0
+< 3 3 3
+  4 4 2
+
+result in curious1.png after first graphviz run, and as curious2.png after second graphviz run?
+
+No other automaton from my samples does this! Why?

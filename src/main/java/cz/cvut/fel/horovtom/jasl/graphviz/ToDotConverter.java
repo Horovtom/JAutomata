@@ -1,17 +1,8 @@
 package cz.cvut.fel.horovtom.jasl.graphviz;
 
 import cz.cvut.fel.horovtom.automata.logic.Automaton;
-import cz.cvut.fel.horovtom.automata.samples.AutomatonSamples;
-import guru.nidi.graphviz.engine.Graphviz;
-import guru.nidi.graphviz.model.Graph;
-import org.apache.commons.io.IOUtils;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.io.StringWriter;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.logging.Logger;
 
@@ -23,7 +14,7 @@ class ToDotConverter {
      */
     static String convertToDot(Automaton automaton) {
         StringBuilder res = new StringBuilder("digraph automaton");
-        res.append(" {\n\trankdir=LR;\n\tsize=\"8,5\"\n");
+        res.append(" {\n\trankdir=LR;\n\tsize=\"8,3\"\n");
 
         // Initial points:
         res.append("\tnode [shape = none];\n");

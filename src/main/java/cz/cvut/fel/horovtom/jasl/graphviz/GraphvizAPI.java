@@ -59,11 +59,28 @@ public class GraphvizAPI {
      */
     private static String dotToDot(String graph) throws IOException {
         try {
-            return execute("dot -Tdot \n", graph);
+            // We have to do it twice to get the real result.
+            String s = execute("dot -Tdot \n", graph);
+            return execute("dot -Tdot \n", s);
         } catch (UnknownCommandException e) {
             LOGGER.warning("Graphviz has thrown an exception while processing graph: " + graph);
             e.printStackTrace();
             return null;
+        }
+    }
+
+    //TODO: JUST FOR TESTING
+    public static void dotToPNG(Automaton a, String path, String path2, String path3) throws IOException {
+        try {
+            String s = ToDotConverter.convertToDot(a);
+            execute("dot -Tpng -o " + path + " \n", s);
+            s = execute("dot -Tdot \n", s);
+            execute("dot -Tpng -o " + path2 + " \n", s);
+            s = execute("dot -Tdot \n", s);
+            execute("dot -Tpng -o " + path3 + " \n", s);
+
+        } catch (UnknownCommandException e) {
+            e.printStackTrace();
         }
     }
 
@@ -75,7 +92,8 @@ public class GraphvizAPI {
      */
     private static void dotToPng(String graph, String path) throws IOException {
         try {
-            execute("dot -Tpng -o " + path + " \n", graph);
+            String s = execute("dot -Tdot \n", graph);
+            execute("dot -Tpng -o " + path + " \n", s);
         } catch (UnknownCommandException e) {
             LOGGER.warning("Graphviz has thrown an exception while saving PNG to " + path + " of graph: " + graph);
             e.printStackTrace();

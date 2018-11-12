@@ -583,6 +583,19 @@ public class Interpreter {
     }
 
 
+    public static void main(String[] args) throws IOException, InvalidSyntaxException {
+        //TODO: REMOVE. This is for testing only...
+        Interpreter s = new Interpreter();
+//        Automaton a = (Automaton) s.getExpressionResult("NFA({{a, b},{>, 0, 1, {2,3}},{>, 1, {}, {1, 4}},{<>, 2, {}, 0},{<, 3, 3, 3},{4,4,2}})");
+        Automaton a = (Automaton) s.getExpressionResult("NFA({{a,b}, {>,0,1,3}, {1,2,{}}, {>,2,0,{}}, {3,3,3}})");
+//        a = a.getReduced();
+        System.out.println(a);
+        System.out.println(a.getRegex());
+        System.out.println(GraphvizAPI.toDot(a));
+
+        GraphvizAPI.dotToPNG(a, "test.png", "test2.png", "test3.png");
+    }
+
     /**
      * This will call specified function of string on specified arguments.
      */
