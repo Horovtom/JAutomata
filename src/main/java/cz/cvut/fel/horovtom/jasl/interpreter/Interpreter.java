@@ -1,4 +1,4 @@
-package cz.cvut.fel.horovtom.jasl;
+package cz.cvut.fel.horovtom.jasl.interpreter;
 
 import com.Ostermiller.util.CircularCharBuffer;
 import cz.cvut.fel.horovtom.automata.logic.Automaton;
@@ -6,8 +6,13 @@ import cz.cvut.fel.horovtom.automata.logic.DFAAutomaton;
 import cz.cvut.fel.horovtom.automata.logic.ENFAAutomaton;
 import cz.cvut.fel.horovtom.automata.logic.NFAAutomaton;
 import cz.cvut.fel.horovtom.automata.logic.converters.FromRegexConverter;
+import cz.cvut.fel.horovtom.jasl.graphviz.GraphvizAPI;
 
 import java.io.*;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardOpenOption;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.logging.Logger;
@@ -426,25 +431,29 @@ public class Interpreter {
         return callVarFunction(variables.get(varname), functionName, arguments);
     }
 
-    /**
-     * This will call function of a variable and return result as an Object
-     *
-     * @param varname      variable
-     * @param functionName member function of the variable
-     * @param arguments    Arguments of the function in an object array.
-     * @return Object containing the result of the functions.
-     */
-    private Object callVarFunction(Object varname, String functionName, Object[] arguments) throws InvalidSyntaxException {
-        if (varname instanceof Automaton || varname instanceof DFAAutomaton || varname instanceof NFAAutomaton || varname instanceof ENFAAutomaton) {
-            Automaton a = (Automaton) varname;
 
-            if (functionName.equals("reduce")) {
-                // REDUCTION
+    /**
+     * This will call automaton member function specified in the arguments.
+     *
+     * Valid functions are:
+     * reduce(),
+     * accepts(String[]), accepts(ArrayList), accepts(String)
+     * toCSV(String),
+     * toTexImage(),
+     * toPNGImage(String),
+     * toTexTable(),
+     * toRegex(),
+     * toDot(),
+     * toSimpleDot()
+     */
+    private Object callAutomatonMemberFunction(Automaton a, String functionName, Object[] arguments) throws InvalidSyntaxException {
+        switch(functionName) {
+            case "reduce":
                 if (arguments.length > 0)
                     throw new InvalidSyntaxException("Call to reduce should not have any arguments.", "", true);
                 return a.getReduced();
-            } else if (functionName.equals("accepts")) {
-                // ACCEPTING
+
+            case "accepts":
                 if (arguments.length == 0) return a.acceptsWord("");
                 if (arguments.length != 1)
                     throw new InvalidSyntaxException("Call to accepts should have 1 or 0 arguments", "", true);
@@ -457,8 +466,10 @@ public class Interpreter {
                     ArrayList<String> arg = (ArrayList<String>) argument;
                     return a.acceptsWord(arg);
                 }
-            } else if (functionName.equals("toCSV")) {
-                // CSV EXPORT
+
+                break;
+
+            case "toCSV":
                 if (arguments.length != 1)
                     throw new InvalidSyntaxException("Invalid number of arguments: " + arguments.length + "for toCSV member function.", "", true);
                 String path = (String) arguments[0];
@@ -466,28 +477,112 @@ public class Interpreter {
                 a.exportToCSV(new File(path));
                 return null;
 
-            } else if (functionName.equals("toTexImage")) {
-                // TIKZ EXPORT
+            case "toTexImage":
                 //TODO: Implement
 
-            } else if (functionName.equals("toPNGImage")) {
-                // PNG EXPORT
-                //TODO: Implement
+                break;
 
-            } else if (functionName.equals("toTexTable")) {
-                // TEX TABLE EXPORT
+            case "toPNGImage":
+                if (arguments.length != 1)
+                    throw new InvalidSyntaxException(
+                            "Invalid number of arguments: " + arguments.length + ". toPNGImage expects 1 argument.",
+                            "", true);
+                if (!(arguments[0] instanceof String)) throw new InvalidSyntaxException(
+                        "Invalid type of argument: " + arguments[0].getClass() + ". toPNGImage expects String.",
+                        "", true);
+                String p = (String) arguments[0];
+                File f = Paths.get(p).toFile();
+                if (f.isDirectory() || f.exists())
+                    throw new InvalidSyntaxException("Cannot write to file at: " + p, "", true);
+                GraphvizAPI.toPNG(a, p);
+
+                break;
+
+            case "toTexTable":
                 return a.exportToString().getTEX();
-            } else if (functionName.equals("toRegex")) {
-                // REGEX EXPORT
+
+            case "toRegex":
                 return a.getRegex();
-            } else {
+
+            case "toDot":
+                return GraphvizAPI.toFormattedDot(a);
+
+            case "toSimpleDot":
+                return GraphvizAPI.toDot(a);
+
+            default:
                 throw new InvalidSyntaxException("Unknown function call", "", true);
-            }
+
+        }
+
+        //FIXME: This should be unreachable
+        return null;
+    }
+
+
+    /**
+     * This will call specified function of string on specified arguments.
+     */
+    private Object callStringMemberFunction(String s, String functionName, Object[] arguments) throws InvalidSyntaxException {
+        switch(functionName) {
+            case "save":
+                if (!(arguments.length == 1 && arguments[0] instanceof String)) throw new InvalidSyntaxException(
+                        "save function needs path argument to be specified!", "", true);
+                String path = (String) arguments[0];
+
+                File f = new File(path);
+                if (f.isDirectory()) throw new InvalidSyntaxException("Path does not lead to a file!", "", true);
+                if (f.isFile()) {
+                    // This means it exists, so we will append to it!
+                    LOGGER.info("Appending to file: " + path);
+                    try {
+                        Files.write(Paths.get(path), s.getBytes(), StandardOpenOption.APPEND);
+                    } catch (IOException e) {
+                        LOGGER.warning("IOException occurred when trying to append to file. " + e.getMessage());
+                        throw new InvalidSyntaxException("I/O exception when trying to append to file: " + path, "", true);
+                    }
+                } else {
+                    // Create and write:
+                    try {
+                        Files.write(Paths.get(path), s.getBytes());
+                    } catch (IOException e) {
+                        LOGGER.warning("IOException occurred when trying to write to file. " + e.getMessage());
+                        throw new InvalidSyntaxException("I/O exception when trying to write to file: " + path, "", true);
+                    }
+                }
+
+                break;
+
+            default:
+                throw new InvalidSyntaxException("Unknown function call on string", "", true);
+        }
+
+        //FIXME: This should be unreachable
+        return null;
+    }
+
+    /**
+     * This will call function of a variable and return result as an Object
+     *
+     * @param var      variable
+     * @param functionName member function of the variable
+     * @param arguments    Arguments of the function in an object array.
+     * @return Object containing the result of the functions.
+     */
+    private Object callVarFunction(Object var, String functionName, Object[] arguments) throws InvalidSyntaxException {
+        if (var instanceof Automaton || var instanceof DFAAutomaton || var instanceof NFAAutomaton || var instanceof ENFAAutomaton) {
+            Automaton a = (Automaton) var;
+
+            return callAutomatonMemberFunction(a, functionName, arguments);
+        } else if (var instanceof String) {
+            String s = (String) var;
+
+            return callStringMemberFunction(s, functionName, arguments);
         } else {
             throw new InvalidSyntaxException("Unknown function call", "", true);
         }
 
-        return null;
+//        return null;
     }
 
     /**

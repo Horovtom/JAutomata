@@ -3,7 +3,8 @@ package cz.cvut.fel.horovtom.jasl;
 import cz.cvut.fel.horovtom.automata.logic.DFAAutomaton;
 import cz.cvut.fel.horovtom.automata.logic.ENFAAutomaton;
 import cz.cvut.fel.horovtom.automata.logic.converters.FromRegexConverter;
-import cz.cvut.fel.horovtom.jasl.Interpreter.InvalidSyntaxException;
+import cz.cvut.fel.horovtom.jasl.interpreter.Interpreter;
+import cz.cvut.fel.horovtom.jasl.interpreter.Interpreter.InvalidSyntaxException;
 import org.junit.Test;
 
 import java.lang.reflect.InvocationTargetException;

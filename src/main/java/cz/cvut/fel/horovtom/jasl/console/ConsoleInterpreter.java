@@ -1,7 +1,7 @@
 package cz.cvut.fel.horovtom.jasl.console;
 
-import cz.cvut.fel.horovtom.jasl.Interpreter;
-import cz.cvut.fel.horovtom.jasl.Interpreter.InvalidSyntaxException;
+import cz.cvut.fel.horovtom.jasl.interpreter.Interpreter;
+import cz.cvut.fel.horovtom.jasl.interpreter.Interpreter.InvalidSyntaxException;
 import org.fusesource.jansi.AnsiConsole;
 
 import java.io.BufferedReader;
