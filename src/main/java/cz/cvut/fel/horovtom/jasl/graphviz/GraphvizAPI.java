@@ -133,4 +133,8 @@ public class GraphvizAPI {
             return ToDotConverter.convertToDot(a);
 
     }
+
+    public static String toTikz(Automaton a) throws IOException {
+        return DotToTex.convert(dotToDot(ToDotConverter.convertToDot(a)));
+    }
 }

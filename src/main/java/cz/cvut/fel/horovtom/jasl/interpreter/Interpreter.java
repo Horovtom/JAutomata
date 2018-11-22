@@ -587,7 +587,8 @@ public class Interpreter {
         //TODO: REMOVE. This is for testing only...
         Interpreter s = new Interpreter();
 //        Automaton a = (Automaton) s.getExpressionResult("NFA({{a, b},{>, 0, 1, {2,3}},{>, 1, {}, {1, 4}},{<>, 2, {}, 0},{<, 3, 3, 3},{4,4,2}})");
-        Automaton a = (Automaton) s.getExpressionResult("NFA({{a,b}, {>,0,1,3}, {1,2,{}}, {>,2,0,{}}, {3,3,3}})");
+        //Automaton a = (Automaton) s.getExpressionResult("NFA({{a,b}, {>,0,1,3}, {1,2,{}}, {>,2,0,{}}, {3,3,3}})");
+        Automaton a = FromRegexConverter.getAutomaton("a*ba");
 //        a = a.getReduced();
         System.out.println(a);
         System.out.println(a.getRegex());
