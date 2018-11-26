@@ -246,12 +246,7 @@ public class InterpreterTest {
         <,e,     ,     ,e
          */
 
-        String input = "{{eps, a, b}, " +
-                "{>,a,{b,e},d,a}," +
-                "{b,{},{b,c},{}}," +
-                "{<,c,{},{},{}}," +
-                "{d,{},{},e}," +
-                "{<,e,{},{},e}}";
+        String input = "{{eps, a, b}, {>,a,{b,e},d,a},{b,{},{b,c},{}},{<,c,{},{},{}},{d,{},{},e},{<,e,{},{},e}}";
 
         try {
             Object result = method.invoke(interpreter, "ENFA(" + input + ")");

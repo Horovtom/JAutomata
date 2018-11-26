@@ -5,4 +5,17 @@ target/
 *.log*
 *.log.1
 *.csv#
-
+## TEX OUTPUT FILES
+*.aux
+*.lof
+TEX/*.log
+TEX/*.gz
+*.lot
+*.fls
+*.out
+*.toc
+*.fmt
+*.fot
+*.cb
+*.cb2
+.*.lb
