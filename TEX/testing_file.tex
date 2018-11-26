@@ -4,7 +4,7 @@
 \usepackage{tikz}
 \usepackage{forest}
 \usepackage{amssymb}
-\usetikzlibrary{shapes, angles, calc, quotes,arrows,automata}
+\usetikzlibrary{shapes, angles, calc, quotes,arrows,automata, positioning}
 \usepackage[makeroom]{cancel}
 \usepackage{amsmath}
 \usepackage{pgf}
@@ -36,8 +36,8 @@
 
 \begin{document}
 
-\begin{tikzpicture}[->,>=stealth',shorten >=1pt,auto,node distance=2.8cm,semithick]
-	\node[state,initial] (0) at (0,0) {$0$} ;
+\begin{tikzpicture}[->,>=stealth',shorten >=1pt,auto,node distance=2.8cm,semithick,initial text=$ 	$]
+	\node[state,initial,initial where=above] (0) at (0,0) {$0$} ;
 	\node[state] (1) at (2,-2) {$1$} ;
 	\node[state,accepting] (2) at (2,2) {$2$} ;
 
@@ -49,7 +49,7 @@
 			edge [loop above] node {$a$} (1)
 			edge [bend left] node {$b$} (0)
 		(2)
-			edge [bend left] node {$a$} (0)
+			edge [bend left = 10] node {$a$} (0)
 			edge [loop above] node {$b$} (2);
 			
 \end{tikzpicture}
