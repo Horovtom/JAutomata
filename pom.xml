@@ -8,6 +8,7 @@
     <groupId>cz.cvut.fel.horovtom</groupId>
     <artifactId>jautomata</artifactId>
     <version>1.0-SNAPSHOT</version>
+    <packaging>jar</packaging>
     <build>
         <plugins>
             <plugin>
@@ -28,96 +29,193 @@
                 </configuration>
             </plugin>
 
+
+            <!--<plugin>-->
+            <!--<groupId>org.apache.maven.plugins</groupId>-->
+            <!--<artifactId>maven-shade-plugin</artifactId>-->
+            <!--<executions>-->
+            <!--<execution>-->
+            <!--<goals>-->
+            <!--<goal>shade</goal>-->
+            <!--</goals>-->
+            <!--<configuration>-->
+            <!--<shadedArtifactAttached>true</shadedArtifactAttached>-->
+            <!--<transformers>-->
+            <!--<transformer implementation=-->
+            <!--"org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">-->
+            <!--<mainClass>cz.cvut.fel.horovtom.jasl.Main</mainClass>-->
+            <!--</transformer>-->
+            <!--</transformers>-->
+            <!--</configuration>-->
+            <!--</execution>-->
+            <!--</executions>-->
+            <!--</plugin>-->
+
             <!--https://stackoverflow.com/questions/30298273/need-help-configuring-maven-pom-to-build-exe-file-->
+            <!--<plugin>-->
+            <!--<groupId>org.apache.maven.plugins</groupId>-->
+            <!--<artifactId>maven-shade-plugin</artifactId>-->
+            <!--<version>2.2</version>-->
+            <!--<executions>-->
+            <!--<execution>-->
+            <!--<phase>package</phase>-->
+            <!--<goals>-->
+            <!--<goal>shade</goal>-->
+            <!--</goals>-->
+            <!--<configuration>-->
+            <!--<createDependencyReducedPom>false</createDependencyReducedPom>-->
+            <!--<filters>-->
+            <!--<filter>-->
+            <!--<artifact>*:*</artifact>-->
+            <!--<excludes>-->
+            <!--<exclude>META-INF/*.SF</exclude>-->
+            <!--<exclude>META-INF/*.DSA</exclude>-->
+            <!--<exclude>META-INF/*.RSA</exclude>-->
+            <!--<exclude>.settings/**</exclude>-->
+            <!--<exclude>*.classpath</exclude>-->
+            <!--<exclude>*.project</exclude>-->
+            <!--<exclude>*.txt</exclude>-->
+            <!--</excludes>-->
+            <!--</filter>-->
+            <!--</filters>-->
+            <!--</configuration>-->
+            <!--</execution>-->
+            <!--</executions>-->
+            <!--</plugin>-->
+            <!--<plugin>-->
+            <!--<groupId>com.akathist.maven.plugins.launch4j</groupId>-->
+            <!--<artifactId>launch4j-maven-plugin</artifactId>-->
+            <!--<version>1.7.10</version>-->
+            <!--<executions>-->
+            <!--<execution>-->
+            <!--<id>l4j-clui-gui</id>-->
+            <!--<phase>package</phase>-->
+            <!--<goals>-->
+            <!--<goal>launch4j</goal>-->
+            <!--</goals>-->
+            <!--<configuration>-->
+            <!--<headerType>console</headerType>-->
+            <!--<jar>${project.build.directory}/${artifactId}-${version}-shaded.jar</jar>-->
+            <!--<stayAlive>true</stayAlive>-->
+            <!--<outfile>${project.build.directory}/jasl.exe</outfile>-->
+            <!--<downloadUrl>http://java.com/download</downloadUrl>-->
+            <!--<classPath>-->
+            <!--<mainClass>cz.cvut.fel.horovtom.jasl.Main</mainClass>-->
+            <!--<preCp>${project.artifactId}-${project.version}.jar</preCp>-->
+            <!--</classPath>-->
+            <!--<icon>src\main\resources\icon\application.ico</icon>-->
+            <!--<jre>-->
+            <!--<minVersion>1.8.0</minVersion>-->
+            <!--<jdkPreference>preferJre</jdkPreference>-->
+            <!--</jre>-->
+            <!--<versionInfo>-->
+            <!--<fileVersion>1.0.0.0</fileVersion>-->
+            <!--<txtFileVersion>${project.version}</txtFileVersion>-->
+            <!--<fileDescription>${project.name}</fileDescription>-->
+            <!--<copyright>2018 horovtom</copyright>-->
+            <!--<productVersion>1.0.0.0</productVersion>-->
+            <!--<txtProductVersion>1.0.0.0</txtProductVersion>-->
+            <!--<productName>${project.name}</productName>-->
+            <!--<companyName>FEL CVUT</companyName>-->
+            <!--<internalName>OI</internalName>-->
+            <!--<originalFilename>jasl.exe</originalFilename>-->
+            <!--</versionInfo>-->
+            <!--</configuration>-->
+            <!--</execution>-->
+            <!--</executions>-->
+            <!--</plugin>-->
+
+
+            <!--<plugin>-->
+            <!--<groupId>org.apache.maven.plugins</groupId>-->
+            <!--<artifactId>maven-dependency-plugin</artifactId>-->
+            <!--<executions>-->
+            <!--<execution>-->
+            <!--<id>copy-dependencies</id>-->
+            <!--<phase>prepare-package</phase>-->
+            <!--<goals>-->
+            <!--<goal>copy-dependencies</goal>-->
+            <!--</goals>-->
+            <!--<configuration>-->
+            <!--<outputDirectory>-->
+            <!--${project.build.directory}/libs-->
+            <!--</outputDirectory>-->
+            <!--</configuration>-->
+            <!--</execution>-->
+            <!--</executions>-->
+            <!--</plugin>-->
+
+            <!--<plugin>-->
+            <!--<groupId>org.apache.maven.plugins</groupId>-->
+            <!--<artifactId>maven-jar-plugin</artifactId>-->
+            <!--<configuration>-->
+            <!--<archive>-->
+            <!--<addClasspath>true</addClasspath>-->
+            <!--<classpathPrefix>libs/</classpathPrefix>-->
+            <!--<manifest>-->
+            <!--<mainClass>cz.cvut.fel.horovtom.jasl.Main</mainClass>-->
+            <!--</manifest>-->
+            <!--</archive>-->
+            <!--</configuration>-->
+            <!--</plugin>-->
+
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-shade-plugin</artifactId>
-                <version>2.2</version>
+                <artifactId>maven-assembly-plugin</artifactId>
                 <executions>
                     <execution>
                         <phase>package</phase>
                         <goals>
-                            <goal>shade</goal>
+                            <goal>single</goal>
                         </goals>
                         <configuration>
-                            <createDependencyReducedPom>false</createDependencyReducedPom>
-                            <filters>
-                                <filter>
-                                    <artifact>*:*</artifact>
-                                    <excludes>
-                                        <exclude>META-INF/*.SF</exclude>
-                                        <exclude>META-INF/*.DSA</exclude>
-                                        <exclude>META-INF/*.RSA</exclude>
-                                        <exclude>.settings/**</exclude>
-                                        <exclude>*.classpath</exclude>
-                                        <exclude>*.project</exclude>
-                                        <exclude>*.txt</exclude>
-                                    </excludes>
-                                </filter>
-                            </filters>
+                            <archive>
+                                <manifest>
+                                    <mainClass>
+                                        cz.cvut.fel.horovtom.jasl.Main
+                                    </mainClass>
+                                </manifest>
+                            </archive>
+                            <descriptorRefs>
+                                <descriptorRef>jar-with-dependencies</descriptorRef>
+                            </descriptorRefs>
                         </configuration>
                     </execution>
                 </executions>
             </plugin>
+
+            <!-- LOG CONFIGURATION -->
+
             <plugin>
-                <groupId>com.akathist.maven.plugins.launch4j</groupId>
-                <artifactId>launch4j-maven-plugin</artifactId>
-                <version>1.7.10</version>
-                <executions>
-                    <execution>
-                        <id>l4j-clui-gui</id>
-                        <phase>package</phase>
-                        <goals>
-                            <goal>launch4j</goal>
-                        </goals>
-                        <configuration>
-                            <headerType>console</headerType>
-                            <jar>${project.build.directory}/${artifactId}-${version}-shaded.jar</jar>
-                            <stayAlive>true</stayAlive>
-                            <outfile>${project.build.directory}/jasl.exe</outfile>
-                            <downloadUrl>http://java.com/download</downloadUrl>
-                            <classPath>
-                                <mainClass>cz.cvut.fel.horovtom.jasl.Main</mainClass>
-                                <preCp>${project.artifactId}-${project.version}.jar</preCp>
-                            </classPath>
-                            <icon>src\main\resources\icon\application.ico</icon>
-                            <jre>
-                                <minVersion>1.8.0</minVersion>
-                                <jdkPreference>preferJre</jdkPreference>
-                            </jre>
-                            <versionInfo>
-                                <fileVersion>1.0.0.0</fileVersion>
-                                <txtFileVersion>${project.version}</txtFileVersion>
-                                <fileDescription>${project.name}</fileDescription>
-                                <copyright>2018 horovtom</copyright>
-                                <productVersion>1.0.0.0</productVersion>
-                                <txtProductVersion>1.0.0.0</txtProductVersion>
-                                <productName>${project.name}</productName>
-                                <companyName>FEL CVUT</companyName>
-                                <internalName>OI</internalName>
-                                <originalFilename>jasl.exe</originalFilename>
-                            </versionInfo>
-                        </configuration>
-                    </execution>
-                </executions>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <configuration>
+                    <systemProperties>
+                        <property>
+                            <name>java.util.logging.config.file</name>
+                            <value>src/main/resources/logging.properties</value>
+                        </property>
+                    </systemProperties>
+                </configuration>
             </plugin>
+
+
         </plugins>
     </build>
 
-    <distributionManagement>
-        <!-- use the following if you're not using a snapshot version. -->
-        <repository>
-            <id>localSnap</id>
-            <name>RepositoryProxyRel</name>
-            <url>http://127.0.0.1:8080/nexus/content/repositories/releases/</url>
-        </repository>
-        <!-- use the following if you ARE using a snapshot version. -->
-        <snapshotRepository>
-            <id>MylocalSnap</id>
-            <name>RepositoryProxySnap</name>
-            <url>http://127.0.0.1:8080/nexus/content/repositories/snapshots/</url>
-        </snapshotRepository>
-    </distributionManagement>
+    <!--<distributionManagement>-->
+    <!--&lt;!&ndash; use the following if you're not using a snapshot version. &ndash;&gt;-->
+    <!--<repository>-->
+    <!--<id>localSnap</id>-->
+    <!--<name>RepositoryProxyRel</name>-->
+    <!--<url>http://127.0.0.1:8080/nexus/content/repositories/releases/</url>-->
+    <!--</repository>-->
+    <!--&lt;!&ndash; use the following if you ARE using a snapshot version. &ndash;&gt;-->
+    <!--<snapshotRepository>-->
+    <!--<id>MylocalSnap</id>-->
+    <!--<name>RepositoryProxySnap</name>-->
+    <!--<url>http://127.0.0.1:8080/nexus/content/repositories/snapshots/</url>-->
+    <!--</snapshotRepository>-->
+    <!--</distributionManagement>-->
 
     <dependencies>
         <dependency>

@@ -23,15 +23,42 @@ class ToDotConverter {
             res.append("\t\tqS").append(i).append(" [label=\"\"]\n");
         }
 
+
         // Accepting states:
         int[] acceptingStatesIndices = automaton.getAcceptingStates();
-        String[] q = automaton.getQ();
-        res.append("\tnode [shape = doublecircle];\n");
-        for (int acceptingStatesIndex : acceptingStatesIndices) {
-            res.append("\t\t\"").append(q[acceptingStatesIndex]).append("\"\n");
+
+        // Both acc and initial:
+        ArrayList<Integer> bothStates = new ArrayList<>();
+        for (int initialState : initialStates) {
+            for (int acceptingState : acceptingStatesIndices) {
+                if (initialState == acceptingState) {
+                    bothStates.add(initialState);
+                    break;
+                }
+            }
         }
 
-        res.append("\tnode [shape = circle];\n");
+        String[] q = automaton.getQ();
+        res.append("\tnode [shape = doublecircle];\n");
+        for (int acceptingState : acceptingStatesIndices) {
+            if (bothStates.contains(acceptingState)) continue;
+            res.append("\t\t\"").append(q[acceptingState]).append("\"\n");
+        }
+
+        // Initial states marking
+        res.append("\tnode [shape = circle, color = \"red\"];\n");
+        for (int initialState : initialStates) {
+            if (bothStates.contains(initialState)) continue;
+            res.append("\t\t\"").append(q[initialState]).append("\"\n");
+        }
+
+        // Both states marking
+        if (bothStates.size() > 0) res.append("\tnode [shape = doublecircle, color = \"red\"];\n");
+        for (Integer bothState : bothStates) {
+            res.append("\t\t\"").append(q[bothState]).append("\"\n");
+        }
+
+        res.append("\tnode [shape = circle, color = \"black\"];\n");
         // Now draw edges:
         for (int i = 0; i < initialStates.length; i++) {
             res.append("\t\tqS").append(i).append(" -> \"").append(q[initialStates[i]]).append("\" [color=\"red:invis:red\"];\n");
