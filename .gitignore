@@ -5,7 +5,7 @@ target/
 *.log*
 *.log.1
 *.csv#
-## test*.png
+test*.png
 ## TEX OUTPUT FILES
 *.aux
 *.lof
