@@ -13,15 +13,10 @@ import java.util.HashMap;
 import java.util.Locale;
 import java.util.logging.Logger;
 
-public class DotToTex {
+class DotToTex {
     private static final Logger LOGGER = Logger.getLogger(DotToTex.class.getName());
 
-    private class State {
-        String id, label;
-        int x, y;
-        boolean accepting;
-        boolean initial;
-    }
+    private final String result;
 
     private enum Direction {
         N, W, S, E
@@ -87,15 +82,47 @@ public class DotToTex {
 
     // endregion
 
-    private DotToTex() {
-
+    /**
+     * This will convert dot code to tikz code. It needs to have reference of the source automaton.
+     * @param automaton Automaton reference
+     * @param dotCode Dot code to display the automaton
+     * @param fixed Whether we want the result tikz code in fixed coordinates or not
+     */
+    private DotToTex(Automaton automaton, String dotCode, boolean fixed) throws IOException {
+        if (fixed)
+            result = convertToTexCoordinates(automaton, dotCode);
+        else
+            result = convertToTexRelative(automaton, dotCode);
     }
 
-    public static String convert(String s) {
-        // Initialize this class
-        // return result.
-
+    /**
+     * This function will attempt to convert automaton to tikz code with relative coordinates
+     * @param automaton Automaton
+     * @param dotCode Dot string generated for specified automaton
+     * @return Tikz code to display this automaton
+     */
+    private String convertToTexRelative(Automaton automaton, String dotCode) {
+        //TODO: IMPLEMENT
         return null;
+    }
+
+    /**
+     * This will convert automaton to tikz code. If fixed is true, it will generate tikz code with fixed coordinates.
+     * It will generate tikz code with relative coordinates otherwise.
+     * @param automaton Reference to the automaton
+     * @param dotCode Dot code to display the automaton
+     * @param fixed If true, the result will use fixed coordinates.
+     * @return TIKZ code to display the automaton
+     */
+    public static String convert(Automaton automaton, String dotCode, boolean fixed) throws IOException {
+        // Initialize this class
+        DotToTex c = new DotToTex(automaton, dotCode, fixed);
+        // return result.
+        return c.getResult();
+    }
+
+    public String getResult() {
+        return result;
     }
 
 
@@ -112,13 +139,19 @@ public class DotToTex {
         System.out.println(s);
         GraphvizAPI.dotToPNG(a, "test.png", "test2.png", "test3.png");
 
-        DotToTex dtt = new DotToTex();
-        String b = dtt.convertToTex(a, s);
+        DotToTex dtt = new DotToTex(a, s, true);
+        String b = dtt.getResult();
 
         System.out.println(b);
     }
 
-    private String convertToTex(Automaton automaton, String dotCode) throws IOException {
+    /**
+     * This function will attempt to convert automaton to tikz code with fixed coordinates
+     * @param automaton Automaton
+     * @param dotCode Dot string generated for specified automaton
+     * @return Tikz code to display this automaton
+     */
+    private String convertToTexCoordinates(Automaton automaton, String dotCode) throws IOException {
         final int qSize = automaton.getQSize();
         HashMap<String, Integer> inverseQ = getInverseQ(automaton);
 
@@ -171,19 +204,16 @@ public class DotToTex {
 
             for (Integer target : curr.keySet()) {
                 String edgeLabel = curr.get(target);
-
                 sb.append("\n\t\t\tedge ");
 
                 ArrayList<Coordinate> edgeAttrs = edgesAttributes.get(i).get(target);
 
-                //FIXME: For now try the middle of the points:
-
-
-                Coordinate middlePoint = edgeAttrs.get((int) Math.floor(edgeAttrs.size() / 2));
                 String edgeProperties;
 
                 if (target == i) {
                     // It is a loop...
+                    Coordinate middlePoint = edgeAttrs.get((int) Math.floor(edgeAttrs.size() / 2.0));
+
                     String loopDirection = getLoopDirection(source, middlePoint);
                     edgeProperties = "[loop " + loopDirection + "]";
                 } else {
@@ -234,7 +264,6 @@ public class DotToTex {
         if (yMax > tikzMax.y) {
             // By Y:
             ratio = tikzMax.y / size.y;
-            double xMax = size.x * ratio;
         }
 
         Coordinate[] scaled = new Coordinate[coordinates.length];
@@ -303,11 +332,11 @@ public class DotToTex {
 
                 ArrayList<Coordinate> points = new ArrayList<>();
                 String pos = (String) link.attrs().get("pos");
-                if (pos.startsWith("e,")) pos = pos.substring(2, pos.length());
+                if (pos.startsWith("e,")) pos = pos.substring(2);
                 String[] pairs = pos.split(" ");
                 for (String pair : pairs) {
-                    // FIXME: This check in here is because in a bug in graphviz-java, where it cannot parse too long lines
-                    if (pair.startsWith("\\\r\n")) pair = pair.substring(3, pair.length());
+                    // This check in here is because in a bug in graphviz-java, where it cannot parse too long lines
+                    if (pair.startsWith("\\\r\n")) pair = pair.substring(3);
                     String[] split = pair.split(",");
                     points.add(new Coordinate(Double.parseDouble(split[0]), Double.parseDouble(split[1])));
                 }

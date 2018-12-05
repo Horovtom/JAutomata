@@ -129,9 +129,15 @@ public class Interpreter {
             res = getENFA(eval);
         } else if (expression.startsWith("texImage(")) {
             // TEX IMAGE GENERATOR
-            //TODO: IMPLEMENT CONVERSION TO TEX IMAGE
-            LOGGER.severe("NOT IMPLEMENTED function texImage YET!");
-            return null;
+            if (eval.length != 2) {
+                throw new InvalidSyntaxException("Invalid number of arguments, expected {automaton, String}",expression, true);
+            }
+            Automaton a = (Automaton) eval[0];
+            try {
+                res = GraphvizAPI.toTikz(a, Boolean.parseBoolean((String) eval[1]));
+            } catch (IOException e) {
+                throw new InvalidSyntaxException(e.getMessage());
+            }
         } else if (expression.startsWith("texTable(")) {
             // TEX TABLE GENERATOR
             if (eval.length != 1) {
@@ -153,7 +159,7 @@ public class Interpreter {
             }
         } else if (expression.startsWith("toPNG(")) {
             // PNG IMAGE EXPORT
-            //TODO: Implement conversion to png image
+            //TODO: Implement conversion to png image or remove!
             LOGGER.severe("Not implemented function toPNG Yet!");
             return null;
         } else if (expression.startsWith("getExample1()")) {
@@ -528,16 +534,22 @@ public class Interpreter {
 
             case "toCSV":
                 if (arguments.length != 1)
-                    throw new InvalidSyntaxException("Invalid number of arguments: " + arguments.length + "for toCSV member function.", "", true);
+                    throw new InvalidSyntaxException("Invalid number of arguments: " + arguments.length + " for toCSV member function.", "", true);
                 String path = (String) arguments[0];
                 LOGGER.info("Trying to export to CSV to path: " + path);
                 a.exportToCSV(new File(path));
                 return null;
+            case "toTex":
+                boolean fixed = true;
+                if (arguments.length > 1 )
+                    throw new InvalidSyntaxException("Invalid number of arguments: " + arguments.length + " expected 1.", "", true);
+                if (arguments.length == 1) fixed = Boolean.parseBoolean((String) arguments[0]);
 
-            case "toTexImage":
-                //TODO: Implement
-
-                break;
+                try {
+                    return GraphvizAPI.toTikz(a, fixed);
+                } catch (IOException e) {
+                    throw new InvalidSyntaxException("IOException when converting to TEX", "", true);
+                }
 
             case "toPNG":
                 if (arguments.length != 1)

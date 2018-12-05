@@ -134,7 +134,14 @@ public class GraphvizAPI {
 
     }
 
-    public static String toTikz(Automaton a) throws IOException {
-        return DotToTex.convert(dotToDot(ToDotConverter.convertToDot(a)));
+    /**
+     * This function will return tikz code to display specified automaton. If fixed is true, it will use fixed coordinates
+     * for the display
+     * @param automaton Automaton to be displayed
+     * @param fixed Whether tikz code should use fixed coordinates
+     * @return TIKZ code to display specified automaton
+     */
+    public static String toTikz(Automaton automaton, boolean fixed) throws IOException {
+        return DotToTex.convert(automaton, dotToDot(ToDotConverter.convertToDot(automaton)), fixed);
     }
 }

@@ -55,6 +55,9 @@ Data types:
                     $automatonTable = {$alphabeth, $row1, $row2, $row3, $row4, $row5}
                     $automaton = NFA($automatonTable)
         We have these member functions on automaton objects:
+            equals(other):
+                This will return boolean (true/false). It will be true if the two automatons accept the samme language.
+
             reduce():
                 This will return reduced automaton. This reduced automaton will be DFAAutomaton object.
                     example:
@@ -71,17 +74,23 @@ Data types:
                     example:
                         $automaton.toCSV(/home/user/Documents/automaton.csv)
 
-            toTexImage():
+            toTex():
                 This will return string containing TeX code to display the automaton diagram in TeX files.
 
-            toPNGImage(path):
+            toPNG(path):
                 This will create png image of this automaton at specified path.
 
             toTexTable():
                 This will return string containing TeX code to display the automaton table in TeX files.
 
-            getRegex():
+            toRegex():
                 This will return string containing regular expression that describes the automaton.
+
+            toDot():
+                This will return string containing dot code to display this automaton. It will be formatted
+
+            toSmipleDot():
+                This will return pure dot code without the formatting to display this automaton.
 
 Functions:
     We have these functions for general use:
@@ -94,14 +103,9 @@ Functions:
         ENFA(table):
             This will return new ENFAAutomaton object according to passed transition table.
 
-        texImage(automaton, args):
+        texImage(automaton, fixed):
             This will return string with tex code to display the automaton.
-                args is a list of arguments:
-                    TODO: FILL
-
-        pngImage(automaton, path, args):
-            This will create png image of automaton diagram at specified path.
-                args is a list of arguments:
+                fixed argument should be a boolean (true/false). This boolean will set the output to use fixed coordinates.
                     TODO: FILL
 
         fromCSV(path):
