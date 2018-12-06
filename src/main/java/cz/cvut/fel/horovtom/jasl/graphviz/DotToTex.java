@@ -134,7 +134,7 @@ class DotToTex {
 
         a = a.getReduced();
 
-
+        System.out.println(GraphvizAPI.toDot(a));
         String s = GraphvizAPI.toFormattedDot(a);
         System.out.println(s);
         GraphvizAPI.dotToPNG(a, "test.png", "test2.png", "test3.png");
@@ -188,7 +188,8 @@ class DotToTex {
         Coordinate[] newCoordinates = getScaledCoordinates(coordinates, min, max);
 
         // Now try to assemble the output
-        StringBuilder sb = new StringBuilder("\\begin{tikzpicture}[->,>=stealth',shorten >=1pt,auto,node distance=2.8cm,semithick,initial text=$ \t$]\n");
+        StringBuilder sb = new StringBuilder("\\begin{tikzpicture}[->,>=stealth',shorten >=1pt,auto,node distance=2.8cm,semithick,initial text=$ \t$]\n" +
+                "\t\\tikzset{every state/.style={minimum size=0pt}}\n");
 
         addNodesToSb(sb, automaton, newCoordinates);
 
@@ -255,7 +256,7 @@ class DotToTex {
 
     private Coordinate[] getScaledCoordinates(Coordinate[] coordinates, Coordinate min, Coordinate max) {
         // We use scaling that will preserve aspect ratio of the image.
-        
+
         Coordinate size = Coordinate.subtract(max, min);
 
         // Either by X:
@@ -338,6 +339,7 @@ class DotToTex {
                     // This check in here is because in a bug in graphviz-java, where it cannot parse too long lines
                     if (pair.startsWith("\\\r\n")) pair = pair.substring(3);
                     String[] split = pair.split(",");
+                    if (split[1].startsWith("\\\r\n")) split[1] = split[1].substring(3);
                     points.add(new Coordinate(Double.parseDouble(split[0]), Double.parseDouble(split[1])));
                 }
                 currEdges.put(targ, points);
