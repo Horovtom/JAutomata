@@ -9,6 +9,11 @@ import java.util.logging.Logger;
 
 class ToDotConverter {
     private static final Logger LOGGER = Logger.getLogger(ToDotConverter.class.getName());
+
+    // It is a static class
+    private ToDotConverter() {
+    }
+
     /**
      * This function will return a string containing the dot code to display specified automaton.
      */
@@ -22,7 +27,6 @@ class ToDotConverter {
         for (int i = 0; i < initialStates.length; i++) {
             res.append("\t\tqS").append(i).append(" [label=\"\"]\n");
         }
-
 
         // Accepting states:
         int[] acceptingStatesIndices = automaton.getAcceptingStates();

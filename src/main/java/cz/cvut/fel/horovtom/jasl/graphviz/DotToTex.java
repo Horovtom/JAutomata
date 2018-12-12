@@ -1,7 +1,6 @@
 package cz.cvut.fel.horovtom.jasl.graphviz;
 
 import cz.cvut.fel.horovtom.automata.logic.Automaton;
-import cz.cvut.fel.horovtom.automata.samples.AutomatonSamples;
 import guru.nidi.graphviz.model.Link;
 import guru.nidi.graphviz.model.MutableGraph;
 import guru.nidi.graphviz.model.MutableNode;
@@ -123,26 +122,6 @@ class DotToTex {
 
     public String getResult() {
         return result;
-    }
-
-
-    public static void main(String[] args) throws IOException {
-//        Automaton a = FromRegexConverter.getAutomaton("a*ba");
-//        Automaton a = FromRegexConverter.getAutomaton("a*(b+baa)*a");
-//        Automaton a = FromRegexConverter.getAutomaton("(a+b)a*(b+ba*a)a");
-        Automaton a = AutomatonSamples.DFASamples.lolipop();
-
-        a = a.getReduced();
-
-        System.out.println(GraphvizAPI.toDot(a));
-        String s = GraphvizAPI.toFormattedDot(a);
-        System.out.println(s);
-        GraphvizAPI.dotToPNG(a, "test.png", "test2.png", "test3.png");
-
-        DotToTex dtt = new DotToTex(a, s, true);
-        String b = dtt.getResult();
-
-        System.out.println(b);
     }
 
     /**

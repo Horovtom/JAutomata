@@ -1,9 +1,6 @@
 package cz.cvut.fel.horovtom.jasl.interpreter;
 
 import cz.cvut.fel.horovtom.automata.logic.Automaton;
-import cz.cvut.fel.horovtom.automata.logic.DFAAutomaton;
-import cz.cvut.fel.horovtom.automata.logic.ENFAAutomaton;
-import cz.cvut.fel.horovtom.automata.logic.NFAAutomaton;
 import cz.cvut.fel.horovtom.automata.logic.converters.FromRegexConverter;
 import cz.cvut.fel.horovtom.jasl.graphviz.GraphvizAPI;
 import cz.cvut.fel.horovtom.utilities.Utilities;
@@ -157,11 +154,6 @@ public class Interpreter {
             } catch (FileNotFoundException | UnsupportedEncodingException e) {
                 throw new InvalidSyntaxException("Could not find file: " + path, expression, true);
             }
-        } else if (expression.startsWith("toPNG(")) {
-            // PNG IMAGE EXPORT
-            //TODO: Implement conversion to png image or remove!
-            LOGGER.severe("Not implemented function toPNG Yet!");
-            return null;
         } else if (expression.startsWith("getExample1()")) {
             // GETTING SAMPLE AUTOMATON
             res = getExpressionResult("NFA({{a, b},{>, 0, 1, {2,3}},{>, 1, {}, {1, 4}},{<>, 2, {}, 0},{<, 3, 3, 3},{4,4,2}})");
@@ -207,8 +199,6 @@ public class Interpreter {
                 return getDFAFromTable(res);
 
             }
-        } else if (eval.length == 5) {
-            return getDFAFromArgs(eval);
         }
         throw new InvalidSyntaxException("Unknown number of parameters...");
     }
@@ -280,11 +270,6 @@ public class Interpreter {
         return a.getDFA();
     }
 
-    private Object getDFAFromArgs(Object[] args) {
-        //TODO: OPTIONAL - IMPLEMENT THIS
-        return null;
-    }
-
     private Object getNFA(Object[] eval) throws InvalidSyntaxException {
         if (eval.length == 1) {
             Object o = eval[0];
@@ -292,15 +277,8 @@ public class Interpreter {
                 Reader res = getReaderFromTable((ArrayList<Object>) o);
                 return getNFAFromTable(res);
             }
-        } else if (eval.length == 5) {
-            return getNFAFromArgs(eval);
         }
         throw new InvalidSyntaxException("Unknown number of parameters...");
-    }
-
-    private Object getNFAFromArgs(Object[] eval) {
-        //TODO: OPTIONAL - IMPLEMENT
-        return null;
     }
 
     private Object getNFAFromTable(Reader reader) {
@@ -324,16 +302,9 @@ public class Interpreter {
                 Reader res = getReaderFromTable((ArrayList<Object>) o);
                 return getENFAFromTable(res);
             }
-        } else if (eval.length == 5) {
-            return getENFAFromArgs(eval);
         }
         throw new InvalidSyntaxException("Unknown number of parameters...");
 
-    }
-
-    private Object getENFAFromArgs(Object[] eval) {
-        //TODO: OPTIONAL - IMPLEMENT
-        return null;
     }
 
     /**
@@ -528,9 +499,9 @@ public class Interpreter {
                 } else if (argument instanceof ArrayList) {
                     ArrayList<String> arg = (ArrayList<String>) argument;
                     return a.acceptsWord(arg);
+                } else {
+                    throw new InvalidSyntaxException("Invalid class of argument of accepts: " + argument.getClass(), "", true);
                 }
-
-                break;
 
             case "toCSV":
                 if (arguments.length != 1)
@@ -571,8 +542,7 @@ public class Interpreter {
                     }
                 }
                 GraphvizAPI.toPNG(a, p);
-
-                break;
+                return null;
 
             case "toTexTable":
                 return a.exportToString().getTEX();
@@ -590,23 +560,6 @@ public class Interpreter {
                 throw new InvalidSyntaxException("Unknown function call", "", true);
         }
 
-        //FIXME: This should be unreachable
-        return null;
-    }
-
-
-    public static void main(String[] args) throws IOException, InvalidSyntaxException {
-        //TODO: REMOVE. This is for testing only...
-        Interpreter s = new Interpreter();
-//        Automaton a = (Automaton) s.getExpressionResult("NFA({{a, b},{>, 0, 1, {2,3}},{>, 1, {}, {1, 4}},{<>, 2, {}, 0},{<, 3, 3, 3},{4,4,2}})");
-        //Automaton a = (Automaton) s.getExpressionResult("NFA({{a,b}, {>,0,1,3}, {1,2,{}}, {>,2,0,{}}, {3,3,3}})");
-        Automaton a = FromRegexConverter.getAutomaton("a*ba");
-//        a = a.getReduced();
-        System.out.println(a);
-        System.out.println(a.getRegex());
-        System.out.println(GraphvizAPI.toDot(a));
-
-        GraphvizAPI.dotToPNG(a, "test.png", "test2.png", "test3.png");
     }
 
     /**
@@ -646,7 +599,6 @@ public class Interpreter {
                 throw new InvalidSyntaxException("Unknown function call on string", "", true);
         }
 
-        //FIXME: This should be unreachable
         return null;
     }
 
@@ -660,7 +612,7 @@ public class Interpreter {
      */
     private Object callVarFunction(Object var, String functionName, Object[] arguments) throws InvalidSyntaxException {
         if (var instanceof Boolean) var = var.toString();
-        if (var instanceof Automaton || var instanceof DFAAutomaton || var instanceof NFAAutomaton || var instanceof ENFAAutomaton) {
+        if (var instanceof Automaton) {
             Automaton a = (Automaton) var;
 
             return callAutomatonMemberFunction(a, functionName, arguments);
@@ -779,7 +731,7 @@ public class Interpreter {
     public static class InvalidSyntaxException extends Exception {
         static boolean probablyIs = false;
 
-        public InvalidSyntaxException(String line) {
+        InvalidSyntaxException(String line) {
             super();
             LOGGER.fine("Syntax error when parsing line: " + line);
             probablyIs = false;
@@ -794,7 +746,7 @@ public class Interpreter {
         /**
          * @param probablyIs It is a flag for catching function that the caller probably found what type of expression it was
          */
-        public InvalidSyntaxException(String message, String line, boolean probablyIs) {
+        InvalidSyntaxException(String message, String line, boolean probablyIs) {
             super(message);
             LOGGER.fine("Syntax error when parsing line: " + line + ", but it " + (probablyIs ? "found" : "not found") + " the expression");
             InvalidSyntaxException.probablyIs = probablyIs;

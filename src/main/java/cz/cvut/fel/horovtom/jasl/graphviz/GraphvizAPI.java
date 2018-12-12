@@ -16,7 +16,7 @@ public class GraphvizAPI {
     private GraphvizAPI() {}
 
     private static class UnknownCommandException extends Exception {
-        public UnknownCommandException(String message) {
+        UnknownCommandException(String message) {
             super(message);
         }
     }
@@ -69,20 +69,7 @@ public class GraphvizAPI {
         }
     }
 
-    //TODO: JUST FOR TESTING
-    public static void dotToPNG(Automaton a, String path, String path2, String path3) throws IOException {
-        try {
-            String s = ToDotConverter.convertToDot(a);
-            execute("dot -Tpng -o " + path + " \n", s);
-            s = execute("dot -Tdot \n", s);
-            execute("dot -Tpng -o " + path2 + " \n", s);
-            s = execute("dot -Tdot \n", s);
-            execute("dot -Tpng -o " + path3 + " \n", s);
 
-        } catch (UnknownCommandException e) {
-            e.printStackTrace();
-        }
-    }
 
     /**
      * This function will attempt to convert dot code to PNG image at specified path.
@@ -128,10 +115,14 @@ public class GraphvizAPI {
         }
     }
 
+    /**
+     * This function will return dot code of the automaton before it has been graphviz-ed.
+     *
+     * @param a automaton to be converted
+     * @return Dot code of the automaton before formatting
+     */
     public static String toDot(Automaton a) {
-
-            return ToDotConverter.convertToDot(a);
-
+        return ToDotConverter.convertToDot(a);
     }
 
     /**
