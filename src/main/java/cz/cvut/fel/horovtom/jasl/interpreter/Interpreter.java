@@ -3,6 +3,7 @@ package cz.cvut.fel.horovtom.jasl.interpreter;
 import cz.cvut.fel.horovtom.automata.logic.Automaton;
 import cz.cvut.fel.horovtom.automata.logic.converters.FromRegexConverter;
 import cz.cvut.fel.horovtom.jasl.graphviz.GraphvizAPI;
+import cz.cvut.fel.horovtom.jasl.graphviz.Layout;
 import cz.cvut.fel.horovtom.utilities.Utilities;
 
 import java.io.*;
@@ -15,6 +16,10 @@ import java.util.logging.Logger;
 
 public class Interpreter {
     private static Logger LOGGER = Logger.getLogger(Interpreter.class.getName());
+
+    private final String tikzIncludes =
+            "\\usepackage{tikz}\n" +
+                    "\\usetikzlibrary{shapes, angles, calc, quotes,arrows,automata, positioning}\n";
 
     private HashMap<String, Object> variables;
 
@@ -124,24 +129,6 @@ public class Interpreter {
         } else if (expression.startsWith("ENFA(")) {
             // ENFA C-TOR
             res = getENFA(eval);
-        } else if (expression.startsWith("texImage(")) {
-            // TEX IMAGE GENERATOR
-            if (eval.length != 2) {
-                throw new InvalidSyntaxException("Invalid number of arguments, expected {automaton, String}",expression, true);
-            }
-            Automaton a = (Automaton) eval[0];
-            try {
-                res = GraphvizAPI.toTikz(a, Boolean.parseBoolean((String) eval[1]));
-            } catch (IOException e) {
-                throw new InvalidSyntaxException(e.getMessage());
-            }
-        } else if (expression.startsWith("texTable(")) {
-            // TEX TABLE GENERATOR
-            if (eval.length != 1) {
-                throw new InvalidSyntaxException("texTable function takes 2 arguments.", expression, true);
-            }
-            Automaton a = (Automaton) eval[0];
-            res = a.exportToString().getTEX();
         } else if (expression.startsWith("fromCSV(")) {
             // IMPORT AUTOMATON FROM CSV
             if (eval.length != 1)
@@ -162,6 +149,8 @@ public class Interpreter {
             if (eval.length != 1)
                 throw new InvalidSyntaxException("fromRegex function takes 1 argument.", expression, true);
             res = FromRegexConverter.getAutomaton((String) eval[0]);
+        } else if (expression.equals("getTikzIncludes()")) {
+            res = tikzIncludes;
         } else {
             throw new InvalidSyntaxException("Unknown parse command", expression);
         }
@@ -463,7 +452,7 @@ public class Interpreter {
      * reduce(),
      * accepts(String[]), accepts(ArrayList), accepts(String)
      * toCSV(String),
-     * toTexImage(),
+     * toTikz(),
      * toPNG(String),
      * toTexTable(),
      * toRegex(),
@@ -510,7 +499,7 @@ public class Interpreter {
                 LOGGER.info("Trying to export to CSV to path: " + path);
                 a.exportToCSV(new File(path));
                 return null;
-            case "toTex":
+            case "toTikz":
                 boolean fixed = true;
                 if (arguments.length > 1 )
                     throw new InvalidSyntaxException("Invalid number of arguments: " + arguments.length + " expected 1.", "", true);
@@ -523,26 +512,7 @@ public class Interpreter {
                 }
 
             case "toPNG":
-                if (arguments.length != 1)
-                    throw new InvalidSyntaxException(
-                            "Invalid number of arguments: " + arguments.length + ". toPNGImage expects 1 argument.",
-                            "", true);
-                argument = arguments[0];
-                if (!(argument instanceof String)) throw new InvalidSyntaxException(
-                        "Invalid type of argument: " + argument.getClass() + ". toPNGImage expects String.",
-                        "", true);
-                String p = (String) argument;
-                File f = Paths.get(p).toFile();
-                if (f.isDirectory())
-                    throw new InvalidSyntaxException("Cannot write to file at: " + p, "", true);
-                if (f.exists()) {
-                    LOGGER.info("Overwriting file at: " + p);
-                    if (!f.delete()) {
-                        throw new InvalidSyntaxException("Cannot overwrite file at: " + p, "", true);
-                    }
-                }
-                GraphvizAPI.toPNG(a, p);
-                return null;
+                return convertToPng(a, arguments);
 
             case "toTexTable":
                 return a.exportToString().getTEX();
@@ -551,8 +521,19 @@ public class Interpreter {
                 return a.getRegex();
 
             case "toDot":
-                return GraphvizAPI.toFormattedDot(a);
-
+                if (arguments.length == 1) {
+                    if (!(arguments[0] instanceof String)) throw new InvalidSyntaxException(
+                            "Invalid type of argument: " + arguments[0].getClass() + ". toDot expects String.", "", true);
+                    try {
+                        return GraphvizAPI.toFormattedDot(a, Layout.fromString((String) arguments[0]));
+                    } catch (Layout.InvalidLayoutException e) {
+                        throw new InvalidSyntaxException("Layout has to be one of the valid layouts e.g. 'neato'.", "", true);
+                    }
+                } else if (arguments.length > 1) {
+                    throw new InvalidSyntaxException("toDot expects at most one argument.", "", true);
+                } else {
+                    return GraphvizAPI.toFormattedDot(a);
+                }
             case "toSimpleDot":
                 return GraphvizAPI.toDot(a);
 
@@ -560,6 +541,50 @@ public class Interpreter {
                 throw new InvalidSyntaxException("Unknown function call", "", true);
         }
 
+    }
+
+    /**
+     * This converts an automaton to PNG image.
+     *
+     * @param a         Automaton to convert
+     * @param arguments Arugments of the function call. First is the path to the PNG image. Second is optional and it is
+     *                  the layout algorithm.
+     */
+    private Object convertToPng(Automaton a, Object[] arguments) throws InvalidSyntaxException {
+        if (arguments.length == 0 || arguments.length > 2)
+            throw new InvalidSyntaxException(
+                    "Invalid number of arguments: " + arguments.length + ". toPNGImage expects 1 or 2 arguments.",
+                    "", true);
+
+        if (!(arguments[0] instanceof String)) throw new InvalidSyntaxException(
+                "Invalid type of argument: " + arguments[0].getClass() + ". toPNGImage expects String.",
+                "", true);
+        String p = (String) arguments[0];
+        File f = Paths.get(p).toFile();
+
+
+        if (f.isDirectory())
+            throw new InvalidSyntaxException("Cannot write to file at: " + p, "", true);
+        if (f.exists()) {
+            LOGGER.info("Overwriting file at: " + p);
+            if (!f.delete()) {
+                throw new InvalidSyntaxException("Cannot overwrite file at: " + p, "", true);
+            }
+        }
+
+        if (arguments.length > 1) {
+            if (!(arguments[1] instanceof String)) throw new InvalidSyntaxException(
+                    "Invalid type of argument: " + arguments[1].getClass() + ". toPNGImage expects String, String.",
+                    "", true);
+            String layout = (String) arguments[1];
+            try {
+                GraphvizAPI.toPNG(a, p, Layout.fromString(layout));
+            } catch (Layout.InvalidLayoutException e) {
+                throw new InvalidSyntaxException("Layout has to be one of the valid layouts e.g. 'neato'.", "", true);
+            }
+        }
+        GraphvizAPI.toPNG(a, p);
+        return null;
     }
 
     /**
