@@ -74,8 +74,11 @@ Data types:
                     example:
                         $automaton.toCSV(/home/user/Documents/automaton.csv)
 
-            toTex():
+            toTikz(layout):
                 This will return string containing TeX code to display the automaton diagram in TeX files.
+                Includes needed for the code to work can be get by command: getTikzIncludes().
+                Parameter layout is optional. If not specified, graphviz will use 'dot' layout.
+                Layout can be one of these options: {neato, circo, dot}
 
             toPNG(path):
                 This will create png image of this automaton at specified path.
@@ -86,8 +89,10 @@ Data types:
             toRegex():
                 This will return string containing regular expression that describes the automaton.
 
-            toDot():
-                This will return string containing dot code to display this automaton. It will be formatted
+            toDot(layout):
+                This will return string containing dot code to display this automaton.
+                Parameter layout is optional. If not specified, graphviz will use 'dot' layout.
+                Layout can be one of these options: {neato, circo, dot}
 
             toSmipleDot():
                 This will return pure dot code without the formatting to display this automaton.
@@ -103,15 +108,10 @@ Functions:
         ENFA(table):
             This will return new ENFAAutomaton object according to passed transition table.
 
-        texImage(automaton, fixed):
-            This will return string with tex code to display the automaton.
-                fixed argument should be a boolean (true/false). This boolean will set the output to use fixed coordinates.
-                    TODO: FILL
-
         fromCSV(path):
             This will return Automaton object that has loaded from .csv file at path. This .csv has to be comma-separated.
 
-        getExample1():
+        getExample():
             This will return NFAAutomaton that had been specified in the example of Automaton initialization
 
         fromRegex(regex):
@@ -119,3 +119,6 @@ Functions:
             Epsilon in the regex should be signified as 'eps'
             example:
                 $automaton = fromRegex(a*bba*(eps+b)*)
+
+        getTikzIncludes():
+            This will return string containing the includes lines needed for tikz code to work.

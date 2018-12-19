@@ -141,7 +141,7 @@ public class Interpreter {
             } catch (FileNotFoundException | UnsupportedEncodingException e) {
                 throw new InvalidSyntaxException("Could not find file: " + path, expression, true);
             }
-        } else if (expression.startsWith("getExample1()")) {
+        } else if (expression.startsWith("getExample()")) {
             // GETTING SAMPLE AUTOMATON
             res = getExpressionResult("NFA({{a, b},{>, 0, 1, {2,3}},{>, 1, {}, {1, 4}},{<>, 2, {}, 0},{<, 3, 3, 3},{4,4,2}})");
         } else if (expression.startsWith("fromRegex(")) {
@@ -501,7 +501,7 @@ public class Interpreter {
                 return null;
             case "toTikz":
                 boolean fixed = true;
-                if (arguments.length > 1 )
+                if (arguments.length > 1)
                     throw new InvalidSyntaxException("Invalid number of arguments: " + arguments.length + " expected 1.", "", true);
                 if (arguments.length == 1) fixed = Boolean.parseBoolean((String) arguments[0]);
 

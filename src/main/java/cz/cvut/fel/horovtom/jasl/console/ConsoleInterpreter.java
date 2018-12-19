@@ -24,7 +24,7 @@ public class ConsoleInterpreter {
      * DFA: $b=DFA($a)
      * NFA: $c=NFA({{as, es},{0, {0,2}, {1,2}},{1, 1, {2}},{2, {0, 1, 2}, {}}})
      * ENFA: $d=ENFA({{{}, as, es}, {0, {}, {}, {}}})
-     * Reduction: $a=$d.reduced
+     * Reduction: $a=$d.reduce()
      * Acceptation: $d=$a.accepts({a, b, c, sa})
      * Printing: $a
      * Exit: quit or exit
@@ -72,6 +72,10 @@ public class ConsoleInterpreter {
             LOGGER.info("Displaying help...");
             displayHelp();
             return;
+        } else if (line.equals("helpLong")) {
+            LOGGER.info("Displaying long help...");
+            displayLongHelp();
+            return;
         }
 
 
@@ -79,20 +83,29 @@ public class ConsoleInterpreter {
         System.out.println(res);
     }
 
+    private void displayLongHelp() {
+        System.out.println("Long help: ");
+        printFile("JASL/interpreter/commandLineHelp.txt");
+    }
+
+    private void printFile(String path) {
+        File f = new File(Objects.requireNonNull(ConsoleInterpreter.class.getClassLoader().getResource(path)).getFile());
+        try (BufferedReader br = new BufferedReader(new FileReader(f))){
+            String line;
+            while((line= br.readLine()) != null) {
+                System.out.println(line);
+            }
+        } catch(IOException e) {
+            LOGGER.severe(e.getMessage());
+        }
+    }
+
     /**
      * This will print help to the console.
      */
     private void displayHelp() {
         System.out.println("Help: ");
-        File file = new File(Objects.requireNonNull(ConsoleInterpreter.class.getClassLoader().getResource("JASL/interpreter/commandLineHelp.txt")).getFile());
-        try (BufferedReader br = new BufferedReader(new FileReader(file))) {
-            String line;
-            while ((line = br.readLine()) != null) {
-                System.out.println(line);
-            }
-        } catch (IOException e) {
-            LOGGER.severe(e.getMessage());
-        }
+        printFile("JASL/interpreter/commandLineHelpShort.txt");
     }
 }
 

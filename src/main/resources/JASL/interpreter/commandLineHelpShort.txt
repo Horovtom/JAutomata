@@ -1,0 +1,25 @@
+DFA(table): automaton
+NFA(table): automaton
+ENFA(table): automaton
+fromCSV(path): automaton
+getExample(): automaton
+fromRegex(regex): automaton
+getTikzIncludes(): string
+
+automaton members:
+.equals(automaton): string
+.reduce(): automaton
+.accepts(word): string
+.toCSV(path): void
+.toPNG(path): void
+.toTexTable(): string
+.toRegex(): string
+.toDot(): string
+.toDot(layout): string
+.toSimpleDot(): string
+.toTikz(): string
+
+string members:
+.save(path): void
+
+type command helpLong to get longer guide.
