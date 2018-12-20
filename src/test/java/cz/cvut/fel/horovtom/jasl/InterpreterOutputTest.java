@@ -24,13 +24,13 @@ public class InterpreterOutputTest {
         try {
             String res;
 
-            res = interpreter.parseLine("$a = getExample1().accepts(abb)");
+            res = interpreter.parseLine("$a = getExample().accepts(abb)");
             assertEquals("This should output nothing.", "", res);
 
             res = interpreter.parseLine("$b = {a, b}");
             assertEquals("List initialization should not output anything.", "", res);
 
-            res = interpreter.parseLine("getExample1().accepts($b)");
+            res = interpreter.parseLine("getExample().accepts($b)");
             assertEquals("This evaluation should output false, because the automaton does not accept word 'ab'.", "false", res);
 
             res = interpreter.parseLine("$a");
@@ -215,7 +215,7 @@ public class InterpreterOutputTest {
             String res;
             File tmp = Utilities.createTempFile();
 
-            res = interpreter.parseLine("getExample1().reduce().equals(getExample1()).save(" + tmp.getAbsolutePath() + ")");
+            res = interpreter.parseLine("getExample().reduce().equals(getExample()).save(" + tmp.getAbsolutePath() + ")");
             assertEquals("There should be no output from .save call", "", res);
 
             FileReader fr = new FileReader(tmp);

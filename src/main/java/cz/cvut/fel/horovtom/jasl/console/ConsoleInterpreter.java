@@ -5,10 +5,8 @@ import cz.cvut.fel.horovtom.jasl.interpreter.Interpreter.InvalidSyntaxException;
 import org.fusesource.jansi.AnsiConsole;
 
 import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileReader;
 import java.io.IOException;
-import java.util.Objects;
+import java.io.InputStreamReader;
 import java.util.Scanner;
 import java.util.logging.Logger;
 
@@ -70,7 +68,7 @@ public class ConsoleInterpreter {
             return;
         } else if (line.equals("help")) {
             LOGGER.info("Displaying help...");
-            displayHelp();
+            displayHelpShort();
             return;
         } else if (line.equals("helpLong")) {
             LOGGER.info("Displaying long help...");
@@ -85,12 +83,11 @@ public class ConsoleInterpreter {
 
     private void displayLongHelp() {
         System.out.println("Long help: ");
-        printFile("JASL/interpreter/commandLineHelp.txt");
+        printFile("/JASL/interpreter/commandLineHelpLong.txt");
     }
 
     private void printFile(String path) {
-        File f = new File(Objects.requireNonNull(ConsoleInterpreter.class.getClassLoader().getResource(path)).getFile());
-        try (BufferedReader br = new BufferedReader(new FileReader(f))){
+        try (BufferedReader br = new BufferedReader(new InputStreamReader(getClass().getResourceAsStream(path)))) {
             String line;
             while((line= br.readLine()) != null) {
                 System.out.println(line);
@@ -103,9 +100,9 @@ public class ConsoleInterpreter {
     /**
      * This will print help to the console.
      */
-    private void displayHelp() {
+    private void displayHelpShort() {
         System.out.println("Help: ");
-        printFile("JASL/interpreter/commandLineHelpShort.txt");
+        printFile("/JASL/interpreter/commandLineHelpShort.txt");
     }
 }
 
