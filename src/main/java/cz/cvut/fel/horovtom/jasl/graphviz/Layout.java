@@ -29,7 +29,7 @@ public enum Layout {
     }
 
     public static Layout fromString(String layout) throws InvalidLayoutException {
-        layout = layout.toLowerCase();
+        layout = layout.toLowerCase().trim();
         switch (layout) {
             case "dot":
                 return DOT;

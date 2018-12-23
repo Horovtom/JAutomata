@@ -2,11 +2,13 @@ package cz.cvut.fel.horovtom.automata.logic;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.logging.Logger;
 
 /**
  * This class is used to convert Automaton to wanted string format.
  */
 public class ToStringConverter {
+    private final Logger LOGGER = Logger.getLogger(ToStringConverter.class.getName());
     private final String[] sigma;
     private final String[] Q;
     private final HashMap<Integer, HashMap<Integer, int[]>> transitions;
@@ -55,6 +57,10 @@ public class ToStringConverter {
             for (int state = 0; state < this.Q.length; state++) {
                 int curr = -1;
                 for (int i : this.transitions.get(state).get(letter)) {
+                    if (i >= this.Q.length) {
+                        LOGGER.severe("Malformed automaton! States are shorter than they should be!");
+                        continue;
+                    }
                     curr += this.Q[i].length() + 1;
                 }
                 if (curr < 0) {

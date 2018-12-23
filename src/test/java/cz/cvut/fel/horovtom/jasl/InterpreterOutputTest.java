@@ -208,6 +208,30 @@ public class InterpreterOutputTest {
     }
 
     @Test
+    public void incompleteDefinition() {
+        Interpreter interpreter = new Interpreter();
+        try {
+            String res;
+            res = interpreter.parseLine("$a = NFA({{a,b},{>,0,{1,2}},{1},{<,2,2,3},{3,3,2}})");
+            assertEquals("Automaton definition and assignment should not generate any output!", "", res);
+
+            res = interpreter.parseLine("$a");
+            assertTrue(!res.equals(""));
+
+            res = interpreter.parseLine("$a.accepts(abbab)");
+            assertEquals("false", res);
+
+            res = interpreter.parseLine("$a.accepts(abb)");
+            assertEquals("true", res);
+
+        } catch (InvalidSyntaxException e) {
+            e.printStackTrace();
+            ;
+            assertFalse("Failed to run test because of InvalidSyntaxException!", true);
+        }
+    }
+
+    @Test
     public void chaining() {
         Interpreter interpreter = new Interpreter();
 

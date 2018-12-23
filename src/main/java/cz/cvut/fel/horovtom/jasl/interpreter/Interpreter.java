@@ -213,7 +213,7 @@ public class Interpreter {
         }
     }
 
-    private Reader getReaderFromTable(ArrayList<Object> table) {
+    private Reader getReaderFromTable(ArrayList<Object> table) throws InvalidSyntaxException {
         try {
             // Create temporary file.
             File temp = Utilities.createTempFile();
@@ -227,15 +227,32 @@ public class Interpreter {
             writer.write('\n');
             for (int i = 1; i < table.size(); i++) {
                 ArrayList<Object> strings = (ArrayList<Object>) table.get(i);
+                int size = strings.size();
 
-                for (int j = 0; j < strings.size(); j++) {
-
-                    if (j == 0 && strings.size() == properLineLength) {
-                        writer.write(getStringFromElementOfTable(strings.get(j)));
+                int commasAtEnd = 0;
+                for (int j = 0; j < size; j++) {
+                    String elem = getStringFromElementOfTable(strings.get(j));
+                    if (j == 0) {
+                        if (size == properLineLength) {
+                            writer.write(elem);
+                        } else if (size < properLineLength) {
+                            if (elem.equals("<>") || elem.equals("<") || elem.equals(">")) {
+                                writer.write(elem);
+                                commasAtEnd = properLineLength - size;
+                            } else {
+                                writer.write(',' + elem);
+                            }
+                        } else {
+                            throw new InvalidSyntaxException("Invalid automaton definition. Line lengths did not match.", "", true);
+                        }
                     } else {
-                        writer.write(',' + getStringFromElementOfTable(strings.get(j)));
+                        writer.write(',' + elem);
                     }
+
                 }
+
+                for (int j = 0; j < commasAtEnd; j++) writer.write(',');
+
                 writer.write('\n');
             }
             writer.close();
@@ -577,13 +594,15 @@ public class Interpreter {
                     "Invalid type of argument: " + arguments[1].getClass() + ". toPNGImage expects String, String.",
                     "", true);
             String layout = (String) arguments[1];
+            layout = layout.trim();
             try {
                 GraphvizAPI.toPNG(a, p, Layout.fromString(layout));
             } catch (Layout.InvalidLayoutException e) {
                 throw new InvalidSyntaxException("Layout has to be one of the valid layouts e.g. 'neato'.", "", true);
             }
+        } else {
+            GraphvizAPI.toPNG(a, p);
         }
-        GraphvizAPI.toPNG(a, p);
         return null;
     }
 
