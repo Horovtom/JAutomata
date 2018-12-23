@@ -238,6 +238,8 @@ public class Interpreter {
                         } else if (size < properLineLength) {
                             if (elem.equals("<>") || elem.equals("<") || elem.equals(">")) {
                                 writer.write(elem);
+                                if (size == 1)
+                                    throw new InvalidSyntaxException("Invalid automaton definition. There was only I/O symbol on a line. State name needed.", "", true);
                                 commasAtEnd = properLineLength - size;
                             } else {
                                 writer.write(',' + elem);
@@ -553,6 +555,45 @@ public class Interpreter {
                 }
             case "toSimpleDot":
                 return GraphvizAPI.toDot(a);
+
+            case "union":
+                if (arguments.length != 1)
+                    throw new InvalidSyntaxException("Union expects exactly one argument.", "", true);
+
+                if (!(arguments[0] instanceof Automaton))
+                    throw new InvalidSyntaxException("Invalid type of argument: " + arguments[0].getClass(), "", true);
+
+                return Automaton.getUnion(a, (Automaton) arguments[0]);
+
+            case "intersection":
+                if (arguments.length != 1)
+                    throw new InvalidSyntaxException("Intersection expects exactly one argument.", "", true);
+
+                if (!(arguments[0] instanceof Automaton))
+                    throw new InvalidSyntaxException("Invalid type of argument: " + arguments[0].getClass(), "", true);
+
+                return Automaton.getIntersection(a, (Automaton) arguments[0]);
+
+            case "complement":
+                if (arguments.length != 0)
+                    throw new InvalidSyntaxException("Complement expects no arguments.", "", true);
+
+                return a.getComplement();
+
+            case "concatenation":
+                if (arguments.length != 1)
+                    throw new InvalidSyntaxException("Concatenation expects exactly one argument.", "", true);
+
+                if (!(arguments[0] instanceof Automaton))
+                    throw new InvalidSyntaxException("Invalid type of argument: " + arguments[0].getClass(), "", true);
+
+                return Automaton.getConcatenation(a, (Automaton) arguments[0]);
+
+            case "kleene":
+                if (arguments.length != 0)
+                    throw new InvalidSyntaxException("Kleene expects no arguments.", "", true);
+
+                return a.getKleene();
 
             default:
                 throw new InvalidSyntaxException("Unknown function call", "", true);
