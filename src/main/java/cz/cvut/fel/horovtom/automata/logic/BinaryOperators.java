@@ -41,11 +41,17 @@ public class BinaryOperators {
         String[] aQ = a.getQ();
         String[] bQ = b.getQ();
         int currIndex = 0;
+        ArrayList<String> names = new ArrayList<>();
         for (String anAQ : aQ) {
             Q[currIndex++] = anAQ;
+            names.add(anAQ);
         }
         for (String aBQ : bQ) {
-            Q[currIndex++] = aBQ;
+            if (names.contains(aBQ)) {
+                Q[currIndex++] = "_" + aBQ;
+            } else {
+                Q[currIndex++] = aBQ;
+            }
         }
 
         //Sigma

@@ -74,11 +74,19 @@ public class ConsoleInterpreter {
             LOGGER.info("Displaying long help...");
             displayLongHelp();
             return;
+        } else if (line.equals("clear")) {
+            LOGGER.info("Clearing all variables");
+            clearVariables();
+            return;
         }
 
 
         String res = interpreter.parseLine(line);
         System.out.println(res);
+    }
+
+    private void clearVariables() {
+        interpreter.clear();
     }
 
     private void displayLongHelp() {

@@ -107,7 +107,7 @@ public class Interpreter {
 
     /**
      * This will try to parse expression as a command (meaning constructor) of object. It will throw {@link InvalidSyntaxException} if it is not valid
-     * e.g.: DFA($table) e.t.c.
+     * e.g.: Automaton($table) e.t.c.
      *
      * @param expression Expression to be parsed
      * @return A resulting object of the command call
@@ -120,15 +120,9 @@ public class Interpreter {
             eval[i / 2] = getExpressionResult(expression.substring(insideIndices[i], insideIndices[i + 1] + 1));
         }
         Object res;
-        if (expression.startsWith("DFA(")) {
+        if (expression.startsWith("Automaton(")) {
             // DFA C-TOR
-            res = getDFA(eval);
-        } else if (expression.startsWith("NFA(")) {
-            // NFA C-TOR
-            res = getNFA(eval);
-        } else if (expression.startsWith("ENFA(")) {
-            // ENFA C-TOR
-            res = getENFA(eval);
+            res = getAutomaton(eval);
         } else if (expression.startsWith("fromCSV(")) {
             // IMPORT AUTOMATON FROM CSV
             if (eval.length != 1)
@@ -143,7 +137,7 @@ public class Interpreter {
             }
         } else if (expression.startsWith("getExample()")) {
             // GETTING SAMPLE AUTOMATON
-            res = getExpressionResult("NFA({{a, b},{>, 0, 1, {2,3}},{>, 1, {}, {1, 4}},{<>, 2, {}, 0},{<, 3, 3, 3},{4,4,2}})");
+            res = getExpressionResult("Automaton({{a, b},{>, 0, 1, {2,3}},{>, 1, {}, {1, 4}},{<>, 2, {}, 0},{<, 3, 3, 3},{4,4,2}})");
         } else if (expression.startsWith("fromRegex(")) {
             // IMPORT FROM REGEX
             if (eval.length != 1)
@@ -151,6 +145,13 @@ public class Interpreter {
             res = FromRegexConverter.getAutomaton((String) eval[0]);
         } else if (expression.equals("getTikzIncludes()")) {
             res = tikzIncludes;
+        } else if (expression.startsWith("execute(")) {
+            if (eval.length != 1 || !(eval[0] instanceof String))
+                throw new InvalidSyntaxException("Execute takes 1 argument, the path to the file to be executed in a string.", expression, true);
+            String path = (String) eval[0];
+            FileInterpreter fi = new FileInterpreter(this, path);
+            fi.start();
+            res = null;
         } else {
             throw new InvalidSyntaxException("Unknown parse command", expression);
         }
@@ -179,17 +180,161 @@ public class Interpreter {
         return res;
     }
 
-    private Object getDFA(Object[] eval) throws InvalidSyntaxException {
-        if (eval.length == 1) {
-            Object o = eval[0];
-            if (o instanceof ArrayList) {
-                Reader res = getReaderFromTable((ArrayList<Object>) o);
+    /**
+     * This will call automaton member function specified in the arguments.
+     * <p>
+     * Valid functions are:
+     * reduce(),
+     * accepts(String[]), accepts(ArrayList), accepts(String)
+     * toCSV(String),
+     * toTikz(),
+     * toPNG(String),
+     * toTexTable(),
+     * toRegex(),
+     * toDot(),
+     * toSimpleDot()
+     * equals(Automaton)
+     */
+    private Object callAutomatonMemberFunction(Automaton a, String functionName, Object[] arguments) throws InvalidSyntaxException {
+        Object argument;
+        switch (functionName) {
+            case "equals":
+                if (arguments.length != 1)
+                    throw new InvalidSyntaxException("Call to equals should have 1 argument.", "", true);
+                argument = arguments[0];
+                if (!(argument instanceof Automaton)) return false;
+                Automaton other = (Automaton) argument;
+                return a.equals(other);
 
-                return getDFAFromTable(res);
+            case "reduce":
+                if (arguments.length > 0)
+                    throw new InvalidSyntaxException("Call to reduce should not have any arguments.", "", true);
+                return a.getReduced();
 
-            }
+            case "accepts":
+                if (arguments.length == 0) return a.acceptsWord("");
+                if (arguments.length != 1)
+                    throw new InvalidSyntaxException("Call to accepts should have 1 or 0 arguments", "", true);
+
+                argument = arguments[0];
+                if (argument instanceof String) {
+                    String arg = (String) argument;
+                    return a.acceptsWord(arg);
+                } else if (argument instanceof ArrayList) {
+                    ArrayList<String> arg = (ArrayList<String>) argument;
+                    return a.acceptsWord(arg);
+                } else {
+                    throw new InvalidSyntaxException("Invalid class of argument of accepts: " + argument.getClass(), "", true);
+                }
+
+            case "toCSV":
+                if (arguments.length != 1)
+                    throw new InvalidSyntaxException("Invalid number of arguments: " + arguments.length + " for toCSV member function.", "", true);
+                String path = (String) arguments[0];
+                LOGGER.info("Trying to export to CSV to path: " + path);
+                a.exportToCSV(new File(path));
+                return null;
+            case "toTikz":
+                boolean fixed = true;
+                if (arguments.length > 1)
+                    throw new InvalidSyntaxException("Invalid number of arguments: " + arguments.length + " expected 1.", "", true);
+                if (arguments.length == 1) fixed = Boolean.parseBoolean((String) arguments[0]);
+
+                try {
+                    return GraphvizAPI.toTikz(a, fixed);
+                } catch (IOException e) {
+                    throw new InvalidSyntaxException("IOException when converting to TEX", "", true);
+                }
+
+            case "toPNG":
+                return convertToPng(a, arguments);
+
+            case "toTexTable":
+                return a.exportToString().getTEX();
+
+            case "toRegex":
+                return a.getRegex();
+
+            case "toDot":
+                if (arguments.length == 1) {
+                    if (!(arguments[0] instanceof String)) throw new InvalidSyntaxException(
+                            "Invalid type of argument: " + arguments[0].getClass() + ". toDot expects String.", "", true);
+                    try {
+                        return GraphvizAPI.toFormattedDot(a, Layout.fromString((String) arguments[0]));
+                    } catch (Layout.InvalidLayoutException e) {
+                        throw new InvalidSyntaxException("Layout has to be one of the valid layouts e.g. 'neato'.", "", true);
+                    }
+                } else if (arguments.length > 1) {
+                    throw new InvalidSyntaxException("toDot expects at most one argument.", "", true);
+                } else {
+                    return GraphvizAPI.toFormattedDot(a);
+                }
+            case "toSimpleDot":
+                return GraphvizAPI.toDot(a);
+
+            case "union":
+                if (arguments.length != 1)
+                    throw new InvalidSyntaxException("Union expects exactly one argument.", "", true);
+
+                if (!(arguments[0] instanceof Automaton))
+                    throw new InvalidSyntaxException("Invalid type of argument: " + arguments[0].getClass(), "", true);
+
+                return Automaton.getUnion(a, (Automaton) arguments[0]);
+
+            case "intersection":
+                if (arguments.length != 1)
+                    throw new InvalidSyntaxException("Intersection expects exactly one argument.", "", true);
+
+                if (!(arguments[0] instanceof Automaton))
+                    throw new InvalidSyntaxException("Invalid type of argument: " + arguments[0].getClass(), "", true);
+
+                return Automaton.getIntersection(a, (Automaton) arguments[0]);
+
+            case "complement":
+                if (arguments.length != 0)
+                    throw new InvalidSyntaxException("Complement expects no arguments.", "", true);
+
+                return a.getComplement();
+
+            case "concatenation":
+                if (arguments.length != 1)
+                    throw new InvalidSyntaxException("Concatenation expects exactly one argument.", "", true);
+
+                if (!(arguments[0] instanceof Automaton))
+                    throw new InvalidSyntaxException("Invalid type of argument: " + arguments[0].getClass(), "", true);
+
+                return Automaton.getConcatenation(a, (Automaton) arguments[0]);
+
+            case "kleene":
+                if (arguments.length != 0)
+                    throw new InvalidSyntaxException("Kleene expects no arguments.", "", true);
+
+                return a.getKleene();
+
+            case "renameState":
+                if (arguments.length != 2)
+                    throw new InvalidSyntaxException("Renaming state takes 2 arguments.", "", true);
+
+                if (!(arguments[0] instanceof String) || !(arguments[1] instanceof String))
+                    throw new InvalidSyntaxException("Renaming state expects two strings as arguments.", "", true);
+
+                renameState(a, (String) arguments[0], (String) arguments[1]);
+                return null;
+
+            case "renameLetter":
+                if (arguments.length != 2)
+                    throw new InvalidSyntaxException("Renaming letter takes 2 arguments.", "", true);
+
+                if (!(arguments[0] instanceof String) || !(arguments[1] instanceof String))
+                    throw new InvalidSyntaxException("Renaming letter expects two strings as arguments.", "", true);
+
+                renameLetter(a, (String) arguments[0], (String) arguments[1]);
+                return null;
+
+            default:
+                throw new InvalidSyntaxException("Unknown function call", "", true);
         }
-        throw new InvalidSyntaxException("Unknown number of parameters...");
+
     }
 
     private String getStringFromElementOfTable(Object o) {
@@ -266,49 +411,19 @@ public class Interpreter {
 
     }
 
-    private Object getDFAFromTable(Reader reader) {
-
-        Automaton a = Automaton.importFromCSV(reader, ',');
-        try {
-            reader.close();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        if (a == null) return null;
-        return a.getDFA();
-    }
-
-    private Object getNFA(Object[] eval) throws InvalidSyntaxException {
-        if (eval.length == 1) {
-            Object o = eval[0];
-            if (o instanceof ArrayList) {
-                Reader res = getReaderFromTable((ArrayList<Object>) o);
-                return getNFAFromTable(res);
-            }
-        }
-        throw new InvalidSyntaxException("Unknown number of parameters...");
-    }
-
-    private Object getNFAFromTable(Reader reader) {
-        Automaton a = Automaton.importFromCSV(reader, ',');
-        if (a == null) return null;
-
-        return a.getNFA();
-    }
-
-    private Object getENFAFromTable(Reader reader) {
+    private Object getAutomatonFromTable(Reader reader) {
         Automaton a = Automaton.importFromCSV(reader, ',');
         if (a == null) return null;
 
         return a.getENFA();
     }
 
-    private Object getENFA(Object[] eval) throws InvalidSyntaxException {
+    private Object getAutomaton(Object[] eval) throws InvalidSyntaxException {
         if (eval.length == 1) {
             Object o = eval[0];
             if (o instanceof ArrayList) {
                 Reader res = getReaderFromTable((ArrayList<Object>) o);
-                return getENFAFromTable(res);
+                return getAutomatonFromTable(res);
             }
         }
         throw new InvalidSyntaxException("Unknown number of parameters...");
@@ -465,140 +580,27 @@ public class Interpreter {
 
 
     /**
-     * This will call automaton member function specified in the arguments.
-     * <p>
-     * Valid functions are:
-     * reduce(),
-     * accepts(String[]), accepts(ArrayList), accepts(String)
-     * toCSV(String),
-     * toTikz(),
-     * toPNG(String),
-     * toTexTable(),
-     * toRegex(),
-     * toDot(),
-     * toSimpleDot()
-     * equals(Automaton)
+     * This will attempt renaming of letter of automaton a.
+     *
+     * @throws InvalidSyntaxException If the renaming was not successful.
      */
-    private Object callAutomatonMemberFunction(Automaton a, String functionName, Object[] arguments) throws InvalidSyntaxException {
-        Object argument;
-        switch (functionName) {
-            case "equals":
-                if (arguments.length != 1)
-                    throw new InvalidSyntaxException("Call to equals should have 1 argument.", "", true);
-                argument = arguments[0];
-                if (!(argument instanceof Automaton)) return false;
-                Automaton other = (Automaton) argument;
-                return a.equals(other);
+    private void renameLetter(Automaton a, String from, String to) throws InvalidSyntaxException {
+        if (!(a.renameLetter(from.trim(), to.trim())))
+            throw new InvalidSyntaxException("An error occurred when renaming states. " +
+                    "Maybe the original letter name has not been found or the target state name already exists in the automaton.",
+                    "", true);
+    }
 
-            case "reduce":
-                if (arguments.length > 0)
-                    throw new InvalidSyntaxException("Call to reduce should not have any arguments.", "", true);
-                return a.getReduced();
-
-            case "accepts":
-                if (arguments.length == 0) return a.acceptsWord("");
-                if (arguments.length != 1)
-                    throw new InvalidSyntaxException("Call to accepts should have 1 or 0 arguments", "", true);
-
-                argument = arguments[0];
-                if (argument instanceof String) {
-                    String arg = (String) argument;
-                    return a.acceptsWord(arg);
-                } else if (argument instanceof ArrayList) {
-                    ArrayList<String> arg = (ArrayList<String>) argument;
-                    return a.acceptsWord(arg);
-                } else {
-                    throw new InvalidSyntaxException("Invalid class of argument of accepts: " + argument.getClass(), "", true);
-                }
-
-            case "toCSV":
-                if (arguments.length != 1)
-                    throw new InvalidSyntaxException("Invalid number of arguments: " + arguments.length + " for toCSV member function.", "", true);
-                String path = (String) arguments[0];
-                LOGGER.info("Trying to export to CSV to path: " + path);
-                a.exportToCSV(new File(path));
-                return null;
-            case "toTikz":
-                boolean fixed = true;
-                if (arguments.length > 1)
-                    throw new InvalidSyntaxException("Invalid number of arguments: " + arguments.length + " expected 1.", "", true);
-                if (arguments.length == 1) fixed = Boolean.parseBoolean((String) arguments[0]);
-
-                try {
-                    return GraphvizAPI.toTikz(a, fixed);
-                } catch (IOException e) {
-                    throw new InvalidSyntaxException("IOException when converting to TEX", "", true);
-                }
-
-            case "toPNG":
-                return convertToPng(a, arguments);
-
-            case "toTexTable":
-                return a.exportToString().getTEX();
-
-            case "toRegex":
-                return a.getRegex();
-
-            case "toDot":
-                if (arguments.length == 1) {
-                    if (!(arguments[0] instanceof String)) throw new InvalidSyntaxException(
-                            "Invalid type of argument: " + arguments[0].getClass() + ". toDot expects String.", "", true);
-                    try {
-                        return GraphvizAPI.toFormattedDot(a, Layout.fromString((String) arguments[0]));
-                    } catch (Layout.InvalidLayoutException e) {
-                        throw new InvalidSyntaxException("Layout has to be one of the valid layouts e.g. 'neato'.", "", true);
-                    }
-                } else if (arguments.length > 1) {
-                    throw new InvalidSyntaxException("toDot expects at most one argument.", "", true);
-                } else {
-                    return GraphvizAPI.toFormattedDot(a);
-                }
-            case "toSimpleDot":
-                return GraphvizAPI.toDot(a);
-
-            case "union":
-                if (arguments.length != 1)
-                    throw new InvalidSyntaxException("Union expects exactly one argument.", "", true);
-
-                if (!(arguments[0] instanceof Automaton))
-                    throw new InvalidSyntaxException("Invalid type of argument: " + arguments[0].getClass(), "", true);
-
-                return Automaton.getUnion(a, (Automaton) arguments[0]);
-
-            case "intersection":
-                if (arguments.length != 1)
-                    throw new InvalidSyntaxException("Intersection expects exactly one argument.", "", true);
-
-                if (!(arguments[0] instanceof Automaton))
-                    throw new InvalidSyntaxException("Invalid type of argument: " + arguments[0].getClass(), "", true);
-
-                return Automaton.getIntersection(a, (Automaton) arguments[0]);
-
-            case "complement":
-                if (arguments.length != 0)
-                    throw new InvalidSyntaxException("Complement expects no arguments.", "", true);
-
-                return a.getComplement();
-
-            case "concatenation":
-                if (arguments.length != 1)
-                    throw new InvalidSyntaxException("Concatenation expects exactly one argument.", "", true);
-
-                if (!(arguments[0] instanceof Automaton))
-                    throw new InvalidSyntaxException("Invalid type of argument: " + arguments[0].getClass(), "", true);
-
-                return Automaton.getConcatenation(a, (Automaton) arguments[0]);
-
-            case "kleene":
-                if (arguments.length != 0)
-                    throw new InvalidSyntaxException("Kleene expects no arguments.", "", true);
-
-                return a.getKleene();
-
-            default:
-                throw new InvalidSyntaxException("Unknown function call", "", true);
-        }
-
+    /**
+     * This will attempt renaming of state of automaton a.
+     *
+     * @throws InvalidSyntaxException If the renaming was not successful.
+     */
+    private void renameState(Automaton a, String from, String to) throws InvalidSyntaxException {
+        if (!(a.renameState(from.trim(), to.trim())))
+            throw new InvalidSyntaxException("An error occurred when renaming states. " +
+                    "Maybe the original state name has not been found or the target state name already exists in the automaton.",
+                    "", true);
     }
 
     /**
@@ -811,6 +813,13 @@ public class Interpreter {
             return new String[]{input, ""};
         }
         return new String[]{input.substring(0, breakingPoint), input.substring(breakingPoint + 1, inputLength)};
+    }
+
+    /**
+     * This function will clear all variables stored in the interpreter.
+     */
+    public void clear() {
+        variables.clear();
     }
 
     public static class InvalidSyntaxException extends Exception {

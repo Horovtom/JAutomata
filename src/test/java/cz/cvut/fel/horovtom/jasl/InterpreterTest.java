@@ -212,7 +212,7 @@ public class InterpreterTest {
 
         String table = "{{a,b},{>,0,1,E},{1,2,3},{2,2,3},{<,3,E,E},{E,E,E}}";
         try {
-            Object result = method.invoke(interpreter, "ENFA(" + table + ").reduce()");
+            Object result = method.invoke(interpreter, "Automaton(" + table + ").reduce()");
             assertTrue(result instanceof DFAAutomaton);
         } catch (IllegalAccessException | InvocationTargetException e) {
             assertFalse(true);
@@ -249,7 +249,7 @@ public class InterpreterTest {
         String input = "{{eps, a, b}, {>,a,{b,e},d,a},{b,{},{b,c},{}},{<,c,{},{},{}},{d,{},{},e},{<,e,{},{},e}}";
 
         try {
-            Object result = method.invoke(interpreter, "ENFA(" + input + ")");
+            Object result = method.invoke(interpreter, "Automaton(" + input + ")");
             assertTrue(result instanceof ENFAAutomaton);
             assertEquals(FromRegexConverter.getAutomaton("b*(ε+abb*+aa*)").getReduced(), ((ENFAAutomaton) result).getReduced());
         } catch (IllegalAccessException | InvocationTargetException e) {

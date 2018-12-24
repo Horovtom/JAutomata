@@ -48,7 +48,7 @@ public class InterpreterOutputTest {
         try {
             String res;
 
-            res = interpreter.parseLine("$a = DFA({{a,b},{>,0,2,1},{1,2,1},{<,2,2,1}})");
+            res = interpreter.parseLine("$a = Automaton({{a,b},{>,0,2,1},{1,2,1},{<,2,2,1}})");
             assertEquals("Automaton definition and assignment should not generate any output!", "", res);
 
             res = interpreter.parseLine("$a.accepts(aab)");
@@ -64,7 +64,7 @@ public class InterpreterOutputTest {
             res = interpreter.parseLine("$c = {{a,b},{>,0,2,1},{1,2,1},{<,2,2,1}}");
             assertEquals("List initialization and assignment should not generate any output.", "", res);
 
-            res = interpreter.parseLine("$b = DFA($c)");
+            res = interpreter.parseLine("$b = Automaton($c)");
             assertEquals("Automaton definition and assignment should not generate any output!", "", res);
 
             res = interpreter.parseLine("$a.equals($b)");
@@ -82,7 +82,7 @@ public class InterpreterOutputTest {
         try {
             String res;
 
-            res = interpreter.parseLine("$a = NFA({{a,b}, {>,0,1,{}}, {<,1,{},1}, {<>,2,3,{}}, {<,3,3,{}}})");
+            res = interpreter.parseLine("$a = Automaton({{a,b}, {>,0,1,{}}, {<,1,{},1}, {<>,2,3,{}}, {<,3,3,{}}})");
             assertEquals("Automaton initialization and assignment should not generate any output.", "", res);
 
             res = interpreter.parseLine("$a.accepts(abbb)");
@@ -99,7 +99,7 @@ public class InterpreterOutputTest {
 
             interpreter.parseLine("$c = {{a,b}, {>,0,1,{}}, {<,1,{},1}, {<>,2,3,{}}, {<,3,3,{}}}");
 
-            res = interpreter.parseLine("NFA($c).equals($a)");
+            res = interpreter.parseLine("Automaton($c).equals($a)");
             assertEquals("Automata should be equal!", "true", res);
 
             res = interpreter.parseLine("fromRegex(eps + a(a* + b*)).equals($a)");
@@ -121,7 +121,7 @@ public class InterpreterOutputTest {
             String res;
 
             res = interpreter.parseLine(
-                    "$a = ENFA({{eps,a,b},{>,0,{1,3},{},{}},{1,{},1,2},{<,2,{},{},{}},{3,{},{},{3,4}},{<,4,{},{},{}}})");
+                    "$a = Automaton({{eps,a,b},{>,0,{1,3},{},{}},{1,{},1,2},{<,2,{},{},{}},{3,{},{},{3,4}},{<,4,{},{},{}}})");
             assertEquals("Automaton initialization and assignment should not generate any output.", "", res);
 
             res = interpreter.parseLine("$a.accepts(aaab)");
@@ -144,7 +144,7 @@ public class InterpreterOutputTest {
 
             interpreter.parseLine("$c = {{ε,a,b},{>,0,{1,3},{},{}},{1,{},1,2},{<,2,{},{},{}},{3,{},{},{3,4}},{<,4,{},{},{}}}");
 
-            res = interpreter.parseLine("ENFA($c).equals($a)");
+            res = interpreter.parseLine("Automaton($c).equals($a)");
             assertEquals("Automata should be equal!", "true", res);
 
             res = interpreter.parseLine("fromRegex((a*+b*)b).equals($a)");
@@ -167,7 +167,7 @@ public class InterpreterOutputTest {
         try {
             String res;
 
-            res = interpreter.parseLine("$a = DFA({{a,b},{>,0,2,1},{1,2,1},{<,2,2,1}})");
+            res = interpreter.parseLine("$a = Automaton({{a,b},{>,0,2,1},{1,2,1},{<,2,2,1}})");
             assertEquals("Automaton definition and assignment should not generate any output!", "", res);
 
             String path = tmp.getAbsolutePath();
@@ -192,7 +192,7 @@ public class InterpreterOutputTest {
         try {
             String res;
 
-            res = interpreter.parseLine("$a = DFA({{a,b},{>,0,2,1},{1,2,1},{<,2,2,1}})");
+            res = interpreter.parseLine("$a = Automaton({{a,b},{>,0,2,1},{1,2,1},{<,2,2,1}})");
             assertEquals("Automaton definition and assignment should not generate any output!", "", res);
 
             res = interpreter.parseLine("$a.toDot()");
@@ -212,7 +212,7 @@ public class InterpreterOutputTest {
         Interpreter interpreter = new Interpreter();
         try {
             String res;
-            res = interpreter.parseLine("$a = NFA({{a,b},{>,0,{1,2}},{1},{<,2,2,3},{3,3,2}})");
+            res = interpreter.parseLine("$a = Automaton({{a,b},{>,0,{1,2}},{1},{<,2,2,3},{3,3,2}})");
             assertEquals("Automaton definition and assignment should not generate any output!", "", res);
 
             res = interpreter.parseLine("$a");

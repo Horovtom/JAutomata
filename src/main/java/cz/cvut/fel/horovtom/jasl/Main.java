@@ -13,7 +13,8 @@ public class Main {
     public static void main(String[] args) throws IOException {
         System.out.println("Welcome to Java Automata Scripting Language (JASL) interpreter");
 
-//        setLoggingHandlers();
+        //TODO: FIND BETTER WAY
+        setLoggingHandlers();
 
         if (args.length > 0) {
             if (args[0].equals("-h")) displayHelp();
@@ -34,7 +35,6 @@ public class Main {
         }
     }
 
-    @Deprecated
     private static void setLoggingHandlers() throws IOException {
         Handler fh = new FileHandler("LOG.log");
         Logger logger = Logger.getLogger("");
@@ -64,5 +64,8 @@ public class Main {
 
     private static void displayHelp() {
         System.out.println("This is help to JASL interpreter");
+        System.out.println("Run without any switches to get into the interactive shell environment.");
+        System.out.println("Run with -h switch to display this help");
+        System.out.println("Run with -f <path_to_file> argument to execute commands from the file.");
     }
 }

@@ -32,7 +32,6 @@ Data types:
                   Because every element is evaluated on assignment, the contents of list $a will be: {2, 3}
 
     Automata:
-        Automata in JASL are of three types: DFA, NFA and ENFA.
         To declare Automaton of some type you have to specify its transition table in format of nested list.
         If you are creating ENFA automaton, you can signify epsilon column in the table as 'eps'.
             examples:
@@ -53,10 +52,10 @@ Data types:
                     $row4 = {<, 3, 3, 3}
                     $row5 = {4,4,2}
                     $automatonTable = {$alphabeth, $row1, $row2, $row3, $row4, $row5}
-                    $automaton = NFA($automatonTable)
+                    $automaton = Automaton($automatonTable)
         We have these member functions on automaton objects:
             equals(other):
-                This will return boolean (true/false). It will be true if the two automatons accept the samme language.
+                This will return boolean (true/false). It will be true if the two automatons accept the same language.
 
             reduce():
                 This will return reduced automaton. This reduced automaton will be DFAAutomaton object.
@@ -97,16 +96,32 @@ Data types:
             toSmipleDot():
                 This will return pure dot code without the formatting to display this automaton.
 
+            union(other):
+                This will return automaton that accepts union of the languages accepted by the originals.
+
+            intersection(other):
+                This will return automaton that accepts intersection of the languages accepted by the originals.
+
+            kleene():
+                This will return automaton that accepts kleene of the language accepted by the original.
+
+            concatenation(other):
+                This will return automaton that accepts concatenation of the languages accepted by the originals.
+
+            complement():
+                This will return automaton that accepts complement of the language accepted by the original.
+
+            renameState(oldName, newName):
+                This will try to rename state of the automaton to the new name. It will fail if the old state
+                has not been found or if the new state name is already occupied.
+
+            renameLetter(oldName, newName):
+                This will try to rename letter of the automaton to the new name. It will fail if the old letter
+                has not been found or if the new letter name is already occupied.
 Functions:
     We have these functions for general use:
-        DFA(table):
-            This will return new DFAAutomaton object according to passed transition table.
-
-        NFA(table):
-            This will return new NFAAutomaton object according to passed transition table.
-
-        ENFA(table):
-            This will return new ENFAAutomaton object according to passed transition table.
+        Automaton(table):
+            This will return new Automaton object according to passed transition table.
 
         fromCSV(path):
             This will return Automaton object that has loaded from .csv file at path. This .csv has to be comma-separated.

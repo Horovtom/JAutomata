@@ -1,6 +1,4 @@
-DFA(table): automaton
-NFA(table): automaton
-ENFA(table): automaton
+Automaton(table): automaton
 fromCSV(path): automaton
 getExample(): automaton
 fromRegex(regex): automaton
@@ -18,6 +16,13 @@ automaton members:
 .toDot(layout): string
 .toSimpleDot(): string
 .toTikz(): string
+.union(automaton): automaton
+.intersection(automaton): automaton
+.concatenation(automaton): automaton
+.kleene(): automaton
+.complement(): automaton
+.renameState(old, new): void
+.renameLetter(old, new): void
 
 string members:
 .save(path): void
