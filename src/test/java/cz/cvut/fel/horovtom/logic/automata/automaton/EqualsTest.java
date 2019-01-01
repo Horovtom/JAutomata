@@ -1,5 +1,6 @@
 package cz.cvut.fel.horovtom.logic.automata.automaton;
 
+import cz.cvut.fel.horovtom.automata.logic.Automaton;
 import cz.cvut.fel.horovtom.automata.logic.DFAAutomaton;
 import cz.cvut.fel.horovtom.automata.logic.NFAAutomaton;
 import cz.cvut.fel.horovtom.automata.samples.AutomatonSamples;
@@ -7,8 +8,7 @@ import org.junit.Test;
 
 import java.util.HashMap;
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 public class EqualsTest {
 
@@ -38,8 +38,16 @@ public class EqualsTest {
         map.put("2", current);
         String initial = "0";
         String[] accepting = new String[]{"1"};
-        DFAAutomaton dfa = new DFAAutomaton(Q, sigma, map, initial, accepting);
-        DFAAutomaton dfa2 = new DFAAutomaton(Q, sigma, map, initial, accepting);
+        DFAAutomaton dfa;
+        DFAAutomaton dfa2;
+        try {
+            dfa = new DFAAutomaton(Q, sigma, map, initial, accepting);
+            dfa2 = new DFAAutomaton(Q, sigma, map, initial, accepting);
+        } catch (Automaton.InvalidAutomatonDefinitionException e) {
+            fail();
+            return;
+        }
+
         dfa2.renameState("0", "3");
         dfa2.renameState("2", "abba");
         assertTrue("Two automata that differ only in naming of states were not equal!", dfa.equals(dfa2));
@@ -76,7 +84,12 @@ public class EqualsTest {
         curr.put("a", "5");
         curr.put("b", "4");
         transitions.put("5", curr);
-        DFAAutomaton dfa2 = new DFAAutomaton(Q, sigma, transitions, initial, accepting);
+        DFAAutomaton dfa2 = null;
+        try {
+            dfa2 = new DFAAutomaton(Q, sigma, transitions, initial, accepting);
+        } catch (Automaton.InvalidAutomatonDefinitionException e) {
+            fail();
+        }
         assertTrue("Reduced and non-reduced automaton should be considered equal!", dfa.equals(dfa2));
         DFAAutomaton reduced = dfa.reduce();
         assertTrue("These two automatons should be identical", reduced.equals(dfa2));
@@ -100,7 +113,12 @@ public class EqualsTest {
         current.put("\\beta", "1");
         transitions.put("1", current);
         //This accepts \beta*
-        DFAAutomaton dfa2 = new DFAAutomaton(Q, sigma, transitions, "0", new String[]{"0"});
+        DFAAutomaton dfa2 = null;
+        try {
+            dfa2 = new DFAAutomaton(Q, sigma, transitions, "0", new String[]{"0"});
+        } catch (Automaton.InvalidAutomatonDefinitionException e) {
+            fail();
+        }
         assertFalse("Automatons accept different languages! They should not be equal!", dfa2.equals(dfa) || dfa.equals(dfa2));
     }
 
@@ -145,7 +163,12 @@ public class EqualsTest {
         transitions.put("2", curr);
         curr = new HashMap<>();
         transitions.put("3", curr);
-        NFAAutomaton nfa = new NFAAutomaton(Q, sigma, transitions, initials, accepting);
+        NFAAutomaton nfa = null;
+        try {
+            nfa = new NFAAutomaton(Q, sigma, transitions, initials, accepting);
+        } catch (Automaton.InvalidAutomatonDefinitionException e) {
+            fail();
+        }
         assertTrue(nfa.acceptsWord(new String[]{"b", "b", "b", "a", "a"}));
         assertTrue(nfa.acceptsWord(new String[]{"b", "b", "a"}));
         DFAAutomaton reducedNFA = nfa.reduce();
@@ -180,12 +203,17 @@ public class EqualsTest {
         curr.put("a", "d");
         transitions.put("h", curr);
 
-        NFAAutomaton nfa2 = new NFAAutomaton(
-                new String[]{"a", "d", "g", "h"},
-                new String[]{"b", "a"},
-                transitions,
-                new String[]{"g"},
-                new String[]{"a", "d"});
+        NFAAutomaton nfa2 = null;
+        try {
+            nfa2 = new NFAAutomaton(
+                    new String[]{"a", "d", "g", "h"},
+                    new String[]{"b", "a"},
+                    transitions,
+                    new String[]{"g"},
+                    new String[]{"a", "d"});
+        } catch (Automaton.InvalidAutomatonDefinitionException e) {
+            fail();
+        }
 
         assertTrue("Automatons different only in naming should be equal", nfa.equals(nfa2));
         assertTrue("Automatons different only in naming should be equal", reducedNFA.equals(nfa2));
@@ -207,12 +235,17 @@ public class EqualsTest {
         curr.put("b", "d");
         curr.put("a", "a");
         transitions.put("d", curr);
-        DFAAutomaton reducedNFA2 = new DFAAutomaton(
-                new String[]{"a", "b", "c", "d"},
-                new String[]{"b", "a"},
-                transitions,
-                "d",
-                new String[]{"a", "c"});
+        DFAAutomaton reducedNFA2 = null;
+        try {
+            reducedNFA2 = new DFAAutomaton(
+                    new String[]{"a", "b", "c", "d"},
+                    new String[]{"b", "a"},
+                    transitions,
+                    "d",
+                    new String[]{"a", "c"});
+        } catch (Automaton.InvalidAutomatonDefinitionException e) {
+            fail();
+        }
         assertTrue(reducedNFA2.equals(nfa2));
         assertTrue(reducedNFA2.equals(nfa));
         assertTrue(reducedNFA2.equals(reducedNFA));
@@ -262,27 +295,42 @@ public class EqualsTest {
         curr.put("b", "1");
         transitions.put("3", curr);
 
-        DFAAutomaton dfa1 = new DFAAutomaton(
-                new String[]{"0", "1", "2", "3"},
-                new String[]{"a", "b"},
-                transitions,
-                "0",
-                new String[]{"1"}
-        );
-        DFAAutomaton dfa2 = new DFAAutomaton(
-                new String[]{"0", "1", "2", "3"},
-                new String[]{"a", "b"},
-                transitions,
-                "0",
-                new String[]{"1", "2"}
-        );
-        DFAAutomaton dfa3 = new DFAAutomaton(
-                new String[]{"0", "1", "2", "3"},
-                new String[]{"a", "b"},
-                transitions,
-                "0",
-                new String[]{"1", "3"}
-        );
+        DFAAutomaton dfa1 = null;
+        try {
+            dfa1 = new DFAAutomaton(
+                    new String[]{"0", "1", "2", "3"},
+                    new String[]{"a", "b"},
+                    transitions,
+                    "0",
+                    new String[]{"1"}
+            );
+        } catch (Automaton.InvalidAutomatonDefinitionException e) {
+            fail();
+        }
+        DFAAutomaton dfa2 = null;
+        try {
+            dfa2 = new DFAAutomaton(
+                    new String[]{"0", "1", "2", "3"},
+                    new String[]{"a", "b"},
+                    transitions,
+                    "0",
+                    new String[]{"1", "2"}
+            );
+        } catch (Automaton.InvalidAutomatonDefinitionException e) {
+            fail();
+        }
+        DFAAutomaton dfa3 = null;
+        try {
+            dfa3 = new DFAAutomaton(
+                    new String[]{"0", "1", "2", "3"},
+                    new String[]{"a", "b"},
+                    transitions,
+                    "0",
+                    new String[]{"1", "3"}
+            );
+        } catch (Automaton.InvalidAutomatonDefinitionException e) {
+            fail();
+        }
 
         assertFalse("Automata with different accepting states count should not ever be equal", dfa1.equals(dfa2));
         assertFalse("Automata with different accepting states count should not ever be equal", dfa1.equals(dfa3));

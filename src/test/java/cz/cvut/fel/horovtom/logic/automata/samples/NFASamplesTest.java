@@ -11,8 +11,7 @@ import java.io.UnsupportedEncodingException;
 import java.util.HashMap;
 import java.util.Random;
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 public class NFASamplesTest {
     @Test
@@ -109,7 +108,12 @@ public class NFASamplesTest {
         transitions.put("2", curr);
         String initial = "0";
         String accepting = "3";
-        Automaton b = new ENFAAutomaton(Q, sigma, transitions, initial, accepting);
+        Automaton b = null;
+        try {
+            b = new ENFAAutomaton(Q, sigma, transitions, initial, accepting);
+        } catch (Automaton.InvalidAutomatonDefinitionException e) {
+            fail();
+        }
         assertTrue(a.equals(b));
     }
 }

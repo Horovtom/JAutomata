@@ -201,7 +201,7 @@ public class NFAAutomaton extends Automaton {
      * @param initial     Initial state names of the automaton in text form.
      * @param accepting   Accepting state names of the automaton in text form
      */
-    public NFAAutomaton(String[] Q, String[] sigma, HashMap<String, HashMap<String, String>> transitions, String[] initial, String[] accepting) {
+    public NFAAutomaton(String[] Q, String[] sigma, HashMap<String, HashMap<String, String>> transitions, String[] initial, String[] accepting) throws InvalidAutomatonDefinitionException {
         initializeQSigma(Q, sigma);
         initializeTransitionsCompact(transitions);
         initializeInitAcc(initial, accepting);

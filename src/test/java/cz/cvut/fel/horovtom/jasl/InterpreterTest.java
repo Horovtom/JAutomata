@@ -4,7 +4,6 @@ import cz.cvut.fel.horovtom.automata.logic.DFAAutomaton;
 import cz.cvut.fel.horovtom.automata.logic.ENFAAutomaton;
 import cz.cvut.fel.horovtom.automata.logic.converters.FromRegexConverter;
 import cz.cvut.fel.horovtom.jasl.interpreter.Interpreter;
-import cz.cvut.fel.horovtom.jasl.interpreter.Interpreter.InvalidSyntaxException;
 import org.junit.Test;
 
 import java.lang.reflect.InvocationTargetException;
@@ -37,62 +36,6 @@ public class InterpreterTest {
         res = Interpreter.getNextToken("", 'a');
         assertEquals("Function did not output correctly when the input was empty..", res[0], "");
         assertEquals(res[1], "");
-    }
-
-    @Test
-    public void getNextTokenList() {
-        Method method;
-        try {
-            method = Interpreter.class.getDeclaredMethod("getNextTokenList", String.class);
-            method.setAccessible(true);
-        } catch (NoSuchMethodException e) {
-            assertTrue("There is no such method in class Interpreter", false);
-            return;
-        }
-
-        Interpreter interpreter = new Interpreter();
-
-        try {
-            Object result = method.invoke(interpreter, "{2, 1, 3}, 2, 3}");
-            assertTrue(result instanceof String[]);
-            String[] res = (String[]) result;
-            assertEquals("{2, 1, 3}", res[0]);
-            assertEquals(" 2, 3}", res[1]);
-
-            result = method.invoke(interpreter, "{1, 1, 2}}");
-            assertTrue(result instanceof String[]);
-            res = (String[]) result;
-            assertEquals("{1, 1, 2}", res[0]);
-            assertEquals("}", res[1]);
-
-            result = method.invoke(interpreter, "{2, 3, {}, 1}, 2, 1}");
-            assertTrue(result instanceof String[]);
-            res = (String[]) result;
-            assertEquals("{2, 3, {}, 1}", res[0]);
-            assertEquals(" 2, 1}", res[1]);
-
-            result = method.invoke(interpreter, "{}");
-            assertTrue(result instanceof String[]);
-            res = (String[]) result;
-            assertEquals("{}", res[0]);
-            assertEquals("", res[1]);
-        } catch (IllegalAccessException | InvocationTargetException e) {
-            e.printStackTrace();
-        }
-
-        try {
-            method.invoke(interpreter, "{2, {1, 3}");
-            assertTrue("This input is invalid, the method should throw exception!", false);
-        } catch (IllegalAccessException | InvocationTargetException e) {
-            assertTrue(e.getCause() instanceof InvalidSyntaxException);
-        }
-
-        try {
-            method.invoke(interpreter, "{2, 3, 1");
-            assertTrue("This input is invalid, the method should throw exception!", false);
-        } catch (IllegalAccessException | InvocationTargetException e) {
-            assertTrue(e.getCause() instanceof InvalidSyntaxException);
-        }
     }
 
     @Test

@@ -16,8 +16,10 @@ import java.nio.charset.Charset;
 import java.util.HashMap;
 import java.util.Objects;
 import java.util.Scanner;
+import java.util.logging.Logger;
 
 public class AutomatonSamples {
+    private static Logger LOGGER = Logger.getLogger(AutomatonSamples.class.getName());
     // ************************
     //          DFA
     // ************************
@@ -66,7 +68,12 @@ public class AutomatonSamples {
             transitions.put("2", curr);
             curr.put("a", "0");
             curr.put("b", "2");
-            DFAAutomaton dfa = new DFAAutomaton(Q, sigma, transitions, initial, acceptings);
+            DFAAutomaton dfa = null;
+            try {
+                dfa = new DFAAutomaton(Q, sigma, transitions, initial, acceptings);
+            } catch (Automaton.InvalidAutomatonDefinitionException e) {
+                return null;
+            }
             dfa.setDescription("This automaton accepts this language: L = {w ∈ {a, b}* | |w|_a != 3k + 1}");
             return dfa;
         }
@@ -157,8 +164,11 @@ public class AutomatonSamples {
             current.put("0", "7");
             current.put("213.002", "7");
             transitions.put("7", current);
-
-            return new DFAAutomaton(Q, sigma, transitions, "0", new String[]{"7"});
+            try {
+                return new DFAAutomaton(Q, sigma, transitions, "0", new String[]{"7"});
+            } catch (Automaton.InvalidAutomatonDefinitionException e) {
+                return null;
+            }
         }
 
         /**
@@ -255,9 +265,11 @@ public class AutomatonSamples {
             current.put("i", "7");
             current.put("p", "7");
             transitions.put("7", current);
-
+            try {
             return new DFAAutomaton(Q, sigma, transitions, "0", new String[]{"7"});
-
+            } catch (Automaton.InvalidAutomatonDefinitionException e) {
+                return null;
+            }
         }
 
         /**
@@ -344,8 +356,11 @@ public class AutomatonSamples {
             current.put("a", "7");
             current.put("b", "4");
             transitions.put("7", current);
-
-            return new DFAAutomaton(Q, sigma, transitions, "5", new String[]{"2", "4", "6"});
+            try {
+                return new DFAAutomaton(Q, sigma, transitions, "5", new String[]{"2", "4", "6"});
+            } catch (Automaton.InvalidAutomatonDefinitionException e) {
+                return null;
+            }
         }
 
         /**
@@ -383,7 +398,11 @@ public class AutomatonSamples {
             current.put("\\alpha", "1");
             current.put("\\beta", "1");
             transitions.put("1", current);
-            return new DFAAutomaton(Q, sigma, transitions, "0", new String[]{"0"});
+            try {
+                return new DFAAutomaton(Q, sigma, transitions, "0", new String[]{"0"});
+            } catch (Automaton.InvalidAutomatonDefinitionException e) {
+                return null;
+            }
         }
 
         /**
@@ -423,8 +442,13 @@ public class AutomatonSamples {
          * </pre>
          */
         public static DFAAutomaton regex1() throws FileNotFoundException, UnsupportedEncodingException {
-            return Automaton.importFromCSV(
-                    new File(Objects.requireNonNull(AutomatonSamples.class.getClassLoader().getResource("samples/csv/dfa_01_regex.csv")).getFile())).getDFA();
+            try {
+                return Automaton.importFromCSV(
+                        new File(Objects.requireNonNull(AutomatonSamples.class.getClassLoader().getResource("samples/csv/dfa_01_regex.csv")).getFile())).getDFA();
+            } catch (Automaton.InvalidAutomatonDefinitionException e) {
+                LOGGER.severe("Invalid table for example!");
+                return null;
+            }
         }
 
         /**
@@ -452,9 +476,14 @@ public class AutomatonSamples {
          * </pre>
          */
         public static DFAAutomaton regex2() throws FileNotFoundException, UnsupportedEncodingException {
-            return Automaton.importFromCSV(
-                    new File(Objects.requireNonNull(AutomatonSamples.class.getClassLoader()
-                            .getResource("samples/csv/dfa_02_regex.csv")).getFile())).getDFA();
+            try {
+                return Automaton.importFromCSV(
+                        new File(Objects.requireNonNull(AutomatonSamples.class.getClassLoader()
+                                .getResource("samples/csv/dfa_02_regex.csv")).getFile())).getDFA();
+            } catch (Automaton.InvalidAutomatonDefinitionException e) {
+                LOGGER.severe("Invalid table for example!");
+                return null;
+            }
         }
 
         /**
@@ -488,9 +517,14 @@ public class AutomatonSamples {
          * </pre>
          */
         public static DFAAutomaton regex010w() throws FileNotFoundException, UnsupportedEncodingException {
-            return Automaton.importFromCSV(
-                    new File(Objects.requireNonNull(AutomatonSamples.class.getClassLoader().getResource("samples/csv/regex010w.csv")).getFile())
-            ).getDFA();
+            try {
+                return Automaton.importFromCSV(
+                        new File(Objects.requireNonNull(AutomatonSamples.class.getClassLoader().getResource("samples/csv/regex010w.csv")).getFile())
+                ).getDFA();
+            } catch (Automaton.InvalidAutomatonDefinitionException e) {
+                LOGGER.severe("Invalid table for example!");
+                return null;
+            }
         }
 
         /**
@@ -524,9 +558,14 @@ public class AutomatonSamples {
          * </pre>
          */
         public static DFAAutomaton regex101w() throws FileNotFoundException, UnsupportedEncodingException {
-            return Automaton.importFromCSV(
-                    new File(Objects.requireNonNull(AutomatonSamples.class.getClassLoader().getResource("samples/csv/regex101w.csv")).getFile())
-            ).getDFA();
+            try {
+                return Automaton.importFromCSV(
+                        new File(Objects.requireNonNull(AutomatonSamples.class.getClassLoader().getResource("samples/csv/regex101w.csv")).getFile())
+                ).getDFA();
+            } catch (Automaton.InvalidAutomatonDefinitionException e) {
+                LOGGER.severe("Invalid table for example!");
+                return null;
+            }
         }
 
         /**
@@ -557,19 +596,29 @@ public class AutomatonSamples {
          * </pre>
          */
         public static DFAAutomaton atLeastThreeAs() throws FileNotFoundException, UnsupportedEncodingException {
-            return Automaton.importFromCSV(
-                    new File(Objects.requireNonNull(AutomatonSamples.class.getClassLoader().getResource("samples/csv/atLeastThreeAs.csv")).getFile())
-            ).getDFA();
+            try {
+                return Automaton.importFromCSV(
+                        new File(Objects.requireNonNull(AutomatonSamples.class.getClassLoader().getResource("samples/csv/atLeastThreeAs.csv")).getFile())
+                ).getDFA();
+            } catch (Automaton.InvalidAutomatonDefinitionException e) {
+                LOGGER.severe("Invalid table for example!");
+                return null;
+            }
         }
 
         /**
          * This will return an empty automaton
          */
         public static Automaton emptyAutomaton() throws FileNotFoundException, UnsupportedEncodingException {
-            return Automaton.importFromCSV(
-                    new File(Objects.requireNonNull(
-                            AutomatonSamples.class.getClassLoader().getResource("samples/csv/empty.csv")).getFile())
-            ).getDFA();
+            try {
+                return Automaton.importFromCSV(
+                        new File(Objects.requireNonNull(
+                                AutomatonSamples.class.getClassLoader().getResource("samples/csv/empty.csv")).getFile())
+                ).getDFA();
+            } catch (Automaton.InvalidAutomatonDefinitionException e) {
+                LOGGER.severe("Invalid table for example!");
+                return null;
+            }
         }
 
         /**
@@ -600,10 +649,15 @@ public class AutomatonSamples {
          * </pre>
          */
         public static DFAAutomaton containsAAA() throws FileNotFoundException, UnsupportedEncodingException {
-            return Automaton.importFromCSV(
-                    new File(Objects.requireNonNull(
-                            AutomatonSamples.class.getClassLoader().getResource("samples/csv/containsAAA.csv")).getFile())
-            ).getDFA();
+            try {
+                return Automaton.importFromCSV(
+                        new File(Objects.requireNonNull(
+                                AutomatonSamples.class.getClassLoader().getResource("samples/csv/containsAAA.csv")).getFile())
+                ).getDFA();
+            } catch (Automaton.InvalidAutomatonDefinitionException e) {
+                LOGGER.severe("Invalid table for example!");
+                return null;
+            }
         }
     }
 
@@ -645,9 +699,14 @@ public class AutomatonSamples {
          * </pre>
          */
         public static NFAAutomaton troy() throws FileNotFoundException, UnsupportedEncodingException {
-            return Automaton.importFromCSV(
-                    new File(Objects.requireNonNull(
-                            AutomatonSamples.class.getClassLoader().getResource("samples/csv/nfa_troy.csv")).getFile())).getNFA();
+            try {
+                return Automaton.importFromCSV(
+                        new File(Objects.requireNonNull(
+                                AutomatonSamples.class.getClassLoader().getResource("samples/csv/nfa_troy.csv")).getFile())).getNFA();
+            } catch (Automaton.InvalidAutomatonDefinitionException e) {
+                LOGGER.severe("Invalid table for example!");
+                return null;
+            }
         }
 
         /**
@@ -706,7 +765,11 @@ public class AutomatonSamples {
             transitions.put("1", curr);
             String[] initialStates = new String[]{"0"};
             String[] acceptingStates = new String[]{"1"};
-            return new NFAAutomaton(Q, sigma, transitions, initialStates, acceptingStates);
+            try {
+                return new NFAAutomaton(Q, sigma, transitions, initialStates, acceptingStates);
+            } catch (Automaton.InvalidAutomatonDefinitionException e) {
+                return null;
+            }
         }
 
         /**
@@ -787,7 +850,11 @@ public class AutomatonSamples {
             transitions.put("4", curr);
             String[] initials = new String[]{"0"};
             String[] accepting = new String[]{"0", "4"};
-            return new NFAAutomaton(states, sigma, transitions, initials, accepting);
+            try {
+                return new NFAAutomaton(states, sigma, transitions, initials, accepting);
+            } catch (Automaton.InvalidAutomatonDefinitionException e) {
+                return null;
+            }
         }
 
         /**
@@ -884,7 +951,11 @@ public class AutomatonSamples {
             transitions.put("6", curr);
             String[] init = new String[]{"0"};
             String[] acc = new String[]{"4", "6"};
-            return new NFAAutomaton(states, letters, transitions, init, acc);
+            try {
+                return new NFAAutomaton(states, letters, transitions, init, acc);
+            } catch (Automaton.InvalidAutomatonDefinitionException e) {
+                return null;
+            }
         }
 
         /**
@@ -920,7 +991,11 @@ public class AutomatonSamples {
             transitions.put("1", curr);
             String[] initial = new String[]{"0"};
             String[] accepting = new String[]{"0"};
-            return new NFAAutomaton(states, letters, transitions, initial, accepting);
+            try {
+                return new NFAAutomaton(states, letters, transitions, initial, accepting);
+            } catch (Automaton.InvalidAutomatonDefinitionException e) {
+                return null;
+            }
         }
 
         /**
@@ -948,9 +1023,14 @@ public class AutomatonSamples {
          * </pre>
          */
         public static NFAAutomaton regex2() throws FileNotFoundException, UnsupportedEncodingException {
-            return Automaton.importFromCSV(
-                    new File(Objects.requireNonNull(AutomatonSamples.class.getClassLoader()
-                            .getResource("samples/csv/nfa_01_regex.csv")).getFile())).getNFA();
+            try {
+                return Automaton.importFromCSV(
+                        new File(Objects.requireNonNull(AutomatonSamples.class.getClassLoader()
+                                .getResource("samples/csv/nfa_01_regex.csv")).getFile())).getNFA();
+            } catch (Automaton.InvalidAutomatonDefinitionException e) {
+                LOGGER.severe("Invalid table for example!");
+                return null;
+            }
         }
 
         /**
@@ -1059,7 +1139,12 @@ public class AutomatonSamples {
          * </pre>
          */
         public static NFAAutomaton listSyntaxCheck() throws FileNotFoundException, UnsupportedEncodingException {
-            return Automaton.importFromCSV(new File(Objects.requireNonNull(AutomatonSamples.class.getClassLoader().getResource("samples/csv/listSyntax.csv")).getFile())).getNFA();
+            try {
+                return Automaton.importFromCSV(new File(Objects.requireNonNull(AutomatonSamples.class.getClassLoader().getResource("samples/csv/listSyntax.csv")).getFile())).getNFA();
+            } catch (Automaton.InvalidAutomatonDefinitionException e) {
+                LOGGER.severe("Invalid table for example!");
+                return null;
+            }
         }
 
         /**
@@ -1090,9 +1175,14 @@ public class AutomatonSamples {
          * </pre>
          */
         public static NFAAutomaton bAtEnd() throws FileNotFoundException, UnsupportedEncodingException {
-            return Automaton.importFromCSV(
-                    new File(Objects.requireNonNull(AutomatonSamples.class.getClassLoader()
-                            .getResource("samples/csv/bAtEnd.csv")).getFile())).getNFA();
+            try {
+                return Automaton.importFromCSV(
+                        new File(Objects.requireNonNull(AutomatonSamples.class.getClassLoader()
+                                .getResource("samples/csv/bAtEnd.csv")).getFile())).getNFA();
+            } catch (Automaton.InvalidAutomatonDefinitionException e) {
+                LOGGER.severe("Invalid table for example!");
+                return null;
+            }
         }
     }
 
@@ -1155,6 +1245,7 @@ public class AutomatonSamples {
             transitions.put("3", curr);
             String[] initial = new String[]{"0"};
             String[] accepting = new String[]{"2", "3"};
+
             return new ENFAAutomaton(states, sigma, initial, accepting, transitions);
         }
 
@@ -1182,7 +1273,12 @@ public class AutomatonSamples {
          */
         public static ENFAAutomaton regex1() throws FileNotFoundException, UnsupportedEncodingException {
             File f = new File(Objects.requireNonNull(AutomatonSamples.class.getClassLoader().getResource("samples/csv/enfaRegex1.csv")).getFile());
-            return (ENFAAutomaton) Automaton.importFromCSV(f);
+            try {
+                return (ENFAAutomaton) Automaton.importFromCSV(f);
+            } catch (Automaton.InvalidAutomatonDefinitionException e) {
+                LOGGER.severe("Invalid table for example!");
+                return null;
+            }
         }
 
         /**
@@ -1255,8 +1351,13 @@ public class AutomatonSamples {
          * +---+---+---+---+---+
          */
         public static ENFAAutomaton aa_c_a() throws FileNotFoundException, UnsupportedEncodingException {
-            return (ENFAAutomaton) Automaton.importFromCSV(
-                    new File(Objects.requireNonNull(AutomatonSamples.class.getClassLoader().getResource("samples/csv/aa_c_a.csv")).getFile()));
+            try {
+                return (ENFAAutomaton) Automaton.importFromCSV(
+                        new File(Objects.requireNonNull(AutomatonSamples.class.getClassLoader().getResource("samples/csv/aa_c_a.csv")).getFile()));
+            } catch (Automaton.InvalidAutomatonDefinitionException e) {
+                LOGGER.severe("Invalid table for example!");
+                return null;
+            }
         }
 
         /**
@@ -1287,9 +1388,14 @@ public class AutomatonSamples {
          * </pre>
          */
         public static ENFAAutomaton factors_aba() throws FileNotFoundException, UnsupportedEncodingException {
-            return Automaton.importFromCSV(
-                    new File(Objects.requireNonNull(AutomatonSamples.class.getClassLoader()
-                            .getResource("samples/csv/factors_aba.csv")).getFile())).getENFA();
+            try {
+                return Automaton.importFromCSV(
+                        new File(Objects.requireNonNull(AutomatonSamples.class.getClassLoader()
+                                .getResource("samples/csv/factors_aba.csv")).getFile())).getENFA();
+            } catch (Automaton.InvalidAutomatonDefinitionException e) {
+                LOGGER.severe("Invalid table for example!");
+                return null;
+            }
         }
     }
 

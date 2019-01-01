@@ -134,6 +134,8 @@ public class Interpreter {
                 res = Automaton.importFromCSV(new File(path));
             } catch (FileNotFoundException | UnsupportedEncodingException e) {
                 throw new InvalidSyntaxException("Could not find file: " + path, expression, true);
+            } catch (Automaton.InvalidAutomatonDefinitionException e) {
+                throw new InvalidSyntaxException("Corrupted .csv file!", expression, true);
             }
         } else if (expression.startsWith("getExample()")) {
             // GETTING SAMPLE AUTOMATON
@@ -161,7 +163,7 @@ public class Interpreter {
         if (insideIndices.length > 0) {
             // It had some arguments
             if (insideIndices[insideIndices.length - 1] < expression.length() - 2)
-                commandToChain = expression.substring(insideIndices[insideIndices.length - 1] + 2, expression.length());
+                commandToChain = expression.substring(insideIndices[insideIndices.length - 1] + 2);
         } else {
             // It is without arguments
             // Find end of function:
@@ -169,7 +171,7 @@ public class Interpreter {
             if (start < expression.length()) {
                 if (expression.charAt(start) != '.')
                     throw new InvalidSyntaxException("Unexpected token at position: " + (start) + ". '.' expected.", expression, true);
-                commandToChain = expression.substring(start, expression.length());
+                commandToChain = expression.substring(start);
             }
         }
 
@@ -235,16 +237,21 @@ public class Interpreter {
                 a.exportToCSV(new File(path));
                 return null;
             case "toTikz":
-                boolean fixed = true;
                 if (arguments.length > 1)
                     throw new InvalidSyntaxException("Invalid number of arguments: " + arguments.length + " expected 1.", "", true);
-                if (arguments.length == 1) fixed = Boolean.parseBoolean((String) arguments[0]);
 
                 try {
-                    return GraphvizAPI.toTikz(a, fixed);
+                    if (arguments.length == 1) {
+                        return GraphvizAPI.toTikz(a, Layout.fromString((String) arguments[0]));
+                    } else {
+                        return GraphvizAPI.toTikz(a);
+                    }
                 } catch (IOException e) {
                     throw new InvalidSyntaxException("IOException when converting to TEX", "", true);
+                } catch (Layout.InvalidLayoutException e) {
+                    throw new InvalidSyntaxException("Invalid layout specified! " + arguments[0], "", true);
                 }
+
 
             case "toPNG":
                 return convertToPng(a, arguments);
@@ -321,14 +328,14 @@ public class Interpreter {
                 renameState(a, (String) arguments[0], (String) arguments[1]);
                 return null;
 
-            case "renameLetter":
+            case "renameTerminal":
                 if (arguments.length != 2)
-                    throw new InvalidSyntaxException("Renaming letter takes 2 arguments.", "", true);
+                    throw new InvalidSyntaxException("Renaming terminal takes 2 arguments.", "", true);
 
                 if (!(arguments[0] instanceof String) || !(arguments[1] instanceof String))
-                    throw new InvalidSyntaxException("Renaming letter expects two strings as arguments.", "", true);
+                    throw new InvalidSyntaxException("Renaming terminal expects two strings as arguments.", "", true);
 
-                renameLetter(a, (String) arguments[0], (String) arguments[1]);
+                renameTerminal(a, (String) arguments[0], (String) arguments[1]);
                 return null;
 
             default:
@@ -411,9 +418,14 @@ public class Interpreter {
 
     }
 
-    private Object getAutomatonFromTable(Reader reader) {
-        Automaton a = Automaton.importFromCSV(reader, ',');
-        if (a == null) return null;
+    private Object getAutomatonFromTable(Reader reader) throws InvalidSyntaxException {
+        Automaton a;
+        try {
+            a = Automaton.importFromCSV(reader, ',');
+        } catch (Automaton.InvalidAutomatonDefinitionException e) {
+            throw new InvalidSyntaxException("Invalid automaton table.", "", true);
+        }
+        if (a == null) throw new InvalidSyntaxException("Invalid automaton table.", "", true);
 
         return a.getENFA();
     }
@@ -489,6 +501,10 @@ public class Interpreter {
             }
         }
 
+        if (depth > 0) {
+            throw new InvalidSyntaxException("Unbalanced brackets.", toExtract, true);
+        }
+
         return returning.stream().mapToInt(a -> a).toArray();
     }
 
@@ -520,7 +536,7 @@ public class Interpreter {
         String[] tokens = getNextToken(expression, '.');
         String call = tokens[1];
         if (tokens[1].equals(""))
-            throw new InvalidSyntaxException("Member function of variable not specified", expression, true);
+            throw new InvalidSyntaxException("Variable does not exist or member function of variable not specified", expression, true);
         String varname = tokens[0];
         if (!variables.containsKey(varname)) throw new InvalidSyntaxException("Unknown variable", expression, true);
 
@@ -580,14 +596,14 @@ public class Interpreter {
 
 
     /**
-     * This will attempt renaming of letter of automaton a.
+     * This will attempt renaming of terminal of automaton a.
      *
      * @throws InvalidSyntaxException If the renaming was not successful.
      */
-    private void renameLetter(Automaton a, String from, String to) throws InvalidSyntaxException {
+    private void renameTerminal(Automaton a, String from, String to) throws InvalidSyntaxException {
         if (!(a.renameLetter(from.trim(), to.trim())))
-            throw new InvalidSyntaxException("An error occurred when renaming states. " +
-                    "Maybe the original letter name has not been found or the target state name already exists in the automaton.",
+            throw new InvalidSyntaxException("An error occurred when renaming terminals. " +
+                    "Maybe the original terminal has not been found or new terminal name already exists in the automaton.",
                     "", true);
     }
 
@@ -607,7 +623,7 @@ public class Interpreter {
      * This converts an automaton to PNG image.
      *
      * @param a         Automaton to convert
-     * @param arguments Arugments of the function call. First is the path to the PNG image. Second is optional and it is
+     * @param arguments Arguments of the function call. First is the path to the PNG image. Second is optional and it is
      *                  the layout algorithm.
      */
     private Object convertToPng(Automaton a, Object[] arguments) throws InvalidSyntaxException {
@@ -722,60 +738,20 @@ public class Interpreter {
      * @return A list of Objects if it is a list.
      * @throws InvalidSyntaxException if it is not a list
      */
-    private ArrayList<Object> parseList(String expression) throws InvalidSyntaxException {
+    private JASLList parseList(String expression) throws InvalidSyntaxException {
         if (expression.charAt(0) != '{')
             throw new InvalidSyntaxException("List cannot start with " + expression.charAt(0), expression);
         int[] elemsIndices = extractFromCurlyBrackets(expression);
-        if (elemsIndices.length == 0) return new ArrayList<>();
+        if (elemsIndices.length == 0) return new JASLList();
         if (elemsIndices[elemsIndices.length - 1] != expression.length() - 2)
             throw new InvalidSyntaxException("List does not have valid ending", expression);
-        ArrayList<Object> listItems = new ArrayList<>();
+        JASLList listItems = new JASLList();
         int len = elemsIndices.length / 2;
         for (int i = 0; i < len; i++) {
             listItems.add(getExpressionResult(expression.substring(elemsIndices[i * 2], elemsIndices[i * 2 + 1] + 1).trim()));
         }
 
         return listItems;
-    }
-
-    /**
-     * This function will extract the next list token from input. It will return array of strings with two elements: list, rest
-     * It will throw {@link InvalidSyntaxException} if it didn't find the end of the list.
-     *
-     * @param input String to be tokenized
-     * @return Array with two elements: [token, rest]
-     * @throws InvalidSyntaxException If there was no closing bracket to the list.
-     */
-    private String[] getNextTokenList(String input) throws InvalidSyntaxException {
-        if (input.charAt(0) != '{') throw new InvalidSyntaxException("Next token is not a list", input);
-        int index = input.indexOf('}');
-        if (index == -1) throw new InvalidSyntaxException("Could not find end of nested list", input);
-
-        char[] inputArr = input.toCharArray();
-        int level = 0;
-        int length = input.length();
-        for (int i = 0; i < length; i++) {
-            if (inputArr[i] == '{') {
-                level++;
-            } else if (inputArr[i] == '}') {
-                level--;
-            }
-
-            if (level == 0) {
-                if (i == length - 1) {
-                    return new String[]{input, ""};
-                }
-                if (inputArr[i + 1] == '}') {
-                    return new String[]{new String(inputArr, 0, i + 1), new String(inputArr, i, length - i - 1)};
-                } else if (inputArr[i + 1] == ',') {
-                    return new String[]{new String(inputArr, 0, i + 1), new String(inputArr, i + 2, length - i - 2)};
-                } else {
-                    throw new InvalidSyntaxException("Unexpected character at the end of list element", input);
-                }
-            }
-        }
-
-        throw new InvalidSyntaxException("Could not find closing bracket of list element", input);
     }
 
     /**
@@ -789,8 +765,8 @@ public class Interpreter {
         String[] tokens = getNextToken(line, '=');
 
         String toWhat = tokens[0].trim();
-        if (toWhat.length() == 0) throw new InvalidSyntaxException("You have to assign to a variable", line);
-        if (toWhat.charAt(0) != '$') throw new InvalidSyntaxException("Variables must start with '$'", line);
+        if (toWhat.length() == 0) throw new InvalidSyntaxException("You have to assign to a variable", line, true);
+        if (toWhat.charAt(0) != '$') throw new InvalidSyntaxException("Variables must start with '$'", line, true);
 
         Object result = getExpressionResult(tokens[1].trim());
         variables.put(toWhat, result);

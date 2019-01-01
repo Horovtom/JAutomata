@@ -17,7 +17,12 @@ import static org.junit.Assert.*;
 public class CSVTest {
     @Test
     public void testImportCSVDFA() throws FileNotFoundException, UnsupportedEncodingException {
-        Automaton automaton = Automaton.importFromCSV(new File(Objects.requireNonNull(this.getClass().getClassLoader().getResource("samples/csv/dfa.csv")).getFile()));
+        Automaton automaton = null;
+        try {
+            automaton = Automaton.importFromCSV(new File(Objects.requireNonNull(this.getClass().getClassLoader().getResource("samples/csv/dfa.csv")).getFile()));
+        } catch (Automaton.InvalidAutomatonDefinitionException e) {
+            fail();
+        }
         assertTrue("Automaton did not import correctly", automaton != null && automaton instanceof ENFAAutomaton);
         assertEquals("Automaton had wrong number of states", 4, automaton.getQSize());
         assertEquals("Automaton had wrong number of letters", 3, automaton.getSigmaSize());
@@ -33,7 +38,12 @@ public class CSVTest {
 
     @Test
     public void testImportCSVNFA() throws FileNotFoundException, UnsupportedEncodingException {
-        Automaton automaton = Automaton.importFromCSV(new File(Objects.requireNonNull(this.getClass().getClassLoader().getResource("samples/csv/nfa.csv")).getFile()));
+        Automaton automaton = null;
+        try {
+            automaton = Automaton.importFromCSV(new File(Objects.requireNonNull(this.getClass().getClassLoader().getResource("samples/csv/nfa.csv")).getFile()));
+        } catch (Automaton.InvalidAutomatonDefinitionException e) {
+            fail();
+        }
         assertTrue("Automaton did not import correctly", automaton != null && automaton instanceof ENFAAutomaton);
         assertEquals("Automaton had wrong number of states", 3, automaton.getQSize());
         assertEquals("Automaton had wrong number of letters", 2, automaton.getSigmaSize());
@@ -78,7 +88,12 @@ public class CSVTest {
 
     @Test
     public void testImportCSVENFA() throws FileNotFoundException, UnsupportedEncodingException {
-        Automaton automaton = Automaton.importFromCSV(new File(Objects.requireNonNull(this.getClass().getClassLoader().getResource("samples/csv/enfa.csv")).getFile()));
+        Automaton automaton = null;
+        try {
+            automaton = Automaton.importFromCSV(new File(Objects.requireNonNull(this.getClass().getClassLoader().getResource("samples/csv/enfa.csv")).getFile()));
+        } catch (Automaton.InvalidAutomatonDefinitionException e) {
+            fail();
+        }
         assertTrue("Automaton did not import correctly", automaton != null && automaton instanceof ENFAAutomaton);
         assertEquals("Automaton had wrong number of states", 3, automaton.getQSize());
         assertEquals("Automaton had wrong number of letters", 3, automaton.getSigmaSize());
@@ -111,7 +126,12 @@ public class CSVTest {
         String[] letters = new String[]{"a", "b"};
         String[] accepting = new String[]{"A", "B"};
         String initial = "S";
-        Automaton automaton = new DFAAutomaton(states, letters, map, initial, accepting);
+        Automaton automaton = null;
+        try {
+            automaton = new DFAAutomaton(states, letters, map, initial, accepting);
+        } catch (Automaton.InvalidAutomatonDefinitionException e) {
+            fail();
+        }
         try {
             File file = File.createTempFile("dfa", "csv");
             file.deleteOnExit();

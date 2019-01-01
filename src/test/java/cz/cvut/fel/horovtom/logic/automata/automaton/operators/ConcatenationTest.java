@@ -45,7 +45,12 @@ public class ConcatenationTest {
         current.put("b", "2");
         transitions.put("2", current);
 
-        Automaton dfa1 = new DFAAutomaton(Q, sigma, transitions, initial, accepting);
+        Automaton dfa1 = null;
+        try {
+            dfa1 = new DFAAutomaton(Q, sigma, transitions, initial, accepting);
+        } catch (Automaton.InvalidAutomatonDefinitionException e) {
+            fail();
+        }
 
         /*
             Q2: bb*a(a+b)*
@@ -76,7 +81,12 @@ public class ConcatenationTest {
         current.put("a", "3");
         current.put("b", "3");
         transitions.put("3", current);
-        DFAAutomaton dfa2 = new DFAAutomaton(Q, sigma, transitions, initial, accepting);
+        DFAAutomaton dfa2 = null;
+        try {
+            dfa2 = new DFAAutomaton(Q, sigma, transitions, initial, accepting);
+        } catch (Automaton.InvalidAutomatonDefinitionException e) {
+            fail();
+        }
         assertTrue(dfa2.getQ() != Q);
 
         Automaton concatenation = Automaton.getConcatenation(dfa1, dfa2);

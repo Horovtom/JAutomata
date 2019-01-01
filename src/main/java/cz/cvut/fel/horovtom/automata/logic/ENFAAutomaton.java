@@ -14,7 +14,7 @@ import java.util.logging.Logger;
 public class ENFAAutomaton extends Automaton {
     private static final Logger LOGGER = Logger.getLogger(ENFAAutomaton.class.getName());
 
-    public ENFAAutomaton(String[] strings, String[] strings1, HashMap<String, HashMap<String, String>> transitions, String[] initialString, String[] acceptingString) {
+    public ENFAAutomaton(String[] strings, String[] strings1, HashMap<String, HashMap<String, String>> transitions, String[] initialString, String[] acceptingString) throws InvalidAutomatonDefinitionException {
         initializeQSigma(strings, strings1);
         initializeTransitionsCompact(transitions);
         initializeInitAcc(initialString, acceptingString);
@@ -29,7 +29,7 @@ public class ENFAAutomaton extends Automaton {
      * @param initials    String containing comma-separated list of trimmed initial state names
      * @param acceptings  String containing comma-separated list of trimmed accepting states names
      */
-    public ENFAAutomaton(String Q, String sigma, HashMap<String, HashMap<String, String>> transitions, String initials, String acceptings) {
+    public ENFAAutomaton(String Q, String sigma, HashMap<String, HashMap<String, String>> transitions, String initials, String acceptings) throws InvalidAutomatonDefinitionException {
         String[] newQ = Utilities.getArrFromCommaSepList(Q);
         String[] newSigma = Utilities.getArrFromCommaSepList(sigma);
         String[] newInitials = Utilities.getArrFromCommaSepList(initials);

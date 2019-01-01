@@ -63,7 +63,7 @@ Data types:
                         $dfaReduced = $nfa.reduce()
 
             accepts(word):
-                This will return whether the automaton accepts specified word. Word can be either a string or an array of letters.
+                This will return whether the automaton accepts specified word. Word can be either a string or an array of terminals.
                     example:
                         $automaton.accepts(hello)
                         $automaton.accepts({h,e,l,l,o})
@@ -115,9 +115,9 @@ Data types:
                 This will try to rename state of the automaton to the new name. It will fail if the old state
                 has not been found or if the new state name is already occupied.
 
-            renameLetter(oldName, newName):
-                This will try to rename letter of the automaton to the new name. It will fail if the old letter
-                has not been found or if the new letter name is already occupied.
+            renameTerminal(oldName, newName):
+                This will try to rename terminal of the automaton to the new name. It will fail if the old terminal
+                has not been found or if the new terminal is already occupied.
 Functions:
     We have these functions for general use:
         Automaton(table):
@@ -136,4 +136,4 @@ Functions:
                 $automaton = fromRegex(a*bba*(eps+b)*)
 
         getTikzIncludes():
-            This will return string containing the includes lines needed for tikz code to work.
+            This will return string containing the includes lines needed for TikZ code to work.

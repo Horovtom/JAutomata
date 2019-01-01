@@ -47,7 +47,7 @@ public class ConsoleMenu {
                 case 3:
                     try {
                         loadAutomaton();
-                    } catch (FileNotFoundException | UnsupportedEncodingException e) {
+                    } catch (FileNotFoundException | UnsupportedEncodingException | Automaton.InvalidAutomatonDefinitionException e) {
                         System.err.println("Filesystem corrupted!");
                         return;
                     }
@@ -62,7 +62,7 @@ public class ConsoleMenu {
         }
     }
 
-    private void loadAutomaton() throws FileNotFoundException, UnsupportedEncodingException {
+    private void loadAutomaton() throws FileNotFoundException, UnsupportedEncodingException, Automaton.InvalidAutomatonDefinitionException {
         JFileChooser jfc = new JFileChooser();
         jfc.setCurrentDirectory(new File(System.getProperty("user.home")));
         jfc.setDialogTitle("Load automaton");
@@ -150,7 +150,7 @@ public class ConsoleMenu {
     }
 
     @Deprecated
-    private void loadPredefinedAutomatonOld() throws FileNotFoundException, UnsupportedEncodingException {
+    private void loadPredefinedAutomatonOld() throws FileNotFoundException, UnsupportedEncodingException, Automaton.InvalidAutomatonDefinitionException {
         System.out.println("Which predefined automaton do you want to create?");
         System.out.println("1: DFA1 - w starts and ends with the same character\n" +
                 "2: DFA2 - w contains \"0.12 -6.38 0.12 0 213.002 -6.38 213.002\" as a substring\n" +

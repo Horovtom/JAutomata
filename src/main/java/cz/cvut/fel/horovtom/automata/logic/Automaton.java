@@ -198,7 +198,7 @@ public abstract class Automaton {
      *
      * @param transitions Map where the values hold strings, containing comma-separated lists of target transitions
      */
-    protected void initializeTransitionsCompact(HashMap<String, HashMap<String, String>> transitions) {
+    protected void initializeTransitionsCompact(HashMap<String, HashMap<String, String>> transitions) throws InvalidAutomatonDefinitionException {
         HashMap<Integer, HashMap<Integer, int[]>> trans = new HashMap<>();
         for (int i = 0; i < Q.length; i++) {
             String from = Q[i];
@@ -233,8 +233,12 @@ public abstract class Automaton {
                 while (currentIndex >= 0) {
                     ret = Utilities.getNextToken(to, currentIndex, ',');
                     currentIndex = ret.getKey();
-                    if (ret.getValue().length() != 0)
-                        targets.add(getStateIndex(ret.getValue()));
+                    if (ret.getValue().length() != 0) {
+                        int r = getStateIndex(ret.getValue());
+                        if (r == -1)
+                            throw new InvalidAutomatonDefinitionException("Not existing state in the definition");
+                        targets.add(r);
+                    }
                 }
 
                 curr.put(l, targets.stream().mapToInt(a -> a).toArray());
@@ -326,6 +330,7 @@ public abstract class Automaton {
                 stateMapping.put(Q[i], i);
             }
         }
+
         return stateMapping.getOrDefault(stateName, -1);
     }
 
@@ -749,7 +754,7 @@ public abstract class Automaton {
      * Calls {@link #importFromCSV(Reader, char)}
      * and uses default separator: ','
      */
-    public static Automaton importFromCSV(File fileToLoad) throws FileNotFoundException, UnsupportedEncodingException {
+    public static Automaton importFromCSV(File fileToLoad) throws FileNotFoundException, UnsupportedEncodingException, InvalidAutomatonDefinitionException {
         return importFromCSV(fileToLoad, ',');
     }
 
@@ -774,7 +779,7 @@ public abstract class Automaton {
      * If there are multiple states in [transxx], encapsulate whole [transxx] in "" and separate them by commas
      * <br>
      */
-    public static Automaton importFromCSV(Reader reader, char separator) {
+    public static Automaton importFromCSV(Reader reader, char separator) throws InvalidAutomatonDefinitionException {
         try {
             BufferedReader r = new BufferedReader(reader);
             String line = r.readLine();
@@ -796,11 +801,13 @@ public abstract class Automaton {
                 ret = Utilities.getNextToken(line, curr, separator);
                 curr = ret.getKey();
                 String t = ret.getValue();
+                if (sigma.contains(t)) return null;
 
                 if (t.charAt(0) == '\"')
                     sigma.add(t.substring(1, t.length() - 1));
                 else
                     sigma.add(t);
+
             }
 
             HashMap<String, HashMap<String, String>> transitions = new HashMap<>();
@@ -895,7 +902,7 @@ public abstract class Automaton {
      * Calls {@link #importFromCSV(Reader, char)}
      * and uses default separator: ','
      */
-    public static Automaton importFromCSV(File fileToLoad, char separator) throws FileNotFoundException, UnsupportedEncodingException {
+    public static Automaton importFromCSV(File fileToLoad, char separator) throws FileNotFoundException, UnsupportedEncodingException, InvalidAutomatonDefinitionException {
         if (fileToLoad == null) {
             LOGGER.warning("Cannot import from CSV file which is null!");
             return null;
@@ -903,7 +910,6 @@ public abstract class Automaton {
         FileInputStream is = new FileInputStream(fileToLoad);
         Reader reader = new InputStreamReader(is, "UTF-8");
         return importFromCSV(reader, ',');
-
     }
 
     //endregion
@@ -1039,6 +1045,12 @@ public abstract class Automaton {
     public Automaton getComplement() {
         UnaryOperators uop = new UnaryOperators(this);
         return uop.getComplement();
+    }
+
+    public class InvalidAutomatonDefinitionException extends Throwable {
+        public InvalidAutomatonDefinitionException(String s) {
+            super(s);
+        }
     }
 
     //endregion

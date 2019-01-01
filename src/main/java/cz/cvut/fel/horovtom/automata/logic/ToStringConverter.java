@@ -57,7 +57,7 @@ public class ToStringConverter {
             for (int state = 0; state < this.Q.length; state++) {
                 int curr = -1;
                 for (int i : this.transitions.get(state).get(letter)) {
-                    if (i >= this.Q.length) {
+                    if (i >= this.Q.length || i < 0) {
                         LOGGER.severe("Malformed automaton! States are shorter than they should be!");
                         continue;
                     }

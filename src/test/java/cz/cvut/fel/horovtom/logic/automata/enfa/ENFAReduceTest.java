@@ -9,15 +9,19 @@ import java.io.FileNotFoundException;
 import java.io.UnsupportedEncodingException;
 import java.util.Objects;
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 
 public class ENFAReduceTest {
 
     @Test
     public void testSimpleENFA() throws FileNotFoundException, UnsupportedEncodingException {
-        Automaton automaton = Automaton.importFromCSV(new File(Objects.requireNonNull(this.getClass().getClassLoader().getResource("samples/csv/enfa_01_regex.csv")).getFile()));
+        Automaton automaton = null;
+        try {
+            automaton = Automaton.importFromCSV(new File(Objects.requireNonNull(this.getClass().getClassLoader().getResource("samples/csv/enfa_01_regex.csv")).getFile()));
+        } catch (Automaton.InvalidAutomatonDefinitionException e) {
+            fail();
+        }
         assertTrue("Automaton did not import correctly", automaton != null && automaton instanceof ENFAAutomaton);
         automaton = automaton.getReduced();
         assertTrue("Automaton did not reduce", automaton != null);

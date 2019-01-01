@@ -46,7 +46,12 @@ public class DFAReduceTest {
         transitions.put("C", a);
         String initial = "A";
         String[] accepting = new String[]{"S", "C"};
-        Automaton dfa = new DFAAutomaton(states, letters, transitions, initial, accepting);
+        Automaton dfa = null;
+        try {
+            dfa = new DFAAutomaton(states, letters, transitions, initial, accepting);
+        } catch (Automaton.InvalidAutomatonDefinitionException e) {
+            fail();
+        }
         dfa = dfa.getReduced();
         DFADefinitionTest.testWords(dfa);
     }

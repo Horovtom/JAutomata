@@ -22,7 +22,7 @@ automaton members:
 .kleene(): automaton
 .complement(): automaton
 .renameState(old, new): void
-.renameLetter(old, new): void
+.renameTerminal(old, new): void
 
 string members:
 .save(path): void

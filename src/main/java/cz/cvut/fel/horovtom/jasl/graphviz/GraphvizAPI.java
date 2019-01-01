@@ -175,4 +175,26 @@ public class GraphvizAPI {
     public static String toTikz(Automaton automaton, boolean fixed) throws IOException {
         return toTikz(automaton, fixed, Layout.DOT);
     }
+
+    /**
+     * This function will return tikz code to display specified automaton. It will use layout from argument to organize
+     * the graph.
+     *
+     * @param automaton Automaton to be displayed
+     * @param layout    Engine to be used for organizing the graph.
+     * @return tikz code to display specified automaton
+     */
+    public static String toTikz(Automaton automaton, Layout layout) throws IOException {
+        return toTikz(automaton, true, layout);
+    }
+
+    /**
+     * This function will return tikz code to display specified automaton. It will use DOT layout as a default.
+     *
+     * @param automaton Automaton to be displayed
+     * @return tikz code to display specified automaton
+     */
+    public static String toTikz(Automaton automaton) throws IOException {
+        return toTikz(automaton, true, Layout.DOT);
+    }
 }

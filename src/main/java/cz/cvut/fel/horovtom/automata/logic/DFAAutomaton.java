@@ -31,7 +31,7 @@ public class DFAAutomaton extends Automaton {
      * @param initial     name of initial state
      * @param acceptings  names of accepting states separated by commas
      */
-    public DFAAutomaton(String[] Q, String[] sigma, HashMap<String, HashMap<String, String>> transitions, String initial, String acceptings) {
+    public DFAAutomaton(String[] Q, String[] sigma, HashMap<String, HashMap<String, String>> transitions, String initial, String acceptings) throws InvalidAutomatonDefinitionException {
         initializeQSigma(Q, sigma);
         initializeTransitionsCompact(transitions);
         StringTokenizer st = new StringTokenizer(acceptings, ",");
@@ -159,7 +159,7 @@ public class DFAAutomaton extends Automaton {
      * @param accepting   names of accepting states
      */
     public DFAAutomaton(String[] Q, String[] sigma, HashMap<String, HashMap<String, String>> transitions,
-                        String initial, String[] accepting) {
+                        String initial, String[] accepting) throws InvalidAutomatonDefinitionException {
         initializeQSigma(Q, sigma);
         initializeTransitionsCompact(transitions);
         initializeInitAcc(new String[]{initial}, accepting);
@@ -256,7 +256,7 @@ public class DFAAutomaton extends Automaton {
                 int index = this.getLetterIndex(s);
                 if (index == -1) {
                     LOGGER.warning("Unknown letter passed: " + s);
-                    System.err.println("Unknown letter: " + s);
+                    //System.err.println("Unknown letter: " + s);
                     return false;
                 }
                 currentState = transitions.get(currentState).get(index)[0];
