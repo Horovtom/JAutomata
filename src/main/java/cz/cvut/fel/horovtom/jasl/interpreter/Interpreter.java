@@ -61,7 +61,9 @@ public class Interpreter {
      */
     private String parseExpression(String line) throws InvalidSyntaxException {
         try {
-            return getExpressionResult(line).toString();
+            Object o = getExpressionResult(line);
+            if (o == null) return "";
+            return o.toString();
         } catch (NullPointerException | InvalidSyntaxException e) {
             if (InvalidSyntaxException.probablyIs) throw e;
             return "";
@@ -132,6 +134,7 @@ public class Interpreter {
             LOGGER.info("Importing Automaton from CSV file at: " + path);
             try {
                 res = Automaton.importFromCSV(new File(path));
+                if (res == null) throw new InvalidSyntaxException("Corrupted CSV file.", expression, true);
             } catch (FileNotFoundException | UnsupportedEncodingException e) {
                 throw new InvalidSyntaxException("Could not find file: " + path, expression, true);
             } catch (Automaton.InvalidAutomatonDefinitionException e) {

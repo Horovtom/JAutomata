@@ -77,7 +77,7 @@ Data types:
                 This will return string containing TeX code to display the automaton diagram in TeX files.
                 Includes needed for the code to work can be get by command: getTikzIncludes().
                 Parameter layout is optional. If not specified, graphviz will use 'dot' layout.
-                Layout can be one of these options: {neato, circo, dot}
+                Layout can be one of these options: {neato, circo, dot, twopi}
 
             toPNG(path):
                 This will create png image of this automaton at specified path.
@@ -91,7 +91,7 @@ Data types:
             toDot(layout):
                 This will return string containing dot code to display this automaton.
                 Parameter layout is optional. If not specified, graphviz will use 'dot' layout.
-                Layout can be one of these options: {neato, circo, dot}
+                Layout can be one of these options: {neato, circo, dot, twopi}
 
             toSmipleDot():
                 This will return pure dot code without the formatting to display this automaton.

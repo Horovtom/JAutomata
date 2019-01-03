@@ -4,7 +4,7 @@ package cz.cvut.fel.horovtom.jasl.graphviz;
 import java.util.logging.Logger;
 
 public enum Layout {
-    DOT, CIRCO, NEATO;
+    DOT, CIRCO, NEATO, TWOPI;
 
 
     private static final Logger LOGGER = Logger.getLogger(Layout.class.getName());
@@ -20,6 +20,8 @@ public enum Layout {
             layout = "circo";
         } else if (this == Layout.NEATO) {
             layout = "neato";
+        } else if (this == Layout.TWOPI) {
+            layout = "twopi";
         } else {
             LOGGER.warning("Unknown layout! " + this);
             layout = "dot";
@@ -37,6 +39,8 @@ public enum Layout {
                 return CIRCO;
             case "neato":
                 return NEATO;
+            case "twopi":
+                return TWOPI;
             default:
                 throw new InvalidLayoutException();
         }
