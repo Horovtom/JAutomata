@@ -80,7 +80,7 @@ public class FileInterpreter {
                 try {
                     String o = interpreter.parseLine(line);
                     output.write(o.getBytes());
-                } catch (Interpreter.InvalidSyntaxException e) {
+                } catch (SyntaxException e) {
                     String message = "Syntax error while reading line: " + lineNumber;
                     LOGGER.warning(message);
                     output.write(message.getBytes());

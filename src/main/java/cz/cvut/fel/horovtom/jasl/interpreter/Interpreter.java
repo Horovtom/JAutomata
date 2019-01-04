@@ -33,50 +33,67 @@ public class Interpreter {
      *
      * @param line String containing the command for the interpreter.
      * @return String with the result of the command.
-     * @throws InvalidSyntaxException Will be thrown if there was some invalid syntax in the expression.
+     * @throws SyntaxException Will be thrown if there was some invalid syntax in the expression.
      */
-    public String parseLine(String line) throws InvalidSyntaxException {
+    public String parseLine(String line) throws SyntaxException {
         LOGGER.info("Parsing line: " + line);
         LOGGER.fine("Parsing line: " + line + " as an assignment...");
         try {
-            if (parseAssignment(line)) return "";
-        } catch (InvalidSyntaxException e) {
-            if (InvalidSyntaxException.probablyIs) throw e;
-        }
-        LOGGER.fine("It was not an assignment... Trying to parse it as an expression...");
-        try {
-            return parseExpression(line);
-        } catch (InvalidSyntaxException e) {
-            if (InvalidSyntaxException.probablyIs) throw e;
+            parseAssignment(line);
+            return "";
+        } catch (ParsingException ignored) {
         }
 
-        throw new InvalidSyntaxException("Unknown command!", line);
+        LOGGER.fine("It was not an assignment... Trying to parse it as an expression...");
+        return parseExpression(line);
+
     }
 
     /**
-     * This will try to parse the line as an expression. It will throw {@link InvalidSyntaxException} if it is not an expression.
+     * This will try to parse the line as an assignment. It will throw {@link SyntaxException} if there was any syntax error
+     *
+     * @param line Line to be parsed
+     */
+    private void parseAssignment(String line) throws SyntaxException, ParsingException {
+        if (line.indexOf('=') == -1)
+            throw new ParsingException("The line is not an assignment, as it is missing the '=' operator");
+        String[] tokens = getNextToken(line, '=');
+
+        String toWhat = tokens[0].trim();
+        if (toWhat.length() == 0) throw new SyntaxException("You have to assign to a variable");
+        if (toWhat.charAt(0) != '$') throw new SyntaxException("Variables must start with '$'");
+
+        try {
+            Object result = getExpressionResult(tokens[1].trim());
+            variables.put(toWhat, result);
+        } catch (SyntaxException e) {
+            throw new SyntaxException("Invalid right side of an assignment!");
+        }
+    }
+
+    /**
+     * This will try to parse the line as an expression. It will throw {@link SyntaxException} if it is not an expression.
      *
      * @param line Line to be parsed
      * @return Answer to the expression
      */
-    private String parseExpression(String line) throws InvalidSyntaxException {
+    private String parseExpression(String line) throws SyntaxException {
         try {
             Object o = getExpressionResult(line);
             if (o == null) return "";
             return o.toString();
-        } catch (NullPointerException | InvalidSyntaxException e) {
-            if (InvalidSyntaxException.probablyIs) throw e;
-            return "";
+        } catch (NullPointerException | SyntaxException e) {
+            throw new SyntaxException(e.getMessage());
         }
     }
 
     /**
-     * This will try to parse the line as an expression. It will throw {@link InvalidSyntaxException} if it is not valid.
+     * This will try to parse the line as an expression. It will throw {@link SyntaxException} if it is not valid.
      *
      * @param expression Line to be parsed
      * @return evaluation result
      */
-    private Object getExpressionResult(String expression) throws InvalidSyntaxException {
+    private Object getExpressionResult(String expression) throws SyntaxException {
         // Check, whether it is a variable by itself
         if (variables.containsKey(expression)) {
             return variables.get(expression);
@@ -87,35 +104,32 @@ public class Interpreter {
         // Check, whether it is a call to variable function
         try {
             return parseVarFunction(expression);
-        } catch (InvalidSyntaxException e) {
-            if (InvalidSyntaxException.probablyIs) throw e;
+        } catch (ParsingException ignored) {
         }
 
         try {
             return parseList(expression);
-            //ArrayList<Object> objectList = list.stream().map(e -> getExpressionResult(e)).collecct(Collectors.toList());
-        } catch (InvalidSyntaxException e) {
-            if (InvalidSyntaxException.probablyIs) throw e;
+        } catch (ParsingException ignored) {
         }
 
         try {
             return parseCommand(expression);
-        } catch (InvalidSyntaxException e) {
-            if (InvalidSyntaxException.probablyIs) throw e;
+        } catch (ParsingException ignored) {
         }
 
         return expression;
     }
 
     /**
-     * This will try to parse expression as a command (meaning constructor) of object. It will throw {@link InvalidSyntaxException} if it is not valid
+     * This will try to parse expression as a command (meaning constructor) of object. It will throw {@link SyntaxException} if it is not valid
      * e.g.: Automaton($table) e.t.c.
      *
      * @param expression Expression to be parsed
      * @return A resulting object of the command call
-     * @throws InvalidSyntaxException if it is not a command
+     * @throws SyntaxException If there any syntax error
+     * @throws ParsingException If it was not a command
      */
-    private Object parseCommand(String expression) throws InvalidSyntaxException {
+    private Object parseCommand(String expression) throws SyntaxException, ParsingException {
         int[] insideIndices = extractFromBrackets(expression);
         Object[] eval = new Object[insideIndices.length / 2];
         for (int i = 0; i < insideIndices.length; i += 2) {
@@ -128,17 +142,17 @@ public class Interpreter {
         } else if (expression.startsWith("fromCSV(")) {
             // IMPORT AUTOMATON FROM CSV
             if (eval.length != 1)
-                throw new InvalidSyntaxException("fromCSV function takes 1 arguments!", expression, true);
+                throw new SyntaxException("fromCSV function takes 1 arguments!");
 
             String path = (String) eval[0];
             LOGGER.info("Importing Automaton from CSV file at: " + path);
             try {
                 res = Automaton.importFromCSV(new File(path));
-                if (res == null) throw new InvalidSyntaxException("Corrupted CSV file.", expression, true);
+                if (res == null) throw new SyntaxException("Corrupted CSV file.");
             } catch (FileNotFoundException | UnsupportedEncodingException e) {
-                throw new InvalidSyntaxException("Could not find file: " + path, expression, true);
+                throw new SyntaxException("Could not find file: " + path);
             } catch (Automaton.InvalidAutomatonDefinitionException e) {
-                throw new InvalidSyntaxException("Corrupted .csv file!", expression, true);
+                throw new SyntaxException("Corrupted .csv file!");
             }
         } else if (expression.startsWith("getExample()")) {
             // GETTING SAMPLE AUTOMATON
@@ -146,19 +160,19 @@ public class Interpreter {
         } else if (expression.startsWith("fromRegex(")) {
             // IMPORT FROM REGEX
             if (eval.length != 1)
-                throw new InvalidSyntaxException("fromRegex function takes 1 argument.", expression, true);
+                throw new SyntaxException("fromRegex function takes 1 argument.");
             res = FromRegexConverter.getAutomaton((String) eval[0]);
         } else if (expression.equals("getTikzIncludes()")) {
             res = tikzIncludes;
         } else if (expression.startsWith("execute(")) {
             if (eval.length != 1 || !(eval[0] instanceof String))
-                throw new InvalidSyntaxException("Execute takes 1 argument, the path to the file to be executed in a string.", expression, true);
+                throw new SyntaxException("Execute takes 1 argument, the path to the file to be executed in a string.");
             String path = (String) eval[0];
             FileInterpreter fi = new FileInterpreter(this, path);
             fi.start();
             res = null;
         } else {
-            throw new InvalidSyntaxException("Unknown parse command", expression);
+            throw new ParsingException("Unknown command to parse");
         }
 
         // We have to check, whether there is some chaining:
@@ -173,7 +187,7 @@ public class Interpreter {
             int start = expression.indexOf("()") + 2;
             if (start < expression.length()) {
                 if (expression.charAt(start) != '.')
-                    throw new InvalidSyntaxException("Unexpected token at position: " + (start) + ". '.' expected.", expression, true);
+                    throw new SyntaxException("Unexpected token at position: " + (start) + ". '.' expected.");
                 commandToChain = expression.substring(start);
             }
         }
@@ -200,12 +214,12 @@ public class Interpreter {
      * toSimpleDot()
      * equals(Automaton)
      */
-    private Object callAutomatonMemberFunction(Automaton a, String functionName, Object[] arguments) throws InvalidSyntaxException {
+    private Object callAutomatonMemberFunction(Automaton a, String functionName, Object[] arguments) throws SyntaxException {
         Object argument;
         switch (functionName) {
             case "equals":
                 if (arguments.length != 1)
-                    throw new InvalidSyntaxException("Call to equals should have 1 argument.", "", true);
+                    throw new SyntaxException("Call to equals should have 1 argument.");
                 argument = arguments[0];
                 if (!(argument instanceof Automaton)) return false;
                 Automaton other = (Automaton) argument;
@@ -213,13 +227,13 @@ public class Interpreter {
 
             case "reduce":
                 if (arguments.length > 0)
-                    throw new InvalidSyntaxException("Call to reduce should not have any arguments.", "", true);
+                    throw new SyntaxException("Call to reduce should not have any arguments.");
                 return a.getReduced();
 
             case "accepts":
                 if (arguments.length == 0) return a.acceptsWord("");
                 if (arguments.length != 1)
-                    throw new InvalidSyntaxException("Call to accepts should have 1 or 0 arguments", "", true);
+                    throw new SyntaxException("Call to accepts should have 1 or 0 arguments");
 
                 argument = arguments[0];
                 if (argument instanceof String) {
@@ -229,19 +243,19 @@ public class Interpreter {
                     ArrayList<String> arg = (ArrayList<String>) argument;
                     return a.acceptsWord(arg);
                 } else {
-                    throw new InvalidSyntaxException("Invalid class of argument of accepts: " + argument.getClass(), "", true);
+                    throw new SyntaxException("Invalid class of argument of accepts: " + argument.getClass());
                 }
 
             case "toCSV":
                 if (arguments.length != 1)
-                    throw new InvalidSyntaxException("Invalid number of arguments: " + arguments.length + " for toCSV member function.", "", true);
+                    throw new SyntaxException("Invalid number of arguments: " + arguments.length + " for toCSV member function.");
                 String path = (String) arguments[0];
                 LOGGER.info("Trying to export to CSV to path: " + path);
                 a.exportToCSV(new File(path));
                 return null;
             case "toTikz":
                 if (arguments.length > 1)
-                    throw new InvalidSyntaxException("Invalid number of arguments: " + arguments.length + " expected 1.", "", true);
+                    throw new SyntaxException("Invalid number of arguments: " + arguments.length + " expected 1.");
 
                 try {
                     if (arguments.length == 1) {
@@ -250,9 +264,9 @@ public class Interpreter {
                         return GraphvizAPI.toTikz(a);
                     }
                 } catch (IOException e) {
-                    throw new InvalidSyntaxException("IOException when converting to TEX", "", true);
+                    throw new SyntaxException("IOException when converting to TEX");
                 } catch (Layout.InvalidLayoutException e) {
-                    throw new InvalidSyntaxException("Invalid layout specified! " + arguments[0], "", true);
+                    throw new SyntaxException("Invalid layout specified! " + arguments[0]);
                 }
 
 
@@ -267,15 +281,15 @@ public class Interpreter {
 
             case "toDot":
                 if (arguments.length == 1) {
-                    if (!(arguments[0] instanceof String)) throw new InvalidSyntaxException(
-                            "Invalid type of argument: " + arguments[0].getClass() + ". toDot expects String.", "", true);
+                    if (!(arguments[0] instanceof String)) throw new SyntaxException(
+                            "Invalid type of argument: " + arguments[0].getClass() + ". toDot expects String.");
                     try {
                         return GraphvizAPI.toFormattedDot(a, Layout.fromString((String) arguments[0]));
                     } catch (Layout.InvalidLayoutException e) {
-                        throw new InvalidSyntaxException("Layout has to be one of the valid layouts e.g. 'neato'.", "", true);
+                        throw new SyntaxException("Layout has to be one of the valid layouts e.g. 'neato'.");
                     }
                 } else if (arguments.length > 1) {
-                    throw new InvalidSyntaxException("toDot expects at most one argument.", "", true);
+                    throw new SyntaxException("toDot expects at most one argument.");
                 } else {
                     return GraphvizAPI.toFormattedDot(a);
                 }
@@ -284,65 +298,65 @@ public class Interpreter {
 
             case "union":
                 if (arguments.length != 1)
-                    throw new InvalidSyntaxException("Union expects exactly one argument.", "", true);
+                    throw new SyntaxException("Union expects exactly one argument.");
 
                 if (!(arguments[0] instanceof Automaton))
-                    throw new InvalidSyntaxException("Invalid type of argument: " + arguments[0].getClass(), "", true);
+                    throw new SyntaxException("Invalid type of argument: " + arguments[0].getClass());
 
                 return Automaton.getUnion(a, (Automaton) arguments[0]);
 
             case "intersection":
                 if (arguments.length != 1)
-                    throw new InvalidSyntaxException("Intersection expects exactly one argument.", "", true);
+                    throw new SyntaxException("Intersection expects exactly one argument.");
 
                 if (!(arguments[0] instanceof Automaton))
-                    throw new InvalidSyntaxException("Invalid type of argument: " + arguments[0].getClass(), "", true);
+                    throw new SyntaxException("Invalid type of argument: " + arguments[0].getClass());
 
                 return Automaton.getIntersection(a, (Automaton) arguments[0]);
 
             case "complement":
                 if (arguments.length != 0)
-                    throw new InvalidSyntaxException("Complement expects no arguments.", "", true);
+                    throw new SyntaxException("Complement expects no arguments.");
 
                 return a.getComplement();
 
             case "concatenation":
                 if (arguments.length != 1)
-                    throw new InvalidSyntaxException("Concatenation expects exactly one argument.", "", true);
+                    throw new SyntaxException("Concatenation expects exactly one argument.");
 
                 if (!(arguments[0] instanceof Automaton))
-                    throw new InvalidSyntaxException("Invalid type of argument: " + arguments[0].getClass(), "", true);
+                    throw new SyntaxException("Invalid type of argument: " + arguments[0].getClass());
 
                 return Automaton.getConcatenation(a, (Automaton) arguments[0]);
 
             case "kleene":
                 if (arguments.length != 0)
-                    throw new InvalidSyntaxException("Kleene expects no arguments.", "", true);
+                    throw new SyntaxException("Kleene expects no arguments.");
 
                 return a.getKleene();
 
             case "renameState":
                 if (arguments.length != 2)
-                    throw new InvalidSyntaxException("Renaming state takes 2 arguments.", "", true);
+                    throw new SyntaxException("Renaming state takes 2 arguments.");
 
                 if (!(arguments[0] instanceof String) || !(arguments[1] instanceof String))
-                    throw new InvalidSyntaxException("Renaming state expects two strings as arguments.", "", true);
+                    throw new SyntaxException("Renaming state expects two strings as arguments.");
 
                 renameState(a, (String) arguments[0], (String) arguments[1]);
                 return null;
 
             case "renameTerminal":
                 if (arguments.length != 2)
-                    throw new InvalidSyntaxException("Renaming terminal takes 2 arguments.", "", true);
+                    throw new SyntaxException("Renaming terminal takes 2 arguments.");
 
                 if (!(arguments[0] instanceof String) || !(arguments[1] instanceof String))
-                    throw new InvalidSyntaxException("Renaming terminal expects two strings as arguments.", "", true);
+                    throw new SyntaxException("Renaming terminal expects two strings as arguments.");
 
                 renameTerminal(a, (String) arguments[0], (String) arguments[1]);
                 return null;
 
             default:
-                throw new InvalidSyntaxException("Unknown function call", "", true);
+                throw new SyntaxException("Unknown function call");
         }
 
     }
@@ -368,11 +382,14 @@ public class Interpreter {
         }
     }
 
-    private Reader getReaderFromTable(ArrayList<Object> table) throws InvalidSyntaxException {
+    private Reader getReaderFromTable(ArrayList<Object> table) throws SyntaxException {
         try {
             // Create temporary file.
             File temp = Utilities.createTempFile();
-            FileWriter writer = new FileWriter(temp);
+            FileWriter writer;
+            if (temp != null) {
+                writer = new FileWriter(temp);
+            } else throw new SyntaxException("Unable to create temporary file!");
             ArrayList<String> firstRow = (ArrayList<String>) table.get(0);
             int properLineLength = firstRow.size() + 2;
             writer.write(",");
@@ -394,13 +411,13 @@ public class Interpreter {
                             if (elem.equals("<>") || elem.equals("<") || elem.equals(">")) {
                                 writer.write(elem);
                                 if (size == 1)
-                                    throw new InvalidSyntaxException("Invalid automaton definition. There was only I/O symbol on a line. State name needed.", "", true);
+                                    throw new SyntaxException("Invalid automaton definition. There was only I/O symbol on a line. State name needed.");
                                 commasAtEnd = properLineLength - size;
                             } else {
                                 writer.write(',' + elem);
                             }
                         } else {
-                            throw new InvalidSyntaxException("Invalid automaton definition. Line lengths did not match.", "", true);
+                            throw new SyntaxException("Invalid automaton definition. Line lengths did not match.");
                         }
                     } else {
                         writer.write(',' + elem);
@@ -421,19 +438,19 @@ public class Interpreter {
 
     }
 
-    private Object getAutomatonFromTable(Reader reader) throws InvalidSyntaxException {
+    private Object getAutomatonFromTable(Reader reader) throws SyntaxException {
         Automaton a;
         try {
             a = Automaton.importFromCSV(reader, ',');
         } catch (Automaton.InvalidAutomatonDefinitionException e) {
-            throw new InvalidSyntaxException("Invalid automaton table.", "", true);
+            throw new SyntaxException("Invalid automaton table.");
         }
-        if (a == null) throw new InvalidSyntaxException("Invalid automaton table.", "", true);
+        if (a == null) throw new SyntaxException("Invalid automaton table.");
 
         return a.getENFA();
     }
 
-    private Object getAutomaton(Object[] eval) throws InvalidSyntaxException {
+    private Object getAutomaton(Object[] eval) throws SyntaxException, ParsingException {
         if (eval.length == 1) {
             Object o = eval[0];
             if (o instanceof ArrayList) {
@@ -441,7 +458,7 @@ public class Interpreter {
                 return getAutomatonFromTable(res);
             }
         }
-        throw new InvalidSyntaxException("Unknown number of parameters...");
+        throw new ParsingException("Unknown number of parameters...");
 
     }
 
@@ -453,7 +470,7 @@ public class Interpreter {
      *
      * @return integer array with pairs of elements: {StartIndex, EndIndex}
      */
-    private int[] extractFromBrackets(String toExtract) throws InvalidSyntaxException {
+    private int[] extractFromBrackets(String toExtract) throws SyntaxException, ParsingException {
         return extractFromBrackets(toExtract, '(', ')', '{', '}');
     }
 
@@ -461,7 +478,7 @@ public class Interpreter {
      * This will extract argument indices from bracket pair. It will return the extracted string indices.
      * Used by: {@link #extractFromBrackets(String)}, {@link #extractFromCurlyBrackets}
      */
-    private int[] extractFromBrackets(String toExtract, char mainOpen, char mainClose, char otherOpen, char otherClose) throws InvalidSyntaxException {
+    private int[] extractFromBrackets(String toExtract, char mainOpen, char mainClose, char otherOpen, char otherClose) throws SyntaxException, ParsingException {
         int depth = 0;
         char[] arr = toExtract.toCharArray();
         ArrayList<Integer> returning = new ArrayList<>();
@@ -494,7 +511,7 @@ public class Interpreter {
             } else if (arr[i] == otherClose) {
                 depth--;
                 if (depth <= 0)
-                    throw new InvalidSyntaxException("List in bracket had invalid closing bracket", toExtract);
+                    throw new ParsingException("List in bracket had invalid closing bracket");
             } else {
                 if (depth == 1 && !in) {
                     in = true;
@@ -505,7 +522,7 @@ public class Interpreter {
         }
 
         if (depth > 0) {
-            throw new InvalidSyntaxException("Unbalanced brackets.", toExtract, true);
+            throw new SyntaxException("Unbalanced brackets.");
         }
 
         return returning.stream().mapToInt(a -> a).toArray();
@@ -519,41 +536,41 @@ public class Interpreter {
      *
      * @return integer array with pairs of elements: {StartIndex, EndIndex}
      */
-    private int[] extractFromCurlyBrackets(String toExtract) throws InvalidSyntaxException {
+    private int[] extractFromCurlyBrackets(String toExtract) throws SyntaxException, ParsingException {
         return extractFromBrackets(toExtract, '{', '}', '(', ')');
     }
 
     /**
-     * This will try to parse the expression as a variable function call. It will throw {@link InvalidSyntaxException} if it is not valid
+     * This will try to parse the expression as a variable function call. It will throw {@link SyntaxException} if it is not valid
      * e.g.: $a.reduce() or $b.accepts({2, 3, 4})
      *
      * @param expression Expression to be parsed
      * @return A result object if it is a variable function call
-     * @throws InvalidSyntaxException if it is not a variable function call.
+     * @throws SyntaxException if it is not a variable function call.
      */
-    private Object parseVarFunction(String expression) throws InvalidSyntaxException {
+    private Object parseVarFunction(String expression) throws SyntaxException, ParsingException {
         if (expression.charAt(0) != '$')
-            throw new InvalidSyntaxException("Variable names have to start with $", expression);
+            throw new ParsingException("Variable names have to start with $");
 
         // Find variable name
         String[] tokens = getNextToken(expression, '.');
         String call = tokens[1];
         if (tokens[1].equals(""))
-            throw new InvalidSyntaxException("Variable does not exist or member function of variable not specified", expression, true);
+            throw new SyntaxException("Variable does not exist or member function of variable not specified");
         String varname = tokens[0];
-        if (!variables.containsKey(varname)) throw new InvalidSyntaxException("Unknown variable", expression, true);
+        if (!variables.containsKey(varname)) throw new SyntaxException("Unknown variable");
 
         // Find function name
         tokens = getNextToken(tokens[1], '(');
 
         if (tokens[1].equals(""))
-            throw new InvalidSyntaxException("Function calls have to end with parenthesis", expression, true);
+            throw new SyntaxException("Function calls have to end with parenthesis");
         String functionName = tokens[0];
 
         //Find arguments
 
         if (!tokens[1].endsWith(")"))
-            throw new InvalidSyntaxException("Could not find closing parenthesis for function call", expression, true);
+            throw new SyntaxException("Could not find closing parenthesis for function call");
         int[] argumentIndices = extractFromBrackets(call);
 
         Object[] arguments = new Object[argumentIndices.length / 2];
@@ -565,9 +582,9 @@ public class Interpreter {
         String toBeChained = null;
         if (argumentIndices.length == 0 && tokens[1].startsWith(")") && tokens[1].length() > 1 && tokens[1].charAt(1) == '.') {
             //Extract chained statement from no arguments call
-            toBeChained = tokens[1].substring(1, tokens[1].length());
+            toBeChained = tokens[1].substring(1);
         } else if (argumentIndices.length > 0 && argumentIndices[argumentIndices.length - 1] + 2 < call.length()) {
-            toBeChained = call.substring(argumentIndices[argumentIndices.length - 1] + 2, call.length());
+            toBeChained = call.substring(argumentIndices[argumentIndices.length - 1] + 2);
         }
 
         if (toBeChained != null) {
@@ -585,7 +602,7 @@ public class Interpreter {
      * @param command String with commands that should be executed on the object. In form of '.func(args)'
      * @return Object that is the result of execution
      */
-    private Object chainOnTemp(Object temp, String command) throws InvalidSyntaxException {
+    private Object chainOnTemp(Object temp, String command) throws SyntaxException, ParsingException {
         Object tmp = variables.get("$TEMP");
         variables.put("$TEMP", temp);
         Object res = parseVarFunction("$TEMP" + command);
@@ -601,25 +618,23 @@ public class Interpreter {
     /**
      * This will attempt renaming of terminal of automaton a.
      *
-     * @throws InvalidSyntaxException If the renaming was not successful.
+     * @throws SyntaxException If the renaming was not successful.
      */
-    private void renameTerminal(Automaton a, String from, String to) throws InvalidSyntaxException {
+    private void renameTerminal(Automaton a, String from, String to) throws SyntaxException {
         if (!(a.renameLetter(from.trim(), to.trim())))
-            throw new InvalidSyntaxException("An error occurred when renaming terminals. " +
-                    "Maybe the original terminal has not been found or new terminal name already exists in the automaton.",
-                    "", true);
+            throw new SyntaxException("An error occurred when renaming terminals. " +
+                    "Maybe the original terminal has not been found or new terminal name already exists in the automaton.");
     }
 
     /**
      * This will attempt renaming of state of automaton a.
      *
-     * @throws InvalidSyntaxException If the renaming was not successful.
+     * @throws SyntaxException If the renaming was not successful.
      */
-    private void renameState(Automaton a, String from, String to) throws InvalidSyntaxException {
+    private void renameState(Automaton a, String from, String to) throws SyntaxException {
         if (!(a.renameState(from.trim(), to.trim())))
-            throw new InvalidSyntaxException("An error occurred when renaming states. " +
-                    "Maybe the original state name has not been found or the target state name already exists in the automaton.",
-                    "", true);
+            throw new SyntaxException("An error occurred when renaming states. " +
+                    "Maybe the original state name has not been found or the target state name already exists in the automaton.");
     }
 
     /**
@@ -629,38 +644,35 @@ public class Interpreter {
      * @param arguments Arguments of the function call. First is the path to the PNG image. Second is optional and it is
      *                  the layout algorithm.
      */
-    private Object convertToPng(Automaton a, Object[] arguments) throws InvalidSyntaxException {
+    private Object convertToPng(Automaton a, Object[] arguments) throws SyntaxException {
         if (arguments.length == 0 || arguments.length > 2)
-            throw new InvalidSyntaxException(
-                    "Invalid number of arguments: " + arguments.length + ". toPNGImage expects 1 or 2 arguments.",
-                    "", true);
+            throw new SyntaxException(
+                    "Invalid number of arguments: " + arguments.length + ". toPNGImage expects 1 or 2 arguments.");
 
-        if (!(arguments[0] instanceof String)) throw new InvalidSyntaxException(
-                "Invalid type of argument: " + arguments[0].getClass() + ". toPNGImage expects String.",
-                "", true);
+        if (!(arguments[0] instanceof String)) throw new SyntaxException(
+                "Invalid type of argument: " + arguments[0].getClass() + ". toPNGImage expects String.");
         String p = (String) arguments[0];
         File f = Paths.get(p).toFile();
 
 
         if (f.isDirectory())
-            throw new InvalidSyntaxException("Cannot write to file at: " + p, "", true);
+            throw new SyntaxException("Cannot write to file at: " + p);
         if (f.exists()) {
             LOGGER.info("Overwriting file at: " + p);
             if (!f.delete()) {
-                throw new InvalidSyntaxException("Cannot overwrite file at: " + p, "", true);
+                throw new SyntaxException("Cannot overwrite file at: " + p);
             }
         }
 
         if (arguments.length > 1) {
-            if (!(arguments[1] instanceof String)) throw new InvalidSyntaxException(
-                    "Invalid type of argument: " + arguments[1].getClass() + ". toPNGImage expects String, String.",
-                    "", true);
+            if (!(arguments[1] instanceof String)) throw new SyntaxException(
+                    "Invalid type of argument: " + arguments[1].getClass() + ". toPNGImage expects String, String.");
             String layout = (String) arguments[1];
             layout = layout.trim();
             try {
                 GraphvizAPI.toPNG(a, p, Layout.fromString(layout));
             } catch (Layout.InvalidLayoutException e) {
-                throw new InvalidSyntaxException("Layout has to be one of the valid layouts e.g. 'neato'.", "", true);
+                throw new SyntaxException("Layout has to be one of the valid layouts e.g. 'neato'.");
             }
         } else {
             GraphvizAPI.toPNG(a, p);
@@ -671,15 +683,15 @@ public class Interpreter {
     /**
      * This will call specified function of string on specified arguments.
      */
-    private Object callStringMemberFunction(String s, String functionName, Object[] arguments) throws InvalidSyntaxException {
+    private Object callStringMemberFunction(String s, String functionName, Object[] arguments) throws SyntaxException {
         switch (functionName) {
             case "save":
-                if (!(arguments.length == 1 && arguments[0] instanceof String)) throw new InvalidSyntaxException(
-                        "save function needs path argument to be specified!", "", true);
+                if (!(arguments.length == 1 && arguments[0] instanceof String)) throw new SyntaxException(
+                        "save function needs path argument to be specified!");
                 String path = (String) arguments[0];
 
                 File f = new File(path);
-                if (f.isDirectory()) throw new InvalidSyntaxException("Path does not lead to a file!", "", true);
+                if (f.isDirectory()) throw new SyntaxException("Path does not lead to a file!");
                 if (f.isFile()) {
                     // This means it exists, so we will append to it!
                     LOGGER.info("Appending to file: " + path);
@@ -687,7 +699,7 @@ public class Interpreter {
                         Files.write(Paths.get(path), s.getBytes(), StandardOpenOption.APPEND);
                     } catch (IOException e) {
                         LOGGER.warning("IOException occurred when trying to append to file. " + e.getMessage());
-                        throw new InvalidSyntaxException("I/O exception when trying to append to file: " + path, "", true);
+                        throw new SyntaxException("I/O exception when trying to append to file: " + path);
                     }
                 } else {
                     // Create and write:
@@ -695,14 +707,14 @@ public class Interpreter {
                         Files.write(Paths.get(path), s.getBytes());
                     } catch (IOException e) {
                         LOGGER.warning("IOException occurred when trying to write to file. " + e.getMessage());
-                        throw new InvalidSyntaxException("I/O exception when trying to write to file: " + path, "", true);
+                        throw new SyntaxException("I/O exception when trying to write to file: " + path);
                     }
                 }
 
                 break;
 
             default:
-                throw new InvalidSyntaxException("Unknown function call on string", "", true);
+                throw new SyntaxException("Unknown function call on string");
         }
 
         return null;
@@ -716,7 +728,7 @@ public class Interpreter {
      * @param arguments    Arguments of the function in an object array.
      * @return Object containing the result of the functions.
      */
-    private Object callVarFunction(Object var, String functionName, Object[] arguments) throws InvalidSyntaxException {
+    private Object callVarFunction(Object var, String functionName, Object[] arguments) throws SyntaxException, ParsingException {
         if (var instanceof Boolean) var = var.toString();
         if (var instanceof Automaton) {
             Automaton a = (Automaton) var;
@@ -727,27 +739,25 @@ public class Interpreter {
 
             return callStringMemberFunction(s, functionName, arguments);
         } else {
-            throw new InvalidSyntaxException("Unknown function call", "", true);
+            throw new ParsingException("Unknown function call");
         }
-
-//        return null;
     }
 
     /**
-     * This will try to parse the expression as a list. It will throw {@link InvalidSyntaxException} if it is not valid
+     * This will try to parse the expression as a list. It will throw {@link SyntaxException} if it is not valid
      * e.g.: {a, b, c}
      *
      * @param expression Expression to be parsed into a list
      * @return A list of Objects if it is a list.
-     * @throws InvalidSyntaxException if it is not a list
+     * @throws SyntaxException if it is not a list
      */
-    private JASLList parseList(String expression) throws InvalidSyntaxException {
+    private JASLList parseList(String expression) throws SyntaxException, ParsingException {
         if (expression.charAt(0) != '{')
-            throw new InvalidSyntaxException("List cannot start with " + expression.charAt(0), expression);
+            throw new ParsingException("List cannot start with " + expression.charAt(0));
         int[] elemsIndices = extractFromCurlyBrackets(expression);
         if (elemsIndices.length == 0) return new JASLList();
         if (elemsIndices[elemsIndices.length - 1] != expression.length() - 2)
-            throw new InvalidSyntaxException("List does not have valid ending", expression);
+            throw new ParsingException("List does not have valid ending");
         JASLList listItems = new JASLList();
         int len = elemsIndices.length / 2;
         for (int i = 0; i < len; i++) {
@@ -757,25 +767,7 @@ public class Interpreter {
         return listItems;
     }
 
-    /**
-     * This will try to parse the line as an assignment. It will throw {@link InvalidSyntaxException} if there was any syntax error
-     *
-     * @param line Line to be parsed
-     * @return Whether the expression was indeed an assignment.
-     */
-    private boolean parseAssignment(String line) throws InvalidSyntaxException {
-        if (line.indexOf('=') == -1) return false;
-        String[] tokens = getNextToken(line, '=');
 
-        String toWhat = tokens[0].trim();
-        if (toWhat.length() == 0) throw new InvalidSyntaxException("You have to assign to a variable", line, true);
-        if (toWhat.charAt(0) != '$') throw new InvalidSyntaxException("Variables must start with '$'", line, true);
-
-        Object result = getExpressionResult(tokens[1].trim());
-        variables.put(toWhat, result);
-
-        return true;
-    }
 
     /**
      * This function will get next token from inputted string.
@@ -801,31 +793,5 @@ public class Interpreter {
         variables.clear();
     }
 
-    public static class InvalidSyntaxException extends Exception {
-        static boolean probablyIs = false;
 
-        InvalidSyntaxException(String line) {
-            super();
-            LOGGER.fine("Syntax error when parsing line: " + line);
-            probablyIs = false;
-        }
-
-        public InvalidSyntaxException(String message, String line) {
-            super(message);
-            LOGGER.fine("Syntax error when parsing line: " + line);
-            probablyIs = false;
-        }
-
-        /**
-         * @param probablyIs It is a flag for catching function that the caller probably found what type of expression it was
-         */
-        InvalidSyntaxException(String message, String line, boolean probablyIs) {
-            super(message);
-            LOGGER.fine("Syntax error when parsing line: " + line + ", but it " + (probablyIs ? "found" : "not found") + " the expression");
-            InvalidSyntaxException.probablyIs = probablyIs;
-            if (probablyIs) {
-                LOGGER.info("Syntax error when parsing line: " + line + ", but it found the expression.");
-            }
-        }
-    }
 }

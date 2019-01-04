@@ -1,7 +1,5 @@
-package cz.cvut.fel.horovtom.jasl.console;
+package cz.cvut.fel.horovtom.jasl.interpreter;
 
-import cz.cvut.fel.horovtom.jasl.interpreter.Interpreter;
-import cz.cvut.fel.horovtom.jasl.interpreter.Interpreter.InvalidSyntaxException;
 import org.fusesource.jansi.AnsiConsole;
 
 import java.io.BufferedReader;
@@ -45,7 +43,7 @@ public class ConsoleInterpreter {
         while (running) {
             try {
                 parseLine();
-            } catch (InvalidSyntaxException e) {
+            } catch (SyntaxException e) {
                 System.out.println(ansi().fg(RED).a(e.getMessage()).newline().reset());
             }
         }
@@ -55,13 +53,13 @@ public class ConsoleInterpreter {
     /**
      * This will load a line from the console and it will try to parse that line. It will output result of the line to the console.
      *
-     * @throws InvalidSyntaxException Will be thrown if the syntax was invalid
+     * @throws SyntaxException Will be thrown if the syntax was invalid
      */
-    private void parseLine() throws InvalidSyntaxException {
+    private void parseLine() throws SyntaxException {
         System.out.print(">> ");
         String line = sc.nextLine();
         if (line.equals("")) return;
-        if (line.charAt(0) == ' ') throw new InvalidSyntaxException("Input should not start with ' '", line);
+        if (line.charAt(0) == ' ') throw new SyntaxException("Input should not start with ' '");
         if (line.equals("quit") || line.equals("exit")) {
             LOGGER.info("Setting running flag to false");
             running = false;

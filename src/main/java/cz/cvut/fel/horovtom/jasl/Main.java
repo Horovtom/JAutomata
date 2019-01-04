@@ -1,7 +1,7 @@
 package cz.cvut.fel.horovtom.jasl;
 
 
-import cz.cvut.fel.horovtom.jasl.console.ConsoleInterpreter;
+import cz.cvut.fel.horovtom.jasl.interpreter.ConsoleInterpreter;
 import cz.cvut.fel.horovtom.jasl.interpreter.FileInterpreter;
 
 import java.io.IOException;

@@ -1,9 +1,8 @@
-package cz.cvut.fel.horovtom.jasl;
+package cz.cvut.fel.horovtom.jasl.interpreter;
 
 import cz.cvut.fel.horovtom.automata.logic.DFAAutomaton;
 import cz.cvut.fel.horovtom.automata.logic.ENFAAutomaton;
 import cz.cvut.fel.horovtom.automata.logic.converters.FromRegexConverter;
-import cz.cvut.fel.horovtom.jasl.interpreter.Interpreter;
 import org.junit.Test;
 
 import java.lang.reflect.InvocationTargetException;
@@ -45,7 +44,7 @@ public class InterpreterTest {
             method = Interpreter.class.getDeclaredMethod("parseList", String.class);
             method.setAccessible(true);
         } catch (NoSuchMethodException e) {
-            assertTrue("There is no such method in class Interpreter", false);
+            fail("There is no such method in class Interpreter");
             return;
         }
 
@@ -73,16 +72,16 @@ public class InterpreterTest {
             assertEquals("12", res.get(2));
             assertTrue(res.get(3) instanceof ArrayList);
             ArrayList<Object> inner = (ArrayList<Object>) res.get(3);
-            assertTrue(inner.size() == 0);
+            assertEquals(0, inner.size());
             assertTrue(res.get(4) instanceof ArrayList);
             inner = (ArrayList<Object>) res.get(4);
-            assertTrue(inner.size() == 4);
+            assertEquals(4, inner.size());
             assertEquals("1", inner.get(0));
             assertEquals("2", inner.get(1));
             assertEquals("3", inner.get(2));
             assertTrue(inner.get(3) instanceof ArrayList);
             inner = (ArrayList<Object>) inner.get(3);
-            assertTrue(inner.size() == 0);
+            assertEquals(0, inner.size());
         } catch (IllegalAccessException | InvocationTargetException e) {
             e.printStackTrace();
         }
@@ -95,7 +94,7 @@ public class InterpreterTest {
             method = Interpreter.class.getDeclaredMethod("extractFromBrackets", String.class);
             method.setAccessible(true);
         } catch (NoSuchMethodException e) {
-            assertTrue("There is no such method in class Interpreter", false);
+            fail("There is no such method in class Interpreter");
             return;
         }
 
@@ -113,7 +112,7 @@ public class InterpreterTest {
             assertEquals(20, arr[5]);
 
         } catch (IllegalAccessException | InvocationTargetException e) {
-            assertTrue(false);
+            fail();
         }
 
         input = "(NFA(!#!#!#!#!)22$0)21313";
@@ -122,7 +121,7 @@ public class InterpreterTest {
             assertEquals(1, arr[0]);
             assertEquals(18, arr[1]);
         } catch (IllegalAccessException | InvocationTargetException e) {
-            assertTrue(false);
+            fail();
         }
 
         input = "aas(al(1, 3, 1), 12)";
@@ -133,7 +132,7 @@ public class InterpreterTest {
             assertEquals(16, arr[2]);
             assertEquals(18, arr[3]);
         } catch (IllegalAccessException | InvocationTargetException e) {
-            assertTrue(false);
+            fail();
         }
 
     }
@@ -141,7 +140,7 @@ public class InterpreterTest {
     @Test
     public void reduceAutomaton() {
         Method method = getExpressionResultMethod();
-        assertFalse(method == null);
+        assertNotNull(method);
 
         Interpreter interpreter = new Interpreter();
 
@@ -158,7 +157,7 @@ public class InterpreterTest {
             Object result = method.invoke(interpreter, "Automaton(" + table + ").reduce()");
             assertTrue(result instanceof DFAAutomaton);
         } catch (IllegalAccessException | InvocationTargetException e) {
-            assertFalse(true);
+            fail();
         }
     }
 
@@ -175,7 +174,7 @@ public class InterpreterTest {
     @Test
     public void getENFAFromTable() {
         Method method = getExpressionResultMethod();
-        assertFalse(method == null);
+        assertNotNull(method);
 
         Interpreter interpreter = new Interpreter();
 
@@ -196,7 +195,7 @@ public class InterpreterTest {
             assertTrue(result instanceof ENFAAutomaton);
             assertEquals(FromRegexConverter.getAutomaton("b*(ε+abb*+aa*)").getReduced(), ((ENFAAutomaton) result).getReduced());
         } catch (IllegalAccessException | InvocationTargetException e) {
-            assertFalse(true);
+            fail();
         }
     }
 

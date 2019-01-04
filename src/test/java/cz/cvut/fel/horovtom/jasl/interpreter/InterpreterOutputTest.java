@@ -1,7 +1,5 @@
-package cz.cvut.fel.horovtom.jasl;
+package cz.cvut.fel.horovtom.jasl.interpreter;
 
-import cz.cvut.fel.horovtom.jasl.interpreter.Interpreter;
-import cz.cvut.fel.horovtom.jasl.interpreter.Interpreter.InvalidSyntaxException;
 import cz.cvut.fel.horovtom.utilities.Utilities;
 import org.junit.Test;
 
@@ -35,9 +33,9 @@ public class InterpreterOutputTest {
 
             res = interpreter.parseLine("$a");
             assertEquals("This should output true, because the automaton does accept word 'aab'.", "true", res);
-        } catch (InvalidSyntaxException e) {
+        } catch (SyntaxException e) {
             e.printStackTrace();
-            assertFalse("Failed to run test because of InvalidSyntaxException!", true);
+            fail("Failed to run test because of SyntaxException!");
         }
     }
 
@@ -59,7 +57,7 @@ public class InterpreterOutputTest {
 
             res = interpreter.parseLine("fromRegex((a+b)*a).reduce()");
             String res2 = interpreter.parseLine("$a.reduce()");
-            assertTrue("Automatons should be equal! Yet they differ: \nres: " + res + "\nres2: " + res2, res2.equals(res));
+            assertEquals("Automatons should be equal! Yet they differ: \nres: " + res + "\nres2: " + res2, res2, res);
 
             res = interpreter.parseLine("$c = {{a,b},{>,0,2,1},{1,2,1},{<,2,2,1}}");
             assertEquals("List initialization and assignment should not generate any output.", "", res);
@@ -69,9 +67,9 @@ public class InterpreterOutputTest {
 
             res = interpreter.parseLine("$a.equals($b)");
             assertEquals("Automatons A and B should be equal!", "true", res);
-        } catch (InvalidSyntaxException e) {
+        } catch (SyntaxException e) {
             e.printStackTrace();
-            assertFalse("Failed to run test because of InvalidSyntaxException!", true);
+            fail("Failed to run test because of SyntaxException!");
         }
     }
 
@@ -107,9 +105,9 @@ public class InterpreterOutputTest {
 
             res = interpreter.parseLine("fromRegex((ba(b)*)*).equals($a)");
             assertEquals("Automaton from this regex and automaton A should not be the same.", "false", res);
-        } catch (InvalidSyntaxException e) {
+        } catch (SyntaxException e) {
             e.printStackTrace();
-            assertFalse("Failed to run test because of InvalidSyntaxException!", true);
+            fail("Failed to run test because of SyntaxException!");
         }
     }
 
@@ -152,9 +150,9 @@ public class InterpreterOutputTest {
 
             res = interpreter.parseLine("fromRegex((ba(b)*)*).equals($a)");
             assertEquals("Automaton from this regex and automaton A should not be the same.", "false", res);
-        } catch (InvalidSyntaxException e) {
+        } catch (SyntaxException e) {
             e.printStackTrace();
-            assertFalse("Failed to run test because of InvalidSyntaxException!", true);
+            fail("Failed to run test because of SyntaxException!");
         }
     }
 
@@ -177,12 +175,12 @@ public class InterpreterOutputTest {
             File f = new File(path);
             assertEquals("The result file should be a png file.", "png", ImageIO.getImageReaders(ImageIO.createImageInputStream(f)).next().getFormatName());
 
-        } catch (InvalidSyntaxException e) {
+        } catch (SyntaxException e) {
             e.printStackTrace();
-            assertFalse("Failed to run test because of InvalidSyntaxException!", true);
+            fail("Failed to run test because of SyntaxException!");
         } catch (IOException e) {
             e.printStackTrace();
-            assertFalse(true);
+            fail();
         }
     }
 
@@ -200,9 +198,9 @@ public class InterpreterOutputTest {
 
             res = interpreter.parseLine("$a.toSimpleDot()");
             assertTrue("Result should at least start with: digraph automaton", res.startsWith("digraph automaton"));
-        } catch (InvalidSyntaxException e) {
+        } catch (SyntaxException e) {
             e.printStackTrace();
-            assertFalse("Failed to run test because of InvalidSyntaxException!", true);
+            fail("Failed to run test because of SyntaxException!");
         }
 
     }
@@ -224,10 +222,9 @@ public class InterpreterOutputTest {
             res = interpreter.parseLine("$a.accepts(abb)");
             assertEquals("true", res);
 
-        } catch (InvalidSyntaxException e) {
+        } catch (SyntaxException e) {
             e.printStackTrace();
-            ;
-            assertFalse("Failed to run test because of InvalidSyntaxException!", true);
+            fail("Failed to run test because of SyntaxException!");
         }
     }
 
@@ -239,6 +236,7 @@ public class InterpreterOutputTest {
             String res;
             File tmp = Utilities.createTempFile();
 
+            assertNotNull(tmp);
             res = interpreter.parseLine("getExample().reduce().equals(getExample()).save(" + tmp.getAbsolutePath() + ")");
             assertEquals("There should be no output from .save call", "", res);
 
@@ -248,12 +246,12 @@ public class InterpreterOutputTest {
             assertEquals("The result of the line should be true...", "true", line);
             br.close();
             fr.close();
-        } catch (InvalidSyntaxException e) {
+        } catch (SyntaxException e) {
             e.printStackTrace();
-            assertFalse("Failed to run test because of InvalidSyntaxException!", true);
+            fail("Failed to run test because of SyntaxException!");
         } catch (IOException e) {
             e.printStackTrace();
-            assertFalse(true);
+            fail();
         }
     }
 }
