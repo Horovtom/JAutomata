@@ -161,6 +161,8 @@ public class Interpreter {
             // IMPORT FROM REGEX
             if (eval.length != 1)
                 throw new SyntaxException("fromRegex function takes 1 argument.");
+            if (!(eval[0] instanceof String))
+                throw new SyntaxException("fromRegex function takes a String as an argument.");
             res = FromRegexConverter.getAutomaton((String) eval[0]);
         } else if (expression.equals("getTikzIncludes()")) {
             res = tikzIncludes;

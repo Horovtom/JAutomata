@@ -1,5 +1,0 @@
-Seems like 0,0,12,16 is the maximum bb of a tikzpicture that is suitable for PDF A4 page.
-It has problems with high numbers in coordinates, because of number precision in calculations. It will not compile, if the numbers are too high.
-Not even scaling down the entire image will help. Hence we have to reduce the coordinates out of DOT code to suitable ranges:
-0,0,12,16.
-//TODO: If we have a lot of nodes, we might need to scale the nodes down to fit the page. Graphviz will not do that for us.
