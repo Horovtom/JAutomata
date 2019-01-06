@@ -8,7 +8,7 @@ import java.io.IOException;
 import java.util.logging.*;
 
 public class Main {
-    private static Logger LOGGER = Logger.getLogger(Main.class.getName());
+    private static final Logger LOGGER = Logger.getLogger(Main.class.getName());
 
     public static void main(String[] args) throws IOException {
         System.out.println("Welcome to Java Automata Scripting Language (JASL) interpreter");

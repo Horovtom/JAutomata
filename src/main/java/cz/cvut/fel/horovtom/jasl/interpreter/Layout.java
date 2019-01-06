@@ -1,4 +1,4 @@
-package cz.cvut.fel.horovtom.jasl.graphviz;
+package cz.cvut.fel.horovtom.jasl.interpreter;
 
 
 import java.util.logging.Logger;
@@ -46,7 +46,7 @@ public enum Layout {
         }
     }
 
-    public static class InvalidLayoutException extends Exception {
+    static class InvalidLayoutException extends Exception {
     }
 
 }

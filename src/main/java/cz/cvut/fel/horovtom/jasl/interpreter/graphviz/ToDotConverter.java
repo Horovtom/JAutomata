@@ -1,4 +1,4 @@
-package cz.cvut.fel.horovtom.jasl.graphviz;
+package cz.cvut.fel.horovtom.jasl.interpreter.graphviz;
 
 import cz.cvut.fel.horovtom.automata.logic.Automaton;
 

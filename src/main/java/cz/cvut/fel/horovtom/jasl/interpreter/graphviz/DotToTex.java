@@ -1,4 +1,4 @@
-package cz.cvut.fel.horovtom.jasl.graphviz;
+package cz.cvut.fel.horovtom.jasl.interpreter.graphviz;
 
 import cz.cvut.fel.horovtom.automata.logic.Automaton;
 import guru.nidi.graphviz.model.Link;
@@ -17,8 +17,60 @@ class DotToTex {
 
     private final String result;
 
-    private enum Direction {
-        N, W, S, E
+    /**
+     * This will convert automaton to tikz code. If fixed is true, it will generate tikz code with fixed coordinates.
+     * It will generate tikz code with relative coordinates otherwise.
+     *
+     * @param automaton Reference to the automaton
+     * @param dotCode   Dot code to display the automaton
+     * @param fixed     If true, the result will use fixed coordinates.
+     * @return TIKZ code to display the automaton
+     */
+    public static String convert(Automaton automaton, String dotCode, boolean fixed) throws IOException {
+        // Initialize this class
+        DotToTex c = new DotToTex(automaton, dotCode, fixed);
+        // return result
+        return c.getResult();
+    }
+
+
+    // region BOUNDING BOX OF TIKZ IMAGES
+
+    /**
+     * Bottom left corner of tikz image
+     */
+    private final Coordinate tikzMin = new Coordinate(0, 0);
+    /**
+     * Top right corner of tikz image
+     */
+    private final Coordinate tikzMax = new Coordinate(11, 14);
+
+    // endregion
+
+    /**
+     * This will convert dot code to tikz code. It needs to have reference of the source automaton.
+     *
+     * @param automaton Automaton reference
+     * @param dotCode   Dot code to display the automaton
+     * @param fixed     Whether we want the result tikz code in fixed coordinates or not
+     */
+    private DotToTex(Automaton automaton, String dotCode, boolean fixed) throws IOException {
+        if (fixed)
+            result = convertToTexCoordinates(automaton, dotCode);
+        else
+            result = convertToTexRelative(automaton, dotCode);
+    }
+
+    /**
+     * This function will attempt to convert automaton to tikz code with relative coordinates
+     *
+     * @param automaton Automaton
+     * @param dotCode   Dot string generated for specified automaton
+     * @return Tikz code to display this automaton
+     */
+    private String convertToTexRelative(Automaton automaton, String dotCode) {
+        //TODO: IMPLEMENT
+        return null;
     }
 
     private static class Coordinate {
@@ -62,62 +114,9 @@ class DotToTex {
             return new Coordinate(a.x * b.x, a.y * b.y);
         }
 
-        public static double dot(Coordinate a, Coordinate b) {
+        static double dot(Coordinate a, Coordinate b) {
             return a.x * b.x + a.y * b.y;
         }
-    }
-
-
-    // region BOUNDING BOX OF TIKZ IMAGES
-
-    /**
-     * Bottom left corner of tikz image
-     */
-    private final Coordinate tikzMin = new Coordinate(0, 0);
-    /**
-     * Top right corner of tikz image
-     */
-    private final Coordinate tikzMax = new Coordinate(11, 14);
-
-    // endregion
-
-    /**
-     * This will convert dot code to tikz code. It needs to have reference of the source automaton.
-     * @param automaton Automaton reference
-     * @param dotCode Dot code to display the automaton
-     * @param fixed Whether we want the result tikz code in fixed coordinates or not
-     */
-    private DotToTex(Automaton automaton, String dotCode, boolean fixed) throws IOException {
-        if (fixed)
-            result = convertToTexCoordinates(automaton, dotCode);
-        else
-            result = convertToTexRelative(automaton, dotCode);
-    }
-
-    /**
-     * This function will attempt to convert automaton to tikz code with relative coordinates
-     * @param automaton Automaton
-     * @param dotCode Dot string generated for specified automaton
-     * @return Tikz code to display this automaton
-     */
-    private String convertToTexRelative(Automaton automaton, String dotCode) {
-        //TODO: IMPLEMENT
-        return null;
-    }
-
-    /**
-     * This will convert automaton to tikz code. If fixed is true, it will generate tikz code with fixed coordinates.
-     * It will generate tikz code with relative coordinates otherwise.
-     * @param automaton Reference to the automaton
-     * @param dotCode Dot code to display the automaton
-     * @param fixed If true, the result will use fixed coordinates.
-     * @return TIKZ code to display the automaton
-     */
-    public static String convert(Automaton automaton, String dotCode, boolean fixed) throws IOException {
-        // Initialize this class
-        DotToTex c = new DotToTex(automaton, dotCode, fixed);
-        // return result.
-        return c.getResult();
     }
 
     public String getResult() {
@@ -137,8 +136,6 @@ class DotToTex {
 
         // This holds the graph parsed from the dot file.
         MutableGraph mg = Parser.read(dotCode);
-        // Form our parsed dot file we will need the bounding box:
-        String[] bb = ((String) mg.graphAttrs().get("bb")).split(",");
         // And the description for all the nodes
         MutableNode[] nodes = mg.nodes().toArray(new MutableNode[0]);
         // We will hold mapping to nodes indices to those nodes for later use

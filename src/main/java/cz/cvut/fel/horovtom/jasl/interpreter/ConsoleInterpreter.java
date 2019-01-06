@@ -12,7 +12,8 @@ import static org.fusesource.jansi.Ansi.Color.RED;
 import static org.fusesource.jansi.Ansi.ansi;
 
 public class ConsoleInterpreter {
-    private static Logger LOGGER = Logger.getLogger(ConsoleInterpreter.class.getName());
+    private static final Logger LOGGER = Logger.getLogger(ConsoleInterpreter.class.getName());
+    private final Scanner sc = new Scanner(System.in);
     /**
      * Language: any string except keywords can be a variable
      * Examples:
@@ -27,7 +28,6 @@ public class ConsoleInterpreter {
      */
 
     private boolean running = true;
-    private Scanner sc = new Scanner(System.in);
     private Interpreter interpreter = new Interpreter();
 
 
@@ -60,22 +60,24 @@ public class ConsoleInterpreter {
         String line = sc.nextLine();
         if (line.equals("")) return;
         if (line.charAt(0) == ' ') throw new SyntaxException("Input should not start with ' '");
-        if (line.equals("quit") || line.equals("exit")) {
-            LOGGER.info("Setting running flag to false");
-            running = false;
-            return;
-        } else if (line.equals("help")) {
-            LOGGER.info("Displaying help...");
-            displayHelpShort();
-            return;
-        } else if (line.equals("helpLong")) {
-            LOGGER.info("Displaying long help...");
-            displayLongHelp();
-            return;
-        } else if (line.equals("clear")) {
-            LOGGER.info("Clearing all variables");
-            clearVariables();
-            return;
+        switch (line) {
+            case "quit":
+            case "exit":
+                LOGGER.info("Setting running flag to false");
+                running = false;
+                return;
+            case "help":
+                LOGGER.info("Displaying help...");
+                displayHelpShort();
+                return;
+            case "helpLong":
+                LOGGER.info("Displaying long help...");
+                displayLongHelp();
+                return;
+            case "clear":
+                LOGGER.info("Clearing all variables");
+                clearVariables();
+                return;
         }
 
 
@@ -95,10 +97,10 @@ public class ConsoleInterpreter {
     private void printFile(String path) {
         try (BufferedReader br = new BufferedReader(new InputStreamReader(getClass().getResourceAsStream(path)))) {
             String line;
-            while((line= br.readLine()) != null) {
+            while ((line = br.readLine()) != null) {
                 System.out.println(line);
             }
-        } catch(IOException e) {
+        } catch (IOException e) {
             LOGGER.severe(e.getMessage());
         }
     }

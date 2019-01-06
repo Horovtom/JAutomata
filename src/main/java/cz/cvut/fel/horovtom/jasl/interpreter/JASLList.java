@@ -2,7 +2,7 @@ package cz.cvut.fel.horovtom.jasl.interpreter;
 
 import java.util.ArrayList;
 
-public class JASLList extends ArrayList<Object> {
+class JASLList extends ArrayList<Object> {
 
     @Override
     public String toString() {

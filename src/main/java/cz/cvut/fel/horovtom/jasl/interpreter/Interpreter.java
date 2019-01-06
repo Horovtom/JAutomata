@@ -2,8 +2,7 @@ package cz.cvut.fel.horovtom.jasl.interpreter;
 
 import cz.cvut.fel.horovtom.automata.logic.Automaton;
 import cz.cvut.fel.horovtom.automata.logic.converters.FromRegexConverter;
-import cz.cvut.fel.horovtom.jasl.graphviz.GraphvizAPI;
-import cz.cvut.fel.horovtom.jasl.graphviz.Layout;
+import cz.cvut.fel.horovtom.jasl.interpreter.graphviz.GraphvizAPI;
 import cz.cvut.fel.horovtom.utilities.Utilities;
 
 import java.io.*;
@@ -15,7 +14,7 @@ import java.util.HashMap;
 import java.util.logging.Logger;
 
 public class Interpreter {
-    private static Logger LOGGER = Logger.getLogger(Interpreter.class.getName());
+    private static final Logger LOGGER = Logger.getLogger(Interpreter.class.getName());
 
     private final String tikzIncludes =
             "\\usepackage{tikz}\n" +
