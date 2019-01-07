@@ -71,8 +71,8 @@ public class FileInterpreter {
         }
 
         LOGGER.info("Starting interpreting process.");
-        try {
-            FileReader fr = new FileReader(f);
+        try (FileReader fr = new FileReader(f)) {
+//            FileReader fr = new FileReader(f);
             BufferedReader br = new BufferedReader(fr);
             int lineNumber = 1;
             String line;

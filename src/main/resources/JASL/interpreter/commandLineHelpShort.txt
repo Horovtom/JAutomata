@@ -3,6 +3,7 @@ fromCSV(path): automaton
 getExample(): automaton
 fromRegex(regex): automaton
 getTikzIncludes(): string
+execute(path): void
 
 automaton members:
 .equals(automaton): string
@@ -27,4 +28,7 @@ automaton members:
 string members:
 .save(path): void
 
-type command helpLong to get longer guide.
+commands:
+help
+helpLong
+clear

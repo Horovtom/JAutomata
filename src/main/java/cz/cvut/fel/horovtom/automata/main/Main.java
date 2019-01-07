@@ -9,7 +9,7 @@ import java.util.logging.Logger;
 
 public class Main {
 
-
+    @Deprecated
     public static void main(String[] args) throws IOException {
         ConsoleMenu cm = new ConsoleMenu();
         cm.displayMenu();

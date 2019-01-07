@@ -35,6 +35,7 @@ public class Interpreter {
      * @throws SyntaxException Will be thrown if there was some invalid syntax in the expression.
      */
     public String parseLine(String line) throws SyntaxException {
+        if (line.charAt(0) == '%') return "";
         LOGGER.info("Parsing line: " + line);
         LOGGER.fine("Parsing line: " + line + " as an assignment...");
         try {
@@ -550,6 +551,7 @@ public class Interpreter {
      * @throws SyntaxException if it is not a variable function call.
      */
     private Object parseVarFunction(String expression) throws SyntaxException, ParsingException {
+        expression = expression.trim();
         if (expression.charAt(0) != '$')
             throw new ParsingException("Variable names have to start with $");
 

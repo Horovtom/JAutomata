@@ -10,14 +10,14 @@ import java.util.logging.Logger;
 @Deprecated
 class AutomatonAcceptor {
     private static final Logger LOGGER = Logger.getLogger(AutomatonAcceptor.class.getName());
-    private final int[][] transitions;
-    private final int initial, accepting;
+    private final long[][] transitions;
+    private final long initial, accepting;
     private final int QSize, sigmaSize;
-    private final int[] qMap;
+    private final long[] qMap;
     private final boolean eps;
 
     AutomatonAcceptor(int QSize, int sigmaSize, HashMap<Integer, HashMap<Integer, int[]>> transitions, int[] initials, int[] accepting, boolean eps) {
-        this.transitions = new int[QSize][sigmaSize];
+        this.transitions = new long[QSize][sigmaSize];
         this.eps = eps;
         int in = 0;
         for (int initial : initials) {
@@ -32,7 +32,7 @@ class AutomatonAcceptor {
         this.QSize = QSize;
         this.sigmaSize = sigmaSize;
 
-        this.qMap = new int[QSize];
+        this.qMap = new long[QSize];
         for (int i = 0; i < QSize; i++) {
             this.qMap[i] = 1 << i;
         }
@@ -51,12 +51,12 @@ class AutomatonAcceptor {
     }
 
     boolean accepts(int[] word) {
-        int current = initial;
+        long current = initial;
 
         for (int letter : word) {
             if (current == 0) return false;
 
-            int cNew = current;
+            long cNew = current;
             if (eps) {
                 if (letter == 0) {
                     LOGGER.warning("Logger accepts got word that has epsilon in it!");
@@ -64,7 +64,7 @@ class AutomatonAcceptor {
                     continue;
                 }
 
-                int prev = -1;
+                long prev = -1;
                 while (prev != cNew) {
                     prev = cNew;
                     for (int state = 0; state < QSize; state++) {
@@ -78,7 +78,7 @@ class AutomatonAcceptor {
 
             cNew = 0;
             for (int state = 0; state < QSize; state++) {
-                int res = current & qMap[state];
+                long res = current & qMap[state];
                 if (res > 0) {
                     cNew |= transitions[state][letter];
                 }

@@ -4,7 +4,7 @@ It's features include variables declarations, function calls and lists definitio
 
 Syntax:
     Variable declarations:
-        Variables start with '$' sign. After $, there could be any string without spaces.
+        Variables start with '$' sign. After $, there could be any string without whitespaces.
             examples: $a, $alright, $let's, $doItMate26
 
     Assignment to variables:
@@ -12,8 +12,13 @@ Syntax:
             examples: $a = hello, $b = $a
 
     Comments:
-        Comments in JASL start with # sign. If # sign is the first character on a line,
+        Comments in JASL start with % sign. If % sign is the first character on a line,
         that line will not be parsed as a command.
+
+    Commands:
+        help - displays short help
+        helpLong - displays this (longer) help
+        clear - deletes all variables from memory
 
 Data types:
     Text:
@@ -137,3 +142,6 @@ Functions:
 
         getTikzIncludes():
             This will return string containing the includes lines needed for TikZ code to work.
+
+        execute(path):
+            This executes JASL script at specified path. The execution will use currently defined variables.
